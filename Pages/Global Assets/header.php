@@ -41,6 +41,7 @@ html, body {
   drop-shadow(0 0 1.5px white);
 }
 
+
 </style>
 <div class="wrapper-header">
     <!-- Untuk Logo di atas (header) -->
@@ -48,9 +49,5 @@ html, body {
         <div class="logo">
             <img src="../../Logo/1080.png" alt="CRG Logo">
         </div>
-    </div>
-
-    <div class="right-bar">
-        
     </div>
 </div>
