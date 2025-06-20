@@ -74,9 +74,23 @@
 <body>
     <?php
         include "Components/sidebar.php";
+
+        if(isset($_POST["name"]) && isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["role"]) && isset($_POST["set"])) {
+            include "../../SQL_Queries/connection.php";
+            $name = $_POST["name"];
+            $email = $_POST["email"];
+            $password = password_hash($_POST["password"], PASSWORD_BCRYPT);
+            $role = (int)$_POST["role"];
+            $set = $_POST["set"];
+
+            if(mysqli_query($con, "INSERT INTO users (name, email, password_hash, role, character_set) VALUES
+            ('$name', '$email', '$password', $role, '$set')")) {
+                echo "<script>alert('Akun berhasil ditambahkan')</script>";
+            }
+        }
     ?>
 
-    <form action="">
+    <form method = "post">
         <div id="heading">
             <h1>Add User</h1>
             <div id="action">
@@ -88,31 +102,32 @@
             <table>
                 <tr>
                     <td><h1>Full Name</h1></td>
-                    <td><input type="text" name = "name" placeholder = "Full Name"></td>
+                    <td><input type="text" name = "name" placeholder = "Full Name" required></td>
                 </tr>
                 <tr>
                     <td><h1>Email</h1></td>
-                    <td><input type="email" name = "email" placeholder = "Email"></td>
+                    <td><input type="email" name = "email" placeholder = "Email" required></td>
                 </tr>
                 <tr>
                     <td><h1>Password</h1></td>
-                    <td><input type="password" name = "password" placeholder = "Password"></td>
+                    <td><input type="password" name = "password" value = "123456" placeholder = "Password" required></td>
                 </tr>
                 <tr>
                     <td><h1>User Role</h1></td>
                     <td>
-                        <select name="" id="">
-                            <option value="student">Student</option>
-                            <option value="teacher">Teacher</option>
+                        <select name="role"  required>
+                            <option value=1>Student</option>
+                            <option value=0>Admin</option>
+                            <option value=2>Teacher</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
                     <td><h1>Character Set</h1></td>
                     <td>
-                        <select name="" id="">
-                            <option value="student">Student</option>
-                            <option value="teacher">Teacher</option>
+                        <select name="set"  required>
+                            <option value="simplified">Simplified</option>
+                            <option value="traditional">Traditional</option>
                         </select>
                     </td>
                 </tr>

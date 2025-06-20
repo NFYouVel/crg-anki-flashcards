@@ -65,7 +65,7 @@
     }
 </style>
 <div id="sidebar">
-    <a href="admin.php" id='home'>Home</a>
+    <a href="homepage.php" id='home'>Home</a>
     <nav>
         <li>
             <a id="user" href="">User</a>
