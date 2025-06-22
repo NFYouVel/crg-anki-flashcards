@@ -2,19 +2,20 @@
     html,
     body {
         height: 100%;
+        width: 100%;
         margin: 0;
         padding: 0;
     }
 
     body {
         background-color: #262626;
-        display: flex;
     }
 
     #sidebar {
         background-color: #143d59;
         height: 100%;
-        width: 17%;
+        width: 15%;
+        position: fixed;
     }
 
     a {
