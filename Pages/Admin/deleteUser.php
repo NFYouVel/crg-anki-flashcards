@@ -48,7 +48,6 @@
         #button {
             font-family: 'Arial', sans-serif;
             font-size: 16px;
-            cursor: pointer;
             width: 150px;
             height: 50px;
             background-color: #ffa72a;

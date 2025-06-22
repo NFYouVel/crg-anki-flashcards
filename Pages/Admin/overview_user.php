@@ -42,7 +42,9 @@
             color: #e9a345;
             font-size: 20px;
         }
-        #button {
+        .button {
+            font-family: 'Arial', sans-serif;
+            font-size: 16px;
             width: 150px;
             height: 50px;
             background-color: #ffa72a;
@@ -138,15 +140,17 @@
             <h1>User Overview</h1>
             <div id="action">
                 <input type="text" placeholder = "&#128269;Search" onkeyup = "searchUser(this.value)">
-                <a id = 'button' href = 'addUser.php'><span>Add</span></a>
-                <a id = 'button'><span>Import</span></a>
+                <a class = 'button' href = 'addUser.php'><span>Add</span></a>
+                 <form action="addUser_batch.php" method="POST" enctype="multipart/form-data">
+                    <input id = "file" name = "excel_file" style = "display: none" class = "button" type="file" onchange="this.form.submit()">
+                    <label class = "button" for="file">Upload File</label>
+                </form>
             </div>
         </div>
         
         <div id="filter">
-            <select onchange = 'searchUser("filter" + this.value)'>
-                <option disabled selected hidden>Select Roles</option>
-                <option value="">Default</option>
+            <select onchange = 'searchUser(this.value)'>
+                <option value="">Select Roles (Default)</option>
                 <?php
                     $getRole = mysqli_query($con, "SELECT role_id, role_name FROM user_role");
                     while($role = mysqli_fetch_array($getRole)) {
@@ -156,9 +160,8 @@
                     }
                 ?>
             </select>
-            <select onchange = 'searchUser(this.value)'>
-                    <option disabled selected hidden>Select Status</option>
-                    <option value="">Default</option>
+            <select onchange = 'searchUser("filter" + this.value)'>
+                    <option value="">Select Status (Default)</option>
                     <option value="pending">Pending</option>
                     <option value="active">Active</option>
                     <option value="suspended">Suspended</option>

@@ -1,29 +1,35 @@
-<tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Email</th>
-    <th>Role</th>
-    <th>User Status</th>
-    <th>Created At</th>
-    <th>Updated At</th>
-    <th>Last Review</th>
-    <th>Deleted At</th>
-    <th>Reset PW</th>
-    <th>Character Set</th>
-    <th>Treatment</th>
-</tr>
-
 <?php
     $search = $_GET["search"];
     include "../../SQL_Queries/connection.php";
-    if ($search == "") {
+    if ($search == "" || $search == "filter") {
         $getUsers = mysqli_query($con, "SELECT * FROM users");
     } 
     else if(str_contains($search, "filter")) {
-        
+        $search = substr($search, 6);
+        $getUsers = mysqli_query($con, "SELECT * FROM users WHERE user_status = '$search'");
+        echo "<script>alert('tes')</script>";
     }
     else {
         $getUsers = mysqli_query($con, "SELECT * FROM users WHERE name LIKE '%$search%' OR email LIKE '%$search%' OR user_status LIKE '$search' OR role = '$search'");
+    }
+    if(mysqli_num_rows($getUsers) == 0) {
+        echo "<h1>User Not Found</h1>";
+    }
+    else {
+        echo "<tr>";
+        echo "<th>ID</th>";
+        echo "<th>Name</th>";
+        echo "<th>Email</th>";
+        echo "<th>Role</th>";
+        echo "<th>User Status</th>";
+        echo "<th>Created At</th>";
+        echo "<th>Updated At</th>";
+        echo "<th>Last Review</th>";
+        echo "<th>Deleted At</th>";
+        echo "<th>Reset PW</th>";
+        echo "<th>Character Set</th>";
+        echo "<th>Treatment</th>";
+        echo "</tr>";
     }
     while ($user = mysqli_fetch_array($getUsers)) {
         $id = $user["user_id"];

@@ -16,6 +16,8 @@
         height: 100%;
         width: 15%;
         position: fixed;
+        left: 0;
+        top: 0;
     }
 
     a {

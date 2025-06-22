@@ -26,6 +26,8 @@
             justify-content: space-between;
         }
         #button {
+            font-family: 'Arial', sans-serif;
+            font-size: 16px;
             width: 150px;
             height: 50px;
             background-color: #ffa72a;
