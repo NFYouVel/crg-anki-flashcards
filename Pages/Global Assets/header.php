@@ -20,13 +20,12 @@ html, body {
     height: 9vh;
     align-items: center;
 }
+
 .logo {
     display: flex;
     height: 90%;
     align-items: center;
     margin: 8px;
-    
-    
 }
 
 .wrapper-header .header .logo img{
@@ -41,7 +40,11 @@ html, body {
   drop-shadow(0 0 1.5px white);
 }
 
-
+@media screen and (max-width: 768px) {
+    .logo {
+        padding: 3px 0;
+    }
+}
 </style>
 <div class="wrapper-header">
     <!-- Untuk Logo di atas (header) -->

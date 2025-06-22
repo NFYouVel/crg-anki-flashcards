@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Nunito', sans-serif;;
+}
+
+body {
+    display: block;
+}
+
+.wrapper {
+    margin-top: 10vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-side {
+    display: flex;
+    flex-direction: column;
+}
+
+span.h2 {
+    font-size: 45px;
+    font-weight: bold;
+    cursor: default;
+    margin-left: -1px;
+}
+span.description {
+    margin-top: -7px;
+    font-size: 30px;
+    cursor: default;
+}
+
+.submit {
+    padding: 4px 70px;
+    font-size: 20px;
+    color: white;
+    background-color: rgb(216, 149, 33);
+    border: none;
+    border-radius: 7.5px;
+    cursor: pointer;
+    margin-top: 8%;
+}
+
+form {
+    margin-top: 6%;
+}
+
+input[type="email"], input[type="password"] {
+    margin: 3.7% 0;
+    border: 2px solid rgb(216, 149, 33);
+    font-size: 20px;
+    border-radius: 8px;
+    padding: 5px 5px;
+    width: 102%;
+}
+
+span.alert {
+    visibility: visible;
+    color: red;
+    font-size: 13.5px;
+    cursor: default;
+    margin-top: 12px;
+}
+
+@media screen and (max-width: 768px) {
+    span.h2 {
+        font-size: 38px;
+    }
+    span.description {
+        font-size: 26px;
+    }
+    input[type="email"], input[type="password"] {
+        width: 100%;
+    }
+    .submit {
+        margin-top: 4%;
+    }
+}
