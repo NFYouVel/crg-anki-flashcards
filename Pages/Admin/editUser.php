@@ -10,8 +10,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 85%;
-            margin-left: 15%;
         }
         form > * {
             margin: 24px 24px;
@@ -37,8 +35,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Arial', sans-serif;
-            font-size: 24px;
             cursor: pointer;
         }
         #action {
@@ -80,26 +76,37 @@
 </head>
 <body>
     <?php
-        if(isset($_POST["name"]) && isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["role"]) && isset($_POST["set"])) {
-            include "../../SQL_Queries/connection.php";
-            $name = $_POST["name"];
-            $email = $_POST["email"];
-            $password = password_hash($_POST["password"], PASSWORD_BCRYPT);
-            $role = (int)$_POST["role"];
-            $set = $_POST["set"];
+        include "../../SQL_Queries/connection.php";
+        $id = $_GET["id"];
+        $data = mysqli_query($con, "SELECT name, email, role, character_set FROM users WHERE user_id = '$id'");
+        $data = mysqli_fetch_array($data);
+        $name = $data["name"];
+        $email = $data["email"];
+        $role = $data["role"];
+        $set = $data["character_set"];
 
-            if(mysqli_query($con, "INSERT INTO users (name, email, password_hash, role, character_set) VALUES
-            ('$name', '$email', '$password', $role, '$set')")) {
-                echo "<script>alert('Akun berhasil ditambahkan')</script>";
+
+        if(isset($_POST["name"]) && isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["role"]) && isset($_POST["set"])) {
+            $newName = $_POST["name"];
+            $newEmail = $_POST["email"];
+            $newPassword = password_hash($_POST["password"], PASSWORD_BCRYPT);
+            $newRole = (int)$_POST["role"];
+            $newSet = $_POST["set"];
+            $time = date('Y-m-d H:i:s');
+            if(mysqli_query($con, "UPDATE users SET name = '$newName', email = '$newEmail', password_hash = '$newPassword', role = $newRole, character_set = '$newSet', updated_at = CURRENT_TIMESTAMP WHERE user_id = '$id'")) {
+                echo "<script>alert('Data berhasil di update')</script>";
+            }
+            else {
+                echo "<script>alert('Data gagal di update')</script>";
             }
         }
     ?>
 
     <form method = "post">
         <div id="heading">
-            <h1>Add User</h1>
+            <h1>Edit User</h1>
             <div id="action">
-                <a href="overview_user.php" id = "button">Cancel</a>
+                <a href="" id = "button">Cancel</a>
                 <button id = "button">Save</button>
             </div>
         </div>
@@ -107,11 +114,11 @@
             <table>
                 <tr>
                     <td><h1>Full Name</h1></td>
-                    <td><input type="text" name = "name" placeholder = "Full Name" required></td>
+                    <td><input type="text" name = "name" placeholder = "Full Name" value = "<?php echo $name; ?>" required></td>
                 </tr>
                 <tr>
                     <td><h1>Email</h1></td>
-                    <td><input type="email" name = "email" placeholder = "Email" required></td>
+                    <td><input type="email" name = "email" placeholder = "Email" value = "<?php echo $email; ?>" required></td>
                 </tr>
                 <tr>
                     <td><h1>Password</h1></td>
@@ -120,10 +127,10 @@
                 <tr>
                     <td><h1>User Role</h1></td>
                     <td>
-                        <select name="role"  required>
-                            <option value=1>Student</option>
-                            <option value=0>Admin</option>
-                            <option value=2>Teacher</option>
+                        <select name="role" required>
+                            <option <?php if($role == 1) echo "selected"; ?> value=1>Student</option>
+                            <option <?php if($role == 0) echo "selected"; ?> value=0>Admin</option>
+                            <option <?php if($role == 2) echo "selected"; ?> value=2>Teacher</option>
                         </select>
                     </td>
                 </tr>
@@ -131,8 +138,8 @@
                     <td><h1>Character Set</h1></td>
                     <td>
                         <select name="set"  required>
-                            <option value="simplified">Simplified</option>
-                            <option value="traditional">Traditional</option>
+                            <option <?php if($set == "simplified") echo "selected"; ?> value="simplified">Simplified</option>
+                            <option <?php if($set == "traditional") echo "selected"; ?> value="traditional">Traditional</option>
                         </select>
                     </td>
                 </tr>

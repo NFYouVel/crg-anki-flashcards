@@ -28,11 +28,11 @@
             font-weight: bolder;
         }
     </style>
-</head>
-<body>
     <?php
         include "Components/sidebar.php";
     ?>
+</head>
+<body>
 
     <div id="menu">
         <h1>Hello, Herodian!</h1>

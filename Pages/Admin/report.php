@@ -7,11 +7,11 @@
     <style>
 
     </style>
-</head>
-<body>
     <?php
         include "Components/sidebar.php";
     ?>
+</head>
+<body>
 </body>
 <style>
     #report {
