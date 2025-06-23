@@ -40,6 +40,8 @@
 <?php
     if(mysqli_query($con, $query)) {
         echo "<h1>Upload Successful</h1>";
+        session_unset();
+        session_destroy();
     }
     else {
         echo "<h1>Upload Failed</h1>";

@@ -1,6 +1,5 @@
 <style>
-    html,
-    body {
+    html, body {
         height: 100%;
         width: 100%;
         margin: 0;
@@ -9,6 +8,13 @@
 
     body {
         background-color: #262626;
+    }
+
+    #container {
+        width: 85%;
+        margin-left: 15%;
+        padding: 24px 24px;
+        box-sizing: border-box;
     }
 
     #sidebar {

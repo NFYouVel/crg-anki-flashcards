@@ -186,8 +186,9 @@
             </tr>
             <?php
                 $getUsers = mysqli_query($con, "SELECT * FROM users");
-                $id = 1;
+                $count = 1;
                 while($user = mysqli_fetch_array($getUsers)) {
+                    $id = $user["user_id"];
                     $name = $user["name"];
                     $email = $user["email"];
                     $role = $user["role"];
@@ -209,7 +210,7 @@
                     $set = $user["character_set"];
 
                     echo "<tr>";
-                        echo "<td style = 'width: 25px;'>" . $id++ . "</td>";
+                        echo "<td style = 'width: 25px;'>" . $count++ . "</td>";
                         echo "<td>$name</td>";
                         echo "<td id = 'email'>$email</td>";
                         echo "<td>$role</td>";

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add User</title>
+    <title>Edit User</title>
     <style>
         form {
             width: 100%;
@@ -72,11 +72,11 @@
             width: 350px;
         }
     </style>
+</head>
+<body>
     <?php
         include "Components/sidebar.php";
     ?>
-</head>
-<body>
     <?php
         include "../../SQL_Queries/connection.php";
         $id = $_GET["id"];
@@ -104,11 +104,11 @@
         }
     ?>
 
-    <form method = "post">
+    <form id = "container" method = "post">
         <div id="heading">
             <h1>Edit User</h1>
             <div id="action">
-                <a href="" id = "button">Cancel</a>
+                <a href="overview_user.php" id = "button">Cancel</a>
                 <button id = "button">Save</button>
             </div>
         </div>
@@ -130,9 +130,19 @@
                     <td><h1>User Role</h1></td>
                     <td>
                         <select name="role" required>
-                            <option <?php if($role == 1) echo "selected"; ?> value=1>Student</option>
-                            <option <?php if($role == 0) echo "selected"; ?> value=0>Admin</option>
-                            <option <?php if($role == 2) echo "selected"; ?> value=2>Teacher</option>
+                            <?php
+                                $getRoles = mysqli_query($con, "SELECT role_id, role_name FROM user_role");
+                                while($roles = mysqli_fetch_array($getRoles)) {
+                                    $roleID = $roles["role_id"];
+                                    $roleName = $roles["role_name"];
+                                    if($roleID == $role) {
+                                        echo "<option value = '$roleID' selected>$roleName</option>";
+                                    }
+                                    else {
+                                        echo "<option value = '$roleID'>$roleName</option>";
+                                    }
+                                }
+                            ?>
                         </select>
                     </td>
                 </tr>

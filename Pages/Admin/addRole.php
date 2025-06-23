@@ -52,7 +52,7 @@
         table h1 {
             margin: 12px;
         }
-        option, select, input {
+        option, select, input, textarea {
             height: 40px;
             width: 250px;
             border-radius: 12px;
@@ -66,13 +66,13 @@
             color: #e9a345;
             font-size: 20px;
         }
-        select {
-            width: 260px;
-            height: 45px;
+        textarea {
+            height: 100px;
         }
         td {
             width: 350px;
         }
+
     </style>
     <?php
         include "Components/sidebar.php";
@@ -81,23 +81,23 @@
 </head>
 <body>
     <?php
-        if(isset($_POST["name"]) && isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["role"]) && isset($_POST["set"])) {
-            $name = $_POST["name"];
-            $email = $_POST["email"];
-            $password = password_hash($_POST["password"], PASSWORD_BCRYPT);
-            $role = (int)$_POST["role"];
-            $set = $_POST["set"];
+        if(isset($_POST["roleKey"]) || isset($_POST["roleName"]) || isset($_POST["roleDesc"])) {
+            $roleKey = $_POST["roleKey"];
+            $roleName = $_POST["roleName"];
+            $roleDesc = $_POST["roleDesc"];
 
-            if(mysqli_query($con, "INSERT INTO users (name, email, password_hash, role, character_set) VALUES
-            ('$name', '$email', '$password', $role, '$set')")) {
-                echo "<script>alert('Akun berhasil ditambahkan')</script>";
+            if(mysqli_query($con, "INSERT INTO user_role (role_key, role_name, role_description) VALUES ('$roleKey', '$roleName', '$roleDesc')")) {
+                echo "<script>alert('Role berhasil ditambahkan')</script>";
+            }
+            else {
+                echo "<script>alert('Role gagal ditambahkan')</script>";
             }
         }
     ?>
 
     <form method = "post">
         <div id="heading">
-            <h1>Add User</h1>
+            <h1>Add Role</h1>
             <div id="action">
                 <a href="overview_user.php" id = "button">Cancel</a>
                 <button id = "button">Save</button>
@@ -106,40 +106,17 @@
         <div id="data">
             <table>
                 <tr>
-                    <td><h1>Full Name</h1></td>
-                    <td><input type="text" name = "name" placeholder = "Full Name" required></td>
+                    <td><h1>Role Key</h1></td>
+                    <td><input type="text" name = "roleKey" placeholder = "Role Key" required></td>
                 </tr>
                 <tr>
-                    <td><h1>Email</h1></td>
-                    <td><input type="email" name = "email" placeholder = "Email" required></td>
+                    <td><h1>Role Name</h1></td>
+                    <td><input type="text" name = "roleName" placeholder = "Role Name" required></td>
                 </tr>
                 <tr>
-                    <td><h1>Password</h1></td>
-                    <td><input type="password" name = "password" value = "123456" placeholder = "Password" required></td>
-                </tr>
-                <tr>
-                    <td><h1>User Role</h1></td>
+                    <td><h1>Role Description</h1></td>
                     <td>
-                        <select name="role" required>
-                            <?php
-                                $getRoles = mysqli_query($con, "SELECT role_id, role_name FROM user_role");
-                                while($role = mysqli_fetch_array($getRoles)) {
-                                    $roleID = $role["role_id"];
-                                    $roleName = $role["role_name"];
-
-                                    echo "<option value = '$roleID'>$roleName</option>";
-                                }
-                            ?>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><h1>Character Set</h1></td>
-                    <td>
-                        <select name="set"  required>
-                            <option value="simplified">Simplified</option>
-                            <option value="traditional">Traditional</option>
-                        </select>
+                        <textarea name="roleDesc"></textarea>
                     </td>
                 </tr>
             </table>
