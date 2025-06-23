@@ -1,3 +1,6 @@
+<?php
+    session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,18 +12,18 @@
         #container {
             width: 85%;
             margin-left: 15%;
-        }
-
-        #container>* {
-            margin: 24px 24px;
+            padding: 24px 24px;
+            box-sizing: border-box;
         }
 
         h1 {
             color: white;
         }
         table {
+            width: 100%;
             font-size: 20px;
             border-collapse: collapse;
+            margin-bottom: 48px;
         }
         th {
             color: white;
@@ -61,6 +64,12 @@
             align-items: center;
             cursor: pointer;
         }
+        caption {
+            color: white;
+        }
+        #invalid {
+            background-color: red;
+        }
     </style>
 </head>
 
@@ -76,62 +85,162 @@
                 <button class="button" name = "import">Import</button>
             </form>
         </div>
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Character Set</th>
-            </tr>
-            <?php
-            include "../../SQL_Queries/connection.php";
-            require '../../Composer_Excel/vendor/autoload.php';
-            use PhpOffice\PhpSpreadsheet\IOFactory;
+        <div id="tables">
+            <table>
+                <caption>Uploaded Excel File</caption>
+                <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Character Set</th>
+                </tr>
+                <?php
+                    include "../../SQL_Queries/connection.php";
+                    require '../../Composer_Excel/vendor/autoload.php';
+                    use PhpOffice\PhpSpreadsheet\IOFactory;
 
-            if (isset($_FILES['excel_file'])) {
-                $id = 1;
-                $fileTmpPath = $_FILES['excel_file']['tmp_name'];
-                $fileName = $_FILES['excel_file']['name'];
-                $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+                    if (isset($_FILES['excel_file'])) {
+                        $id = 1;
+                        $validUsers = [];
+                        $invalidUsers = [];
+                        $fileTmpPath = $_FILES['excel_file']['tmp_name'];
+                        $fileName = $_FILES['excel_file']['name'];
+                        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
 
-                $allowedExtensions = ['xls', 'xlsx'];
+                        $allowedExtensions = ['xls', 'xlsx'];
 
-                if (in_array($fileExtension, $allowedExtensions)) {
-                    try {
-                        $spreadsheet = IOFactory::load($fileTmpPath);
-                        $sheet = $spreadsheet->getActiveSheet();
-                        foreach ($sheet->getRowIterator() as $row) {
-                            $index = $row->getRowIndex();
-                            $name = $sheet->getCell("A$index")->getValue();
-                            $email = $sheet->getCell("B$index")->getValue();
-                            $role = $sheet->getCell("C$index")->getValue();
-                            if($role == "") {
-                                $role = "student";
+                        if (in_array($fileExtension, $allowedExtensions)) {
+                            try {
+                                $spreadsheet = IOFactory::load($fileTmpPath);
+                                $sheet = $spreadsheet->getActiveSheet();
+                                foreach ($sheet->getRowIterator() as $row) {
+                                    $index = $row->getRowIndex();
+                                    $name = $sheet->getCell("A$index")->getValue();
+                                    $email = $sheet->getCell("B$index")->getValue();
+                                    $role = $sheet->getCell("C$index")->getValue();
+                                    if($role == "") {
+                                        $role = "student";
+                                    }
+                                    $set = $sheet->getCell("D$index")->getValue();
+                                    if($set == "") {
+                                        $set = "simplified";
+                                    }
+                                    echo "<tr>";
+                                        echo "<td>" . $id++ . "</td>";
+                                        echo "<td>$name</td>";
+                                        echo "<td>$email</td>";
+                                        echo "<td>$role</td>";
+                                        echo "<td>$set</td>";
+                                    echo "</tr>";
+
+
+                                    $reason = "";
+                                    //check for invalid email format
+                                    if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                                        $reason .= "<p id = 'invalid'>Invalid Email Format</p>";
+                                    }
+
+                                    //check for duplicates in existing database
+                                    if(mysqli_num_rows(mysqli_query($con, "SELECT email FROM users WHERE email = '$email'")) > 0) {
+                                        $reason .= "<p id = 'invalid'>Email already exist in database</p>";
+                                    }
+
+                                    //check for duplicates in uploaded excel
+                                    if(isset($validUsers[$email])) {
+                                        $reason .= "<p id = 'invalid'>Email already exists in the excel file</p>";
+                                    }
+
+                                    //check for error in user role
+                                    if(!in_array($role, ['student', 'teacher', 'admin'])) {
+                                        $reason .= "<p id = 'invalid'>Invalid user role</p>";
+                                    }
+
+                                    //check for error in user character set
+                                    if(!in_array($set, ['simplified', 'traditional'])) {
+                                        $reason .= "<p id = 'invalid'>Invalid user character set</p>";
+                                    }
+
+                                    if($reason == "") {
+                                        $validUsers[$email] = [
+                                            "name" => $name, 
+                                            "email" => $email, 
+                                            "role" => $role, 
+                                            "set" => $set
+                                        ];
+                                    }
+                                    else {
+                                        $invalidUsers[$email] = [
+                                            "name" => $name, 
+                                            "email" => $email, 
+                                            "role" => $role, 
+                                            "set" => $set,
+                                            "reason" => $reason
+                                        ];
+                                    }
+                                }
+                            } catch (Exception $e) {
+                                echo "<h1>Error loading file: " . $e->getMessage() . "</h1>";
                             }
-                            $set = $sheet->getCell("D$index")->getValue();
-                            if($set == "") {
-                                $set = "simplified";
-                            }
-                            echo "<tr>";
-                                echo "<td>" . $id++ . "</td>";
-                                echo "<td>$name</td>";
-                                echo "<td>$email</td>";
-                                echo "<td>$role</td>";
-                                echo "<td>$set</td>";
-                            echo "</tr>";
+                        } else {
+                            echo "<h1>Invalid file type. Only .xls and .xlsx files are allowed.</h1>";
                         }
-                    } catch (Exception $e) {
-                        echo "<h1>Error loading file: " . $e->getMessage() . "</h1>";
+                    } else {
+                        echo "<h1>No file uploaded.</h1>";
                     }
-                } else {
-                    echo "<h1>Invalid file type. Only .xls and .xlsx files are allowed.</h1>";
-                }
-            } else {
-                echo "<h1>No file uploaded.</h1>";
-            }
-            ?>
-        </table>
+                    
+                    $_SESSION["validUsers"] = $validUsers;
+                ?>
+            </table>
+
+            <table>
+                <caption style = "background-color: green;">Valid Users</caption>
+                <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Character Set</th>
+                </tr>
+                <?php
+                    $id = 1;
+                    foreach($validUsers as $key => $value) {
+                        echo "<tr>";
+                            echo "<td>" . $id++ . "</td>";
+                            echo "<td>" . $value["name"] . "</td>";
+                            echo "<td>" . $value["email"] . "</td>";
+                            echo "<td>" . $value["role"] . "</td>";
+                            echo "<td>" . $value["set"] . "</td>";
+                        echo "</tr>";
+                    }
+                ?>
+            </table>
+
+            <table>
+                <caption style = "background-color: red;">Invalid Users</caption>
+                <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Character Set</th>
+                    <th>Reason</th>
+                </tr>
+                <?php
+                    $id = 1;
+                    foreach($invalidUsers as $key => $value) {
+                        echo "<tr>";
+                            echo "<td>" . $id++ . "</td>";
+                            echo "<td>" . $value["name"] . "</td>";
+                            echo "<td>" . $value["email"] . "</td>";
+                            echo "<td>" . $value["role"] . "</td>";
+                            echo "<td>" . $value["set"] . "</td>";
+                            echo "<td>" . $value["reason"] . "</td>";
+                        echo "</tr>";
+                    }
+                ?>
+            </table>
+        </div>
     </div>
 </body>
 

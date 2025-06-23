@@ -1,13 +1,16 @@
 <?php
     $search = $_GET["search"];
-    include "../../SQL_Queries/connection.php";
-    if ($search == "" || $search == "filter") {
+    include "../../../SQL_Queries/connection.php";
+    if ($search == "" || $search == "filterRoles" || $search == "filterStatus") {
         $getUsers = mysqli_query($con, "SELECT * FROM users");
     } 
-    else if(str_contains($search, "filter")) {
-        $search = substr($search, 6);
+    else if(str_contains($search, "filterRoles")) {
+        $search = substr($search, 11);
+        $getUsers = mysqli_query($con, "SELECT * FROM users WHERE role = $search");
+    }
+    else if(str_contains($search, "filterStatus")) {
+        $search = substr($search, 12);
         $getUsers = mysqli_query($con, "SELECT * FROM users WHERE user_status = '$search'");
-        echo "<script>alert('tes')</script>";
     }
     else {
         $getUsers = mysqli_query($con, "SELECT * FROM users WHERE name LIKE '%$search%' OR email LIKE '%$search%' OR user_status LIKE '$search' OR role = '$search'");

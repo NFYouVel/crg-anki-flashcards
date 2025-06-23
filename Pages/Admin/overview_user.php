@@ -125,7 +125,7 @@
                     console.log(str)
                 }
             }
-            xmlhttp.open("GET", "search_user.php?search=" + str, true);
+            xmlhttp.open("GET", "AJAX/search_user.php?search=" + str, true);
             xmlhttp.send();
         }
     </script>
@@ -149,7 +149,7 @@
         </div>
         
         <div id="filter">
-            <select onchange = 'searchUser(this.value)'>
+            <select onchange = 'searchUser("filterRoles" + this.value)'>
                 <option value="">Select Roles (Default)</option>
                 <?php
                     $getRole = mysqli_query($con, "SELECT role_id, role_name FROM user_role");
@@ -160,7 +160,7 @@
                     }
                 ?>
             </select>
-            <select onchange = 'searchUser("filter" + this.value)'>
+            <select onchange = 'searchUser("filterStatus" + this.value)'>
                     <option value="">Select Status (Default)</option>
                     <option value="pending">Pending</option>
                     <option value="active">Active</option>
