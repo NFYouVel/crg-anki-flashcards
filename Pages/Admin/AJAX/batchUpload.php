@@ -1,0 +1,47 @@
+<table>
+    <caption style = "background-color: green;">Users Succesfully Imported</caption>
+    <tr>
+        <th>ID</th>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Character Set</th>
+    </tr>
+    <?php
+        session_start();
+        include "../../../SQL_Queries/connection.php";
+        $validUsers = $_SESSION["validUsers"];
+        $id = 1;
+        $query = "INSERT INTO users (name, email, password_hash, role, character_set) VALUES ";
+        foreach($validUsers as $key => $value) {
+            $name = $value["name"];
+            $email = $value["email"];
+            $password = password_hash("123456", PASSWORD_BCRYPT);
+            $role = $value["role"];
+            $roleID = mysqli_query($con, "SELECT role_id FROM user_role WHERE role_key = '$role'");
+            $roleID = mysqli_fetch_array($roleID);
+            $roleID = (int)$roleID["role_id"];
+            $set = $value["set"];
+
+            $query .= "('$name', '$email', '$password', $roleID, '$set'), ";
+
+            echo "<tr>";
+                echo "<td>" . $id++ . "</td>";
+                echo "<td>" . $name . "</td>";
+                echo "<td>" . $email . "</td>";
+                echo "<td>" . $role . "</td>";
+                echo "<td>" . $set . "</td>";
+            echo "</tr>";
+        }
+
+        $query = substr($query, 0, -2);
+    ?>
+</table>
+<?php
+    if(mysqli_query($con, $query)) {
+        echo "<h1>Upload Successful</h1>";
+    }
+    else {
+        echo "<h1>Upload Failed</h1>";
+    }
+?>

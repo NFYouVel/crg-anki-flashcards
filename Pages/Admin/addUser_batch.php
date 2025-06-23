@@ -46,7 +46,7 @@
             display: flex;
             justify-content: space-between;
         }
-        form {
+        #header > div {
             display: flex;
             gap: 16px;
         }
@@ -66,11 +66,31 @@
         }
         caption {
             color: white;
+            border: 2px solid black;
         }
         #invalid {
             background-color: red;
         }
     </style>
+    <script>
+        function uploadUsers() {
+            var xmlhttp;
+            if (window.XMLHttpRequest != null) {
+                xmlhttp = new XMLHttpRequest();
+            }
+            else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.getElementById("tables").innerHTML = xmlhttp.responseText;
+                }
+            }
+            xmlhttp.open("GET", "AJAX/batchUpload.php", true);
+            xmlhttp.send();
+        }
+    </script>
 </head>
 
 <body>
@@ -80,14 +100,14 @@
     <div id="container">
         <div id="header">
             <h1>Import User (Preview)</h1>
-            <form method="post">
+            <div>
                 <a href="overview_user.php" class="button">Cancel</a>
-                <button class="button" name = "import">Import</button>
-            </form>
+                <button class="button" name = "import" onclick = "uploadUsers()">Import</button>
+            </div>
         </div>
         <div id="tables">
             <table>
-                <caption>Uploaded Excel File</caption>
+                <caption style = "background-color: white; color: black;">Uploaded Excel File</caption>
                 <tr>
                     <th>ID</th>
                     <th>Full Name</th>
