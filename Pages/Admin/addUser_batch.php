@@ -96,7 +96,7 @@
 
 <body>
     <?php
-    include "Components/sidebar.php";
+        include "Components/sidebar.php";
     ?>
     <div id="container">
         <div id="header">
