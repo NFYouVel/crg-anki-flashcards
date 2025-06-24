@@ -1,3 +1,6 @@
+<?php
+    session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Cards</title>
     <style>
+        html {
+            scroll-behavior: smooth;
+        }
         h1 {
             color: white;
             font-size: 50px;
@@ -88,7 +94,7 @@
         <div id="header">
             <h1>Import User (Preview)</h1>
             <div>
-                <a href="overview_user.php" class="button">Cancel</a>
+                <a href="dictionary.php" class="button">Cancel</a>
                 <button class="button" name = "import" onclick = "uploadUsers()">Import</button>
             </div>
         </div>
@@ -110,9 +116,26 @@
                     include "../../SQL_Queries/connection.php";
                     require '../../Composer_Excel/vendor/autoload.php';
                     use PhpOffice\PhpSpreadsheet\IOFactory;
-
-                    if (isset($_FILES['excel_file'])) {
+                    if(isset($_SESSION["allCards"])) {
+                        echo "<script>console.log('taking data from session')</script>";
+                        foreach($_SESSION["allCards"] as $key => $value) {
+                            echo "<tr>";
+                                echo "<td>" . $value["cardID"] . "</td>";
+                                echo "<td>" . $value["traditional"] . "</td>";
+                                echo "<td>" . $value["simplified"] . "</td>";
+                                echo "<td>" . $value["priority"] . "</td>";
+                                echo "<td>" . $value["pinyin"] . "</td>";
+                                echo "<td>" . $value["class"] . "</td>";
+                                echo "<td>" . $value["english"] . "</td>";
+                                echo "<td>" . $value["indo"] . "</td>";
+                                echo "<td>0</td>";
+                            echo "</tr>";
+                        }
+                    }
+                    else if (isset($_FILES['excel_file'])) {
                         $id = 1;
+                        $invaliID = 1;
+                        $allCards = [];
                         $validCards = [];
                         $invalidCards = [];
                         $fileTmpPath = $_FILES['excel_file']['tmp_name'];
@@ -140,7 +163,7 @@
                                     $indo = $sheet->getCell("H$index")->getValue();
 
                                     echo "<tr>";
-                                        echo "<td>$cardID</td>";
+                                        echo "<td>TESSSSS$cardID</td>";
                                         echo "<td>$traditional</td>";
                                         echo "<td>$simplified</td>";
                                         echo "<td>$priority</td>";
@@ -154,6 +177,7 @@
                                     $reason = "";
                                     //check for invalid email format
                                     if($cardID == "") {
+                                        $cardID = "#invalidID_" . $invalidID++;
                                         $reason .= "<p id = 'invalid'>Card ID is empty</p>";
                                     }
 
@@ -167,6 +191,16 @@
                                         $reason .= "<p id = 'invalid'>Invalid Priority</p>";
                                     }
 
+                                    $allCards[$cardID] = [
+                                        "cardID" => $cardID, 
+                                        "traditional" => $traditional, 
+                                        "simplified" => $simplified, 
+                                        "priority" => $priority,
+                                        "pinyin" => $pinyin,
+                                        "class" => $class,
+                                        "english" => $english,
+                                        "indo" => $indo,
+                                    ];
                                     if($reason == "") {
                                         $validCards[$cardID] = [
                                             "cardID" => $cardID, 
@@ -199,11 +233,10 @@
                         } else {
                             echo "<h1>Invalid file type. Only .xls and .xlsx files are allowed.</h1>";
                         }
-                    } else {
-                        echo "<h1>No file uploaded.</h1>";
-                    }
-                    
-                    // $_SESSION["validUsers"] = $validUsers;
+                        $_SESSION["allCards"] = $allCards;
+                        $_SESSION["validCards"] = $validCards;
+                        $_SESSION["invalidCards"] = $invalidCards;
+                    } 
                 ?>
             </table>
 
@@ -221,8 +254,10 @@
                     <th>Sentence Count</th>
                 </tr>
                 <?php
-                    $id = 1;
-                    foreach($validCards as $key => $value) {
+                    // if(isset($_SESSION["allCards"])) {
+                    //     $validCards = $_SESSION["validCards"];
+                    // }
+                    foreach($_SESSION["validCards"] as $key => $value) {
                         echo "<tr>";
                             echo "<td>" . $value["cardID"] . "</td>";
                             echo "<td>" . $value["traditional"] . "</td>";
@@ -252,8 +287,10 @@
                     <th>Reason</th>
                 </tr>
                 <?php
-                    $id = 1;
-                    foreach($invalidCards as $key => $value) {
+                    // if(isset($_SESSION["allCards"])) {
+                    //     $invalidCards = $_SESSION["invalidCards"];
+                    // }
+                    foreach($_SESSION["invalidCards"] as $key => $value) {
                         echo "<tr>";
                             echo "<td>" . $value["cardID"] . "</td>";
                             echo "<td>" . $value["traditional"] . "</td>";
