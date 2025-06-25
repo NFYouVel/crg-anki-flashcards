@@ -88,7 +88,7 @@
                     document.getElementById("tables").innerHTML = xmlhttp.responseText;
                 }
             }
-            xmlhttp.open("GET", "AJAX/batchUpload.php", true);
+            xmlhttp.open("GET", "AJAX/batch_user.php", true);
             xmlhttp.send();
         }
     </script>

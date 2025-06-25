@@ -1,5 +1,4 @@
 <?php
-    session_start();
-    session_unset();
-    session_destroy();
+    include "../../SQL_Queries/connection.php";
+    mysqli_query($con, "DELETE FROM cards");
 ?>
