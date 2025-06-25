@@ -1,0 +1,106 @@
+.deck {
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    font-size: 23px;
+}
+
+.nama {
+    margin-left: 16px;
+}
+
+.title-name {
+    margin-left: 16px;
+}
+
+.title-user {
+    display: flex;
+    background-color: var(--deck-title);
+    padding: 11px 0;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: var(--border-size) solid var(--border-color);
+}
+
+.click {
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.wrapper-delete {
+    width: 100%;
+    justify-content: center;
+    display: none;
+}
+
+.delete {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    position: absolute;
+    background: white;
+    z-index: 1;
+    top: 27%;
+}
+
+.title-delete {
+    background-color: #143d59;
+    width: 100%;
+    text-align: center;
+    color: white;
+    padding: 20px 0;
+    font-size: 20px;
+}
+
+.explanation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: bold;
+    padding-top: 10px;
+    background-color: white;
+}
+
+.br {
+    margin: 20px 0;
+}
+
+.button {
+    display: flex;
+    width: 100%;
+}
+
+.button-cancel,
+.button-delete {
+    width: 50%;
+    border: none;
+    padding: 20px 0;
+    font-size: 17px;
+    cursor: pointer;
+    border-top: 1px solid var(--border-color);
+}
+
+.button-cancel {
+    background-color: rgb(216, 149, 33);
+    color: white;
+    border-right: 1px solid var(--border-color);
+}
+
+@media screen and (max-width: 768px) {
+    .delete {
+        width: 88%;
+    }
+    table {
+        margin-right: 17px;
+        margin-top: 30px;
+    }
+    th {
+        font-size: 20px;
+    }
+
+}

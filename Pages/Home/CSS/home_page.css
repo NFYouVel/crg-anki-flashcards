@@ -2,6 +2,7 @@
     --deck-title: rgb(241, 233, 144);
     --border-size: 0.1px;
     --border-color: rgb(174, 174, 174);
+    --crg-color:rgb(216, 149, 33);
 }
 
 
@@ -24,10 +25,9 @@
     color: blue;
     font-weight: bold;
 }
-.subdeck ul li.fill {
-    /* display: none; */
+.contain {
+    display: none;
 }
-
 .class-title {
     display: flex;
     flex-direction: column;
@@ -41,6 +41,7 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: var(--border-size) solid var(--border-color);
+    cursor: pointer;
 }
 .title {
     font-size: 20px;
@@ -53,7 +54,7 @@
     display: flex;
     margin-right: 20px;
     gap: 12px;
-    font-size: 20px;
+    font-size: 16px;
 }
 
 .green {
@@ -75,6 +76,13 @@
     padding-left: 35px;
     border-bottom: var(--border-size) solid var(--border-color);
 }
+.title-second {
+    cursor: pointer;
+}
+.contain-third {
+    display: none;
+    /* transition: background-color 0.3s ease-in-out; */
+}
 .title-to-review-third {
     display: flex;
     justify-content: space-between;
@@ -82,6 +90,65 @@
     align-items: center;
     padding-left: 54px;
     border-bottom: var(--border-size) solid var(--border-color);
+}
+
+.title-words {
+    padding-right: 20px;
+}
+.words-contain {
+    display: flex;
+    flex-direction: column;
+}
+.pinyin {
+    color: var(--crg-color);
+}
+.review-color {
+    height: 29px;
+    position: relative;
+    bottom: 42px;
+    margin: 10px;
+    font-size: 60px;
+}
+tr.title {
+    height: 20px;
+}
+table {
+    margin-top: 20px;
+}
+td {
+    border-bottom: 1px solid var(--border-color);
+}
+td.no-border {
+    border: none;
+}
+a {
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+}
+
+/* .title-to-review-third:hover {
+    background-color: red;
+} */
+/* .clicked {
+    background-color: rgb(173, 173, 173);
+} */
+
+.account-logout {
+    flex-direction: column;
+    text-align: right;
+    background-color: var(--crg-color);
+    padding-right: 5.5%;
+    position: absolute;
+    width: 100%;
+    display: none;
+    top: 9.5%;
+}
+
+.account,.logout {
+    padding: 8px 0;
+    color: blue;
+    font-weight: bold;
 }
 
 @media screen and (max-width: 768px) {
@@ -98,5 +165,8 @@
     }
     .title-to-review-third {
         padding-left: 48px;
+    }
+    .account-logout {
+        top: 8.5%;
     }
 }

@@ -70,6 +70,7 @@
 
     .navbar .icon {
         font-size: 7.65vh;
+        cursor: pointer;
     }
 
     @media screen and (max-width: 768px) {

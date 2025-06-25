@@ -1,6 +1,9 @@
 <?php
 session_start();
 include "../../SQL_Queries/connection.php";
+if (!isset($_SESSION['user_id'])) {
+    $_SESSION['user_id'] = $_COOKIE['user_id'];
+}
 $user_id = $_SESSION["user_id"];
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
@@ -23,6 +26,8 @@ if ($line['role'] == 0) {
     <title>Welcome <?php echo $line['name'] ?></title>
     <link rel="icon" href="../../Logo/circle.png">
     <link rel="stylesheet" href="../../Pages/Home/CSS/home_page.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../Home/jQuery/script.js"></script>
 </head>
 
 <body>
@@ -42,7 +47,7 @@ if ($line['role'] == 0) {
     </div>
     </div>
     </div>
-
+    <?php include "Component/account_logout.php"; ?>
     <!-- Main Deck -->
     <div class="wrapper-main">
         <div class="deck-layout">
@@ -82,7 +87,7 @@ if ($line['role'] == 0) {
                                     <li class="contain-third">
                                         <div class="title-to-review-third">
                                             <!-- Deck Title -->
-                                            <span class="title-third">Active Chinese 1.1</span>
+                                            <a href="deck_progress.php" class="title-third">Active Chinese 1.1</a>
                                             <!-- To Review Green Red Blue-->
                                             <div class="to-review">
                                                 <span class="green">169</span>
@@ -113,7 +118,7 @@ if ($line['role'] == 0) {
                                     <li class="contain-third">
                                         <div class="title-to-review-third">
                                             <!-- Deck Title -->
-                                            <span class="title-third">Active Chinese 1.1</span>
+                                            <a href="deck_progress.php" class="title-third">Active Chinese 1.2</a>
                                             <!-- To Review Green Red Blue-->
                                             <div class="to-review">
                                                 <span class="green">169</span>
