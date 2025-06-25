@@ -52,6 +52,10 @@
             border: 2px solid black;
             padding: 5px 10px;
         }
+        #long {
+            white-space: normal;
+            word-break: break-word;
+        }
         td {
             padding: 5px;
         }
@@ -80,6 +84,25 @@
             font-size: 24px;
         }
     </style>
+    <script>
+        function uploadCards() {
+            var xmlhttp;
+            if (window.XMLHttpRequest != null) {
+                xmlhttp = new XMLHttpRequest();
+            }
+            else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.getElementById("tables").innerHTML = xmlhttp.responseText;
+                }
+            }
+            xmlhttp.open("GET", "AJAX/batch_cards.php", true);
+            xmlhttp.send();
+        }
+    </script>
 </head>
 <body>
     <?php
@@ -95,7 +118,7 @@
             <h1>Import User (Preview)</h1>
             <div>
                 <a href="dictionary.php" class="button">Cancel</a>
-                <button class="button" name = "import" onclick = "uploadUsers()">Import</button>
+                <button class="button" name = "import" onclick = "uploadCards()">Import</button>
             </div>
         </div>
         <div id="tables">
@@ -116,8 +139,7 @@
                     include "../../SQL_Queries/connection.php";
                     require '../../Composer_Excel/vendor/autoload.php';
                     use PhpOffice\PhpSpreadsheet\IOFactory;
-                    if(isset($_SESSION["allCards"])) {
-                        echo "<script>console.log('taking data from session')</script>";
+                    if(isset($_SESSION["invalidCards"])) {
                         foreach($_SESSION["allCards"] as $key => $value) {
                             echo "<tr>";
                                 echo "<td>" . $value["cardID"] . "</td>";
@@ -126,8 +148,8 @@
                                 echo "<td>" . $value["priority"] . "</td>";
                                 echo "<td>" . $value["pinyin"] . "</td>";
                                 echo "<td>" . $value["class"] . "</td>";
-                                echo "<td>" . $value["english"] . "</td>";
-                                echo "<td>" . $value["indo"] . "</td>";
+                                echo "<td id = 'long'>" . $value["english"] . "</td>";
+                                echo "<td id = 'long'>" . $value["indo"] . "</td>";
                                 echo "<td>0</td>";
                             echo "</tr>";
                         }
@@ -163,14 +185,14 @@
                                     $indo = $sheet->getCell("H$index")->getValue();
 
                                     echo "<tr>";
-                                        echo "<td>TESSSSS$cardID</td>";
+                                        echo "<td>$cardID</td>";
                                         echo "<td>$traditional</td>";
                                         echo "<td>$simplified</td>";
                                         echo "<td>$priority</td>";
                                         echo "<td>$pinyin</td>";
                                         echo "<td>$class</td>";
-                                        echo "<td>$english</td>";
-                                        echo "<td>$indo</td>";
+                                        echo "<td id = 'long'>$english</td>";
+                                        echo "<td id = 'long'>$indo</td>";
                                         echo "<td>0</td>";
                                     echo "</tr>";
 
@@ -265,8 +287,9 @@
                             echo "<td>" . $value["priority"] . "</td>";
                             echo "<td>" . $value["pinyin"] . "</td>";
                             echo "<td>" . $value["class"] . "</td>";
-                            echo "<td>" . $value["english"] . "</td>";
-                            echo "<td>" . $value["indo"] . "</td>";
+                            echo "<td id = 'long'>" . $value["english"] . "</td>";
+                            echo "<td id = 'long'>" . $value["indo"] . "</td>";
+                            echo "<td>0</td>";
                         echo "</tr>";
                     }
                 ?>
@@ -298,8 +321,8 @@
                             echo "<td>" . $value["priority"] . "</td>";
                             echo "<td>" . $value["pinyin"] . "</td>";
                             echo "<td>" . $value["class"] . "</td>";
-                            echo "<td>" . $value["english"] . "</td>";
-                            echo "<td>" . $value["indo"] . "</td>";
+                            echo "<td id = 'long'>" . $value["english"] . "</td>";
+                            echo "<td id = 'long'>" . $value["indo"] . "</td>";
                             echo "<td>0</td>";
                             echo "<td>" . $value["reason"] . "</td>";
                         echo "</tr>";
