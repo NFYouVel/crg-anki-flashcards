@@ -4,7 +4,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Nunito', sans-serif;;
+    font-family: 'Nunito', sans-serif;
 }
 
 body {
@@ -22,23 +22,25 @@ body {
 .form-side {
     display: flex;
     flex-direction: column;
+    width: 382px;
 }
 
 span.h2 {
-    font-size: 45px;
+    font-size: 30px;
     font-weight: bold;
     cursor: default;
     margin-left: -1px;
 }
+
 span.description {
     margin-top: -7px;
-    font-size: 30px;
+    font-size: 21px;
     cursor: default;
 }
 
 .submit {
     padding: 4px 70px;
-    font-size: 20px;
+    font-size: 16px;
     color: white;
     background-color: rgb(216, 149, 33);
     border: none;
@@ -51,17 +53,28 @@ form {
     margin-top: 6%;
 }
 
-input[type="email"], input[type="password"] {
+.remember{
+    margin-top: 10px;
+    display: flex;
+}
+
+.remember span {
+    margin-left: 8px;
+    align-items: center;
+}
+
+input[type="email"],
+input[type="password"] {
     margin: 3.7% 0;
     border: 2px solid rgb(216, 149, 33);
-    font-size: 20px;
+    font-size: 17px;
     border-radius: 8px;
     padding: 5px 5px;
-    width: 102%;
+    width: 96%;
 }
 
 span.alert {
-    visibility: visible;
+    visibility: hidden;
     color: red;
     font-size: 13.5px;
     cursor: default;
@@ -69,16 +82,30 @@ span.alert {
 }
 
 @media screen and (max-width: 768px) {
+    .form-side {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+    }
     span.h2 {
-        font-size: 38px;
+        font-size: 30px;
     }
+
     span.description {
-        font-size: 26px;
+        font-size: 18px;
     }
-    input[type="email"], input[type="password"] {
+
+    input[type="email"],
+    input[type="password"] {
         width: 100%;
     }
+
     .submit {
-        margin-top: 4%;
+        margin-top: 4.5%;
+        padding: 7px 50px;
+    }
+    .remember span{
+        margin-left: 9px;
+        align-items: center;
     }
 }

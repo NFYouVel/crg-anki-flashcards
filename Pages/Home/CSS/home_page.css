@@ -1,0 +1,102 @@
+:root {
+    --deck-title: rgb(241, 233, 144);
+    --border-size: 0.1px;
+    --border-color: rgb(174, 174, 174);
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+
+* {
+    list-style: none;
+    font-family: 'Nunito', sans-serif;
+}
+
+.wrapper-main {
+    display: flex;
+    width: 100%;
+}
+
+.deck-layout {
+    width: 100%;
+}
+.click {
+    color: blue;
+    font-weight: bold;
+}
+.subdeck ul li.fill {
+    /* display: none; */
+}
+
+.class-title {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.title-to-review {
+    display: flex;
+    background-color: var(--deck-title);
+    padding: 11px 0;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: var(--border-size) solid var(--border-color);
+}
+.title {
+    font-size: 20px;
+    margin-left: 16px;
+    margin-right: 8px;
+    font-weight: bold;
+}
+
+.to-review {
+    display: flex;
+    margin-right: 20px;
+    gap: 12px;
+    font-size: 20px;
+}
+
+.green {
+    color: green;
+}
+.red {
+    color: red;
+}
+.blue {
+    color: rgb(76, 76, 251);
+}
+
+/* Second Line */
+.title-to-review-second {
+    display: flex;
+    justify-content: space-between;
+    padding: 11px 0;
+    align-items: center;
+    padding-left: 35px;
+    border-bottom: var(--border-size) solid var(--border-color);
+}
+.title-to-review-third {
+    display: flex;
+    justify-content: space-between;
+    padding: 11px 0;
+    align-items: center;
+    padding-left: 54px;
+    border-bottom: var(--border-size) solid var(--border-color);
+}
+
+@media screen and (max-width: 768px) {
+    .title {
+        font-size: 16px;
+    }
+    .to-review {
+        margin-right: 12px;
+        gap: 7.5px;
+        font-size: 14px;
+    }
+    .title-to-review-second {
+        padding-left: 32px;
+    }
+    .title-to-review-third {
+        padding-left: 48px;
+    }
+}
