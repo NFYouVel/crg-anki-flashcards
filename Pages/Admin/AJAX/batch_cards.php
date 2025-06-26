@@ -2,6 +2,9 @@
     session_start();
     include "../../../SQL_Queries/connection.php";
     $count = 0;
+    if(mysqli_num_rows(mysqli_query($con, "SELECT * FROM cards")) > 0) {
+        mysqli_query($con, "DELETE FROM cards");
+    }
     $query = "INSERT INTO cards (card_id, chinese_tc, chinese_sc, priority, pinyin, word_class, meaning_eng, meaning_ina) VALUES ";
     foreach ($_SESSION["validCards"] as $key => $value) {
         $cardID = mysqli_real_escape_string($con, $value["cardID"]);

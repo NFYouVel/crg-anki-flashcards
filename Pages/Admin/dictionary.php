@@ -73,6 +73,28 @@
             background-color: #a5a5a5;
         }
     </style>
+    <script>
+        function searchCards(str) {
+            var xmlhttp;
+            if(str == "") {
+                return;
+            }
+            if (window.XMLHttpRequest != null) {
+                xmlhttp = new XMLHttpRequest();
+            }
+            else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.getElementById("cardsTable").innerHTML = xmlhttp.responseText;
+                }
+            }
+            xmlhttp.open("GET", "AJAX/search_cards.php?search=" + str, true);
+            xmlhttp.send();
+        }
+    </script>
 </head>
 <body>
     <?php
@@ -82,13 +104,13 @@
     <div id="container">
         <div id="header">
             <h1>Dictionary (Card) Overview</h1>
-            <input type="text" placeholder = "&#128269;Search" onkeyup = "searchUser(this.value)">
+            <input type="text" placeholder = "&#128269;Search" onkeyup = "searchCards(this.value)">
             <form action="addCards.php" method="POST" enctype="multipart/form-data">
                 <input id = "file" name = "excel_file" style = "display: none" class = "button" type="file" onchange="this.form.submit()">
                 <label class = "button" for="file">Import</label>
             </form>
         </div>
-        <table>
+        <table id = "cardsTable">
             <tr>
                 <th>ID</th>
                 <th>Traditional</th>
