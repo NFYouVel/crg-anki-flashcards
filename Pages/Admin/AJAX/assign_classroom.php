@@ -14,21 +14,27 @@
         $_SESSION["users"] = [];
     }
 
-    $id = $_GET["id"];
-    $name = $_GET["name"];
-    $role = $_GET["role"];
+    if(isset($_GET["remove"])) {
+        unset($_SESSION["users"][$_GET["remove"]]);
+    }
+    else {
+        $id = $_GET["id"];
+        $name = $_GET["name"];
+        $role = $_GET["role"];
 
-    $_SESSION["users"][$id] = [
-        "id" => $id,
-        "name" => $name,
-        "role" => $role
-    ];
-
+        $_SESSION["users"][$id] = [
+            "id" => $id,
+            "name" => $name,
+            "role" => $role
+        ];
+    }
+    
     foreach($_SESSION["users"] as $value) {
         echo "<tr>";
+            $id = $value["id"];
             echo "<td>" . $value["name"] . "</td>";
             echo "<td>" . $value["role"] . "</td>";
-            echo "<td><button class = 'button'>Remove</button></td>";
+            echo "<td><button class = 'button' onclick=\"removeAssigned('$id')\">Remove</button></td>";
         echo "</tr>";
     }
 ?>

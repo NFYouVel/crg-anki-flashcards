@@ -125,7 +125,7 @@
                     console.log(str)
                 }
             }
-            xmlhttp.open("GET", "AJAX/search_user.php?search=" + str, true);
+            xmlhttp.open("GET", "AJAX/search_user_overview.php.php?search=" + str, true);
             xmlhttp.send();
         }
     </script>
