@@ -111,9 +111,8 @@
     </div>
 </body>
 <style>
-    #sidebar {
-        position: fixed;
-        left: 0;
+    #overview_user {
+        color: #ffa72a;
     }
 </style>
 </html>

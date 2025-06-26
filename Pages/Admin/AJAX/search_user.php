@@ -1,23 +1,32 @@
 <?php
+    //mengirim data search bar melalui query string
     $search = $_GET["search"];
     include "../../../SQL_Queries/connection.php";
+
+    //jika search bar kosong, makan semua user ditampilkan
     if ($search == "" || $search == "filterRoles" || $search == "filterStatus") {
         $getUsers = mysqli_query($con, "SELECT * FROM users");
     } 
+    //filter berdasarkan role
     else if(str_contains($search, "filterRoles")) {
         $search = substr($search, 11);
         $getUsers = mysqli_query($con, "SELECT * FROM users WHERE role = $search");
     }
+    //filter berdasarkan status
     else if(str_contains($search, "filterStatus")) {
         $search = substr($search, 12);
         $getUsers = mysqli_query($con, "SELECT * FROM users WHERE user_status = '$search'");
     }
+    //filter berdasarkan nama / email
     else {
-        $getUsers = mysqli_query($con, "SELECT * FROM users WHERE name LIKE '%$search%' OR email LIKE '%$search%' OR user_status LIKE '$search' OR role = '$search'");
+        $getUsers = mysqli_query($con, "SELECT * FROM users WHERE name LIKE '%$search%' OR email LIKE '%$search%'");
     }
+
+    //jika hasil search tidak ada hasilnya, maka keluarkan pesan tidak ketemu
     if(mysqli_num_rows($getUsers) == 0) {
         echo "<h1>User Not Found</h1>";
     }
+    //menampilkan hasil filter
     else {
         echo "<tr>";
         echo "<th>ID</th>";

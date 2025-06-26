@@ -15,7 +15,6 @@
             padding: 24px 24px;
             box-sizing: border-box;
         }
-
         h1 {
             color: white;
         }
@@ -74,6 +73,7 @@
         }
     </style>
     <script>
+        //function ajax untuk upload user
         function uploadUsers() {
             var xmlhttp;
             if (window.XMLHttpRequest != null) {
@@ -103,6 +103,7 @@
             <h1>Import User (Preview)</h1>
             <div>
                 <a href="overview_user.php" class="button">Cancel</a>
+                <!-- memanggil function ajax melalui tombol -->
                 <button class="button" name = "import" onclick = "uploadUsers()">Import</button>
             </div>
         </div>
@@ -121,8 +122,10 @@
                     require '../../Composer_Excel/vendor/autoload.php';
                     use PhpOffice\PhpSpreadsheet\IOFactory;
 
+                    //read file excel
                     if (isset($_FILES['excel_file'])) {
                         $id = 1;
+                        //membangun var session untuk data valid dan invalid
                         $validUsers = [];
                         $invalidUsers = [];
                         $fileTmpPath = $_FILES['excel_file']['tmp_name'];
@@ -136,14 +139,17 @@
                                 $spreadsheet = IOFactory::load($fileTmpPath);
                                 $sheet = $spreadsheet->getActiveSheet();
                                 foreach ($sheet->getRowIterator() as $row) {
+                                    //mengambil data dari setiap kolumn
                                     $index = $row->getRowIndex();
                                     $name = $sheet->getCell("A$index")->getValue();
                                     $email = $sheet->getCell("B$index")->getValue();
                                     $role = $sheet->getCell("C$index")->getValue();
+                                    //jika cell role null, maka jadi student
                                     if($role == "") {
                                         $role = "student";
                                     }
                                     $set = $sheet->getCell("D$index")->getValue();
+                                    //jika cell charset null, maka jadi simplified
                                     if($set == "") {
                                         $set = "simplified";
                                     }
@@ -182,7 +188,9 @@
                                         $reason .= "<p id = 'invalid'>Invalid user character set</p>";
                                     }
 
+                                    //logic untuk validasi data
                                     if($reason == "") {
+                                        //membangun var session data valid
                                         $validUsers[$email] = [
                                             "name" => $name, 
                                             "email" => $email, 
@@ -191,6 +199,7 @@
                                         ];
                                     }
                                     else {
+                                        //membangun var session data invalid
                                         $invalidUsers[$email] = [
                                             "name" => $name, 
                                             "email" => $email, 
@@ -264,5 +273,12 @@
         </div>
     </div>
 </body>
-
+<style>
+    #user {
+        color: #ffa72a;
+    }
+    #overview_user {
+        color: #ffa72a;
+    }
+</style>
 </html>

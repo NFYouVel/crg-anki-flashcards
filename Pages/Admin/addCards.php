@@ -85,6 +85,7 @@
         }
     </style>
     <script>
+        //function ajax untuk upload cards
         function uploadCards() {
             var xmlhttp;
             if (window.XMLHttpRequest != null) {
@@ -139,7 +140,8 @@
                     include "../../SQL_Queries/connection.php";
                     require '../../Composer_Excel/vendor/autoload.php';
                     use PhpOffice\PhpSpreadsheet\IOFactory;
-                    if(isset($_SESSION["invalidCards"])) {
+                    //jika page ke refresh, tidak perlu nge read ulang file, tapi mengambil dari session yang dibuat sebelum ke refresh
+                    if(isset($_SESSION["allCards"])) {
                         foreach($_SESSION["allCards"] as $key => $value) {
                             echo "<tr>";
                                 echo "<td>" . $value["cardID"] . "</td>";
@@ -154,9 +156,11 @@
                             echo "</tr>";
                         }
                     }
+                    //read excel
                     else if (isset($_FILES['excel_file'])) {
                         $id = 1;
                         $invaliID = 1;
+                        //variabel untuk membangun variabel session (allCards, validCards, invalidCards)
                         $allCards = [];
                         $validCards = [];
                         $invalidCards = [];
@@ -172,9 +176,11 @@
                                 $sheet = $spreadsheet->getActiveSheet();
                                 foreach ($sheet->getRowIterator() as $row) {
                                     $index = $row->getRowIndex();
+                                    //skip index 1 karena itu header
                                     if($index == 1) {
                                         continue;
                                     }
+                                    //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
                                     $cardID = $sheet->getCell("A$index")->getValue();
                                     $traditional = $sheet->getCell("B$index")->getValue();
                                     $simplified = $sheet->getCell("C$index")->getValue();
@@ -213,6 +219,7 @@
                                         $reason .= "<p id = 'invalid'>Invalid Priority</p>";
                                     }
 
+                                    //membangun session untuk semua kartu
                                     $allCards[$cardID] = [
                                         "cardID" => $cardID, 
                                         "traditional" => $traditional, 
@@ -223,7 +230,9 @@
                                         "english" => $english,
                                         "indo" => $indo,
                                     ];
+                                    //logika valid / tidak valid
                                     if($reason == "") {
+                                        //membantun session untuk kartu yang valid
                                         $validCards[$cardID] = [
                                             "cardID" => $cardID, 
                                             "traditional" => $traditional, 
@@ -236,6 +245,7 @@
                                         ];
                                     }
                                     else {
+                                        //membantun session untuk kartu yang tidak valid
                                         $invalidCards[$cardID] = [
                                             "cardID" => $cardID, 
                                             "traditional" => $traditional, 
@@ -255,6 +265,7 @@
                         } else {
                             echo "<h1>Invalid file type. Only .xls and .xlsx files are allowed.</h1>";
                         }
+                        //membuat session   
                         $_SESSION["allCards"] = $allCards;
                         $_SESSION["validCards"] = $validCards;
                         $_SESSION["invalidCards"] = $invalidCards;
@@ -276,9 +287,7 @@
                     <th>Sentence Count</th>
                 </tr>
                 <?php
-                    // if(isset($_SESSION["allCards"])) {
-                    //     $validCards = $_SESSION["validCards"];
-                    // }
+                    //menampilkan hasil validasi card
                     foreach($_SESSION["validCards"] as $key => $value) {
                         echo "<tr>";
                             echo "<td>" . $value["cardID"] . "</td>";
@@ -310,9 +319,7 @@
                     <th>Reason</th>
                 </tr>
                 <?php
-                    // if(isset($_SESSION["allCards"])) {
-                    //     $invalidCards = $_SESSION["invalidCards"];
-                    // }
+                    //menampilkan kartu2 yang tidak valid
                     foreach($_SESSION["invalidCards"] as $key => $value) {
                         echo "<tr>";
                             echo "<td>" . $value["cardID"] . "</td>";
@@ -332,4 +339,9 @@
         </div>
     </div>
 </body>
+<style>
+    #dictionary {
+        color: #ffa72a;
+    }
+</style>
 </html>

@@ -9,9 +9,6 @@
             color: white;
             margin: 0;
         }
-        #menu {
-            padding: 72px 72px;
-        }
         h3 {
             font-weight: 200;
             margin-bottom: 12px;
@@ -34,7 +31,7 @@
 </head>
 <body>
 
-    <div id="menu">
+    <div id="container">
         <h1>Hello, Herodian!</h1>
         <h3>What would you like to do?</h3>
 

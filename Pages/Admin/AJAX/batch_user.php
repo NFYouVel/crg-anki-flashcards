@@ -10,8 +10,10 @@
     <?php
         session_start();
         include "../../../SQL_Queries/connection.php";
+        //data batch user diambil dari session yang sudah dibangun pada addUser_batch.php
         $validUsers = $_SESSION["validUsers"];
         $id = 1;
+        //membangun query insert
         $query = "INSERT INTO users (name, email, password_hash, role, character_set) VALUES ";
         foreach($validUsers as $key => $value) {
             $name = $value["name"];

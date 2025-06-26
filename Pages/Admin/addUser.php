@@ -87,11 +87,20 @@
             $password = password_hash($_POST["password"], PASSWORD_BCRYPT);
             $role = (int)$_POST["role"];
             $set = $_POST["set"];
-
-            if(mysqli_query($con, "INSERT INTO users (name, email, password_hash, role, character_set) VALUES
-            ('$name', '$email', '$password', $role, '$set')")) {
-                echo "<script>alert('Akun berhasil ditambahkan')</script>";
+            //cek apakah sudah ada user dengan email tersebut
+            if(mysqli_num_rows(mysqli_query($con, "SELECT email FROM users WHERE email = '$email'")) == 0) {
+                if(mysqli_query($con, "INSERT INTO users (name, email, password_hash, role, character_set) VALUES
+                ('$name', '$email', '$password', $role, '$set')")) {
+                    echo "<script>alert('Akun berhasil ditambahkan')</script>";
+                }
+                else {
+                    echo "<script>alert('Akun Gagal Ditambahkan')</script>";
+                }
             }
+            else {
+                echo "<script>alert('Akun dengan email $email sudah terdapat di database')</script>";
+            }
+
         }
     ?>
 
@@ -120,6 +129,7 @@
                 <tr>
                     <td><h1>User Role</h1></td>
                     <td>
+                        <!-- pilihan roles diambil dari tabel user_role -->
                         <select name="role" required>
                             <?php
                                 $getRoles = mysqli_query($con, "SELECT role_id, role_name FROM user_role");

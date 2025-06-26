@@ -124,7 +124,10 @@
     </form>
 </body>
 <style>
-    #overview_user {
+    #user {
+        color: #ffa72a;
+    }
+    #role {
         color: #ffa72a;
     }
 </style>

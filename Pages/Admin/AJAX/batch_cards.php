@@ -1,12 +1,17 @@
 <?php
+    //fitur ajax untuk upload cards
+    //data yang di read di dalam excel di simpan di dalam session agar tidak perlu read lagi
     session_start();
     include "../../../SQL_Queries/connection.php";
     $count = 0;
+    //jika database cards sudah ada isinya, maka hapus dulu semuanya baru masukkan yang sudah di update jika belum, maka langsung masukkan data
     if(mysqli_num_rows(mysqli_query($con, "SELECT * FROM cards")) > 0) {
         mysqli_query($con, "DELETE FROM cards");
     }
+    //pembangunan string query insert sql
     $query = "INSERT INTO cards (card_id, chinese_tc, chinese_sc, priority, pinyin, word_class, meaning_eng, meaning_ina) VALUES ";
     foreach ($_SESSION["validCards"] as $key => $value) {
+        //mysqli_real_escape_string untuk menghindari error saat input contohnya jika data dalam cell memiliki " / ' / ( / )
         $cardID = mysqli_real_escape_string($con, $value["cardID"]);
         $traditional = mysqli_real_escape_string($con, $value["traditional"]);
         $simplified = mysqli_real_escape_string($con, $value["simplified"]);
@@ -17,6 +22,7 @@
         $indo = mysqli_real_escape_string($con, $value["indo"]);
 
         if($count == 35) {
+            //query upload akan dikirim setiap selesai membangun query dengan 35 values, karena jika lebih, akan error
             $count = 0;
             $query = substr($query, 0, -2);
             mysqli_query($con, $query);
@@ -26,11 +32,13 @@
 
         $query .= "($cardID, '$traditional', '$simplified', $priority, '$pinyin', '$class', '$english', '$indo'), ";
     }
+    //mengirim query sisa
     if($count > 0) {
         $query = substr($query, 0, -2);
         mysqli_query($con, $query);
     }
 ?>
+<!-- menampilkan data yang berhasil ke upload -->
 <table id="valid">
     <caption style="background-color: green;">Cards Succesfully Uploaded</caption>
     <tr>
@@ -63,6 +71,7 @@
     ?>
 </table>
 
+<!-- menampilkan data yang gagal ke upload (invalid) -->
 <table id="invalid">
     <caption style="background-color: red;">Invalid Cards</caption>
     <tr>
