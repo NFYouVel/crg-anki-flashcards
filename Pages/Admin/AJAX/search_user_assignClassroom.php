@@ -27,8 +27,8 @@
             echo "<tr>";
                 echo "<td>$name</td>";
                 echo "<td><div id = 'role'>";
-                    echo "<button onclick=\"assignUsers('$userID', '$name', 'student')\" class='button'>Student</button>";
-                    echo "<button onclick=\"assignUsers('$userID', '$name', 'teacher')\" class='button'>Teacher</button>";
+                    echo "<button onclick=\"assignUsers('$userID', 3)\" class='button'>Student</button>";
+                    echo "<button onclick=\"assignUsers('$userID', 2)\" class='button'>Teacher</button>";
                 echo "</div></td>";
             echo "</tr>";
         }

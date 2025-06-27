@@ -45,12 +45,39 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
+            border: 1px solid black;
+        }
+        table {
+            font-size: 24px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            color: white;
+            background-color: #003b58;
+        }
+        th, td {
+            border: 2px solid black;
+            padding: 8px 16px;
+            text-align: center;
+        }
+        tr:nth-child(even) {
+            background-color: #838383;
+        }
+        tr:nth-child(odd) {
+            background-color: #a5a5a5;
+        }
+        #classroomAction {
+            display: flex;
+            justify-content: space-evenly;
+            gap: 8px;
         }
     </style>
 </head>
 <body>
     <?php
         include "Components/sidebar.php";
+        include "../../SQL_Queries/connection.php";
     ?>
     <div id="container">
         <div id="heading">
@@ -60,6 +87,40 @@
                 <a class = 'button' href = 'addClassroom.php'><span>Add</span></a>
             </div>
         </div>
+
+        <table>
+            <tr>
+                <th>Classroom Name</th>
+                <th>Teachers Count</th>
+                <th>Students Count</th>
+                <th>Action</th>
+            </tr>
+            <?php
+                $getClassroom = mysqli_query($con, "SELECT classroom_id, name FROM classroom");
+                while($classroom = mysqli_fetch_array($getClassroom)) {
+                    $classroomID = $classroom["classroom_id"];
+                    $classroomName = $classroom["name"];
+
+                    $teacherCount = mysqli_query($con, "SELECT COUNT(*) as total FROM junction_classroom_user WHERE classroom_id = '$classroomID' AND classroom_role_id = 2");
+                    $teacherCount = mysqli_fetch_array($teacherCount);
+                    $teacherCount = $teacherCount["total"];
+
+                    $studentCount = mysqli_query($con, "SELECT COUNT(*) as total FROM junction_classroom_user WHERE classroom_id = '$classroomID' AND classroom_role_id = 3");
+                    $studentCount = mysqli_fetch_array($studentCount);
+                    $studentCount = $studentCount["total"];
+
+                    echo "<tr>";
+                        echo "<td>$classroomName</td>";
+                        echo "<td>$teacherCount</td>";
+                        echo "<td>$studentCount</td>";
+                        echo "<td><div id = 'classroomAction'>
+                            <a class = 'button' href = 'editClassroom.php?classroomID=$classroomID'>Edit</a>
+                            <a href = 'assignClassroom.php?classroomID=$classroomID' style = 'font-size: 20px;' class = 'button'>Assign Users</a>
+                        </div></td>";
+                    echo  "</tr>";
+                }
+            ?>
+        </table>
     </div>
 </body>
 <style>

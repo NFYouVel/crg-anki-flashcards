@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Classroom</title>
+    <title>Edit Classroom</title>
     <style>
         h1 {
             color: white;
@@ -47,7 +47,6 @@
             cursor: pointer;
         }
         table h1 {
-            margin: 12px;
             font-size: 30px;
         }
         textarea, input {
@@ -73,31 +72,37 @@
     <?php
         include "Components/sidebar.php";
         include "../../SQL_Queries/connection.php";
-        if(isset($_POST["name"])) {
-            $userID = $_COOKIE["user_id"];
-            $name = $_POST["name"];
-            $desc = $_POST["desc"] ?? "";
-            mysqli_query($con, "INSERT INTO classroom (name, description, created_by) VALUES ('$name', '$desc', '$userID')");
 
-            $classroomID = mysqli_query($con, "SELECT classroom_id FROM classroom WHERE name = '$name'");
-            $classroomID = mysqli_fetch_array($classroomID);
-            $classroomID = $classroomID["classroom_id"];
-            header("Location: assignClassroom.php?classroomID=$classroomID");
+        $classroomID = $_GET["classroomID"];
+        if(isset($_POST["name"])) {
+            $name = $_POST["name"];
+            mysqli_query($con, "UPDATE classroom SET name = '$name' WHERE classroom_id = '$classroomID'");
         }
+        if(isset($_POST["desc"])) {
+            $desc = $_POST["desc"];
+            mysqli_query($con, "UPDATE classroom SET description = '$desc' WHERE classroom_id = '$classroomID'");
+        }
+        if(isset($_POST["desc"]) || isset($_POST["name"])) {
+            echo "<script>alert('Classroom Succesfully Updated')</script>";
+        }
+        $classroomData = mysqli_query($con, "SELECT name, description FROM classroom WHERE classroom_id = '$classroomID'");
+        $classroomData = mysqli_fetch_array($classroomData);
+        $classroomName = $classroomData["name"];
+        $classroomDesc = $classroomData["description"];
     ?>
     <form method = "post" id = "container">
         <div id="heading">
-            <h1>Create Classroom</h1>
-            <button class = 'button'><span>Add</span></button>
+            <h1>Edit Classroom</h1>
+            <button class = 'button'><span>Confirm</span></button>
         </div>
         <table>
             <tr>
                 <td><h1>Classroom Name</h1></td>
-                <td><input type="text" name = "name" required></td>
+                <td><input type="text" name = "name" value = "<?php echo $classroomName; ?>"></td>
             </tr>
             <tr>
                 <td><h1>Classroom Description</h1></td>
-                <td><textarea name="desc"></textarea></td>
+                <td><textarea name="desc"><?php echo $classroomDesc; ?></textarea></td>
             </tr>
         </table>
     </form>

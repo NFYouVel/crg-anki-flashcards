@@ -1,6 +1,3 @@
-<?php
-    session_start();
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,7 +54,8 @@
         }
         #tables {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
+            width: 90%;
         }
         #container {
             display: flex;
@@ -77,8 +75,8 @@
         }
         #action {
             display: flex;
-            width: 50%;
-            justify-content: space-evenly;
+            width: 90%;
+            justify-content: start;
             align-items: center;
             margin-bottom: 24px;
         }
@@ -88,7 +86,7 @@
         $classroomID = $_GET['classroomID'];
     ?>
     <script>
-        function assignUsers(id, name, role) {
+        function assignUsers(id, role) {
             var xmlhttp;
             if (window.XMLHttpRequest != null) {
                 xmlhttp = new XMLHttpRequest();
@@ -99,10 +97,10 @@
 
             xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    document.getElementById("assigned").innerHTML = xmlhttp.responseText;
+                    document.getElementById("tables").innerHTML = xmlhttp.responseText;
                 }
             }
-            xmlhttp.open("GET", "AJAX/assign_classroom.php?id=" + id + "&name=" + name + "&role=" + role, true);
+            xmlhttp.open("GET", "AJAX/assign_classroom.php?userID=" + id + "&userRole=" + role + "&classroomID=<?php echo $classroomID; ?>", true);
             xmlhttp.send();
         }
 
@@ -117,10 +115,10 @@
 
             xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    document.getElementById("assigned").innerHTML = xmlhttp.responseText;
+                    document.getElementById("tables").innerHTML = xmlhttp.responseText;
                 }
             }
-            xmlhttp.open("GET", "AJAX/assign_classroom.php?remove=" + remove, true);
+            xmlhttp.open("GET", "AJAX/assign_classroom.php?remove=" + remove + "&classroomID=<?php echo $classroomID; ?>", true);
             xmlhttp.send();
         }
 
@@ -147,41 +145,16 @@
 <body>
     <?php
         include "Components/sidebar.php";
-
-        if(isset($_POST["submit"]) && isset($_SESSION["users"])) {
-            $query = "INSERT INTO junction_classroom_user (classroom_id, user_id, classroom_role_id) VALUES ";
-            foreach($_SESSION["users"] as $value) {
-                $userID = $value["id"];
-                $role = $value["role"];
-                $role = mysqli_query($con, "SELECT role_id FROM user_role WHERE role_key = '$role'");
-                $role = mysqli_fetch_array($role);
-                $role = $role["role_id"];
-
-                $query .= "('$classroomID', '$userID', $role), ";
-            }
-            $query = substr($query, 0, -2);
-            if(mysqli_query($con, $query)) {
-                echo "<script>alert('Users Succesfully Added to Classroom')</script>";
-            } 
-            else {
-                echo "<script>alert('Users Faild to be Added to Classroom')</script>";
-            }
-            session_unset();
-        }
     ?>
     <div id="container">
         <?php
             $name = mysqli_query($con, "SELECT name FROM classroom WHERE classroom_id = '$classroomID'");
             $name = mysqli_fetch_array($name);
             $name = $name["name"];
-            echo "<h1 style = 'margin: 0;'>$name</h1>";
+            echo "<h1>Assign Classroom: $name</h1>";
         ?>
-        <h1>Assign Classroom</h1>
         <div id="action">
             <input type="text" placeholder = "&#128269;Search" onkeyup = "searchUser(this.value)">
-            <form method = "post">
-                <input name = "submit" type="submit" class = "button">
-            </form>
         </div>
         <div id="tables">
             <table id="users">
@@ -203,11 +176,10 @@
                         echo "<tr>";
                             echo "<td>$name</td>";
                             echo "<td><div id = 'role'>";
-                                echo "<button onclick=\"assignUsers('$userID', '$name', 'student')\" class='button'>Student</button>";
-                                echo "<button onclick=\"assignUsers('$userID', '$name', 'teacher')\" class='button'>Teacher</button>";
+                                echo "<button onclick=\"assignUsers('$userID', 3)\" class='button'>Student</button>";
+                                echo "<button onclick=\"assignUsers('$userID', 2)\" class='button'>Teacher</button>";
                             echo "</div></td>";
                         echo "</tr>";
-
                     }
                 ?>
             </table>
@@ -220,15 +192,22 @@
                     <th>Action</th>
                 </tr>
                 <?php
-                    if(isset($_SESSION["users"])) {
-                        foreach($_SESSION["users"] as $value) {
-                            echo "<tr>";
-                                $id = $value["id"];
-                                echo "<td>" . $value["name"] . "</td>";
-                                echo "<td>" . $value["role"] . "</td>";
-                                echo "<td><button class = 'button' onclick=\"removeAssigned('$id')\">Remove</button></td>";
-                            echo "</tr>";
-                        }
+                    $getUsers = mysqli_query($con, "SELECT user_id, classroom_role_id FROM junction_classroom_user WHERE classroom_id = '$classroomID'");
+                    while($user = mysqli_fetch_array($getUsers)) {
+                        $userID = $user["user_id"];
+                        $name = mysqli_query($con, "SELECT name FROM users WHERE user_id = '$userID'");
+                        $name = mysqli_fetch_array($name);
+                        $name = $name["name"];
+                        $role = $user["classroom_role_id"];
+                        $role = mysqli_query($con, "SELECT role_name FROM user_role WHERE role_id = $role");
+                        $role = mysqli_fetch_array($role);
+                        $role = $role["role_name"];
+
+                        echo "<tr>";
+                            echo "<td>$name</td>";
+                            echo "<td>$role</td>";
+                            echo "<td><button class = 'button' onclick=\"removeAssigned('$userID')\">Remove</button></td>";
+                        echo "<tr>";
                     }
                 ?>
             </table>
