@@ -1,0 +1,134 @@
+*::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: black;
+}
+.calc {
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 21px;
+}
+.title-to-review {
+    height: 24px;
+}
+
+/* Flashcard */
+.wrapper-flashcard {
+    color: white;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 5.5%;
+}
+.wrapper-mid {
+    width: 97%;
+    display: flex;
+    flex-direction: column;
+}
+.vocab-card {
+    border-bottom: 1px solid rgb(174, 174, 174);;
+}
+.vocab-card,.sentence {
+    display: flex;
+    flex-direction: column;
+}
+.hanzi {
+    font-size: 40px;
+}
+.vocab-card .pinyin {
+    font-size: 20px;
+}
+.word-class {
+    color: gray;
+}
+
+span.word-class,span.mean-EN,span.mean-ID {
+    padding-bottom: 7px;
+    font-size: 16px;
+}
+div.sentence {
+    padding: 6px 0;
+    font-size: 17px;
+}
+table {
+    margin: 0;
+}
+td {
+    border: none;
+}
+td.sub {
+    padding-right: 4.5px;
+}
+td.colon {
+    width: 10px;
+    text-align: center;
+}
+td.meaning {
+    padding-left: 4.5px;
+    width: 100%;
+}
+
+
+/* Footer */
+.wrapper-show-answer {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: rgb(36, 36, 36);
+    width: 100%;
+    height: 10%;
+    position: fixed;
+    bottom: 0;
+}
+
+#criteria:hover {
+    transform: scale(1.02); /* zoom dikit */
+    transition: transform 0.3s ease-in-out;
+}
+
+.forgot {
+    background-color: rgb(161, 0, 0);
+}
+.hard {
+    background-color: orange;
+}
+.remember {
+    background-color: green;
+}
+
+#criteria {
+    display: flex;
+    flex-direction: column;
+    width: 15%;
+    border-radius: 8px;
+    align-items: center;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.show {
+    color: rgb(217, 163, 70);
+    font-weight: bold;
+    font-size: 20px;
+}
+button.wrapper-show-answer {
+    border: none;
+    cursor: pointer;
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+    #criteria {
+        width: 25%;
+    }
+}

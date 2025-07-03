@@ -56,6 +56,7 @@ form {
 .remember{
     margin-top: 10px;
     display: flex;
+    justify-content: space-between;
 }
 
 .remember span {
@@ -70,7 +71,7 @@ input[type="password"] {
     font-size: 17px;
     border-radius: 8px;
     padding: 5px 5px;
-    width: 96%;
+    width: 100%;
 }
 
 span.alert {

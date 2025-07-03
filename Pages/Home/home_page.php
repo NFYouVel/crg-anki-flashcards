@@ -8,14 +8,10 @@ $user_id = $_SESSION["user_id"];
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
 $line = mysqli_fetch_assoc($result);
-
-if ($line['role'] == 0) {
-    $role = "Admin";
-} else if ($line['role'] == 1) {
-    $role = "Teacher";
-} else {
-    $role = "Student";
-}
+$role_id = $line['role'];
+$result2 = mysqli_query($con,"SELECT * FROM user_role WHERE role_id = '$role_id'");
+$line2 = mysqli_fetch_assoc($result2);
+$role = $line2['role_name'];
 ?>
 <!DOCTYPE html>
 <html lang="en">

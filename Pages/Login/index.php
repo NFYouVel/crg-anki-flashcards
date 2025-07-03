@@ -19,11 +19,14 @@
             <span class="h2">Login</span>
             <span class="description">Login in to your account</span>
             <form method="post">
-                <input type="email" name="email" placeholder="Email"> <br>
-                <input type="password" name="password" placeholder="Password"> <br>
+                <input type="email" name="email" placeholder="Email" required> <br>
+                <input type="password" name="password" placeholder="Password" required> <br>
                 <div class="remember">
-                    <input type="checkbox" name="cookie" value="check">
-                    <span>Remember Me</span> <br>
+                    <div class="in-remember">
+                        <input type="checkbox" name="cookie" value="check">
+                        <span>Remember Me</span> <br>
+                    </div>
+                    <a href="forgetpassword.php">Forget Password?</a>
                 </div>
                 <input type="submit" value="Log In" name="submit" class="submit" id="submit">
             </form>
