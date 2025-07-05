@@ -93,7 +93,7 @@
             </ul>
         </li>
         <li><a id="classroom" href="classroom.php">Classroom</a></li>
-        <li><a id="dictionary" href="dictionary.php">Dictionary</a></li>
+        <li><a id="dictionary" href="dictionary.php?limit=0">Dictionary</a></li>
         <li>
             <a id = "sentence" href="">Sentence</a>
             <ul>
