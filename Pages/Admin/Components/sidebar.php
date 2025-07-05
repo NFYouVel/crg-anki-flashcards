@@ -31,9 +31,9 @@
         top: 0;
     }
 
-    #container, #sidebar {
+    /* #container, #sidebar {
         padding-top: 9vh;
-    }
+    } */
 
     a {
         color: white;

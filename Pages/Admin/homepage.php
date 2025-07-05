@@ -29,7 +29,6 @@
 <body>
     <?php
         include "Components/sidebar.php";
-        include "../Home/Component/header_login.php";
     ?>
     </div></div>
     <div id="container">
