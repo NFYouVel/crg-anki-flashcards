@@ -40,7 +40,14 @@
             // Kalo ada cookie
             if (isset($_COOKIE['user_id'])) {
                 $_SESSION['user_id'] = $_COOKIE['user_id'];
-                header("Location: ../Home/home_page.php");
+                $user_id = $_SESSION['user_id'];
+                $result = mysqli_query($con, "SELECT * FROM users WHERE user_id = '$user_id'");
+                $row = mysqli_fetch_assoc($result);
+                if ($row['role'] == 1 || $row['role'] == 2) {
+                    header("Location: ../Home/home_page.php");
+                } else {
+                    header("Location: ../Home/home_page_students.php");
+                }
                 exit;
             }
             // Kalo cookie brute force is set
@@ -69,7 +76,7 @@
                 }
 
                 echo "Chance remaining: ";
-                echo 5 - $_SESSION['count_brute_force'];
+                echo 4 - $_SESSION['count_brute_force'];
                 if ($_SESSION['count_brute_force'] >= 5) {
                     setcookie(md5('fake1'), md5("funlock1"), time() + (600), "/");
                     setcookie(md5('fake2'), md5("funlock2"), time() + (600), "/");
@@ -100,7 +107,13 @@
                                 setcookie('user_id', $line['user_id'], time() + (86400), '/', '', false, true);
                             }
 
-                            header("Location: ../Home/home_page.php");
+                            $result = mysqli_query($con, "SELECT * FROM users WHERE user_id = '$user_id'");
+                            $row = mysqli_fetch_assoc($result);
+                            if ($row['role'] == 1 || $row['role'] == 2) {
+                                header("Location: ../Home/home_page.php");
+                            } else {
+                                header("Location: ../Home/home_page_students.php");
+                            }
                             exit;
                         }
                     } else { // Kalo password salah

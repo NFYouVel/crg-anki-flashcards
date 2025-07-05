@@ -15,7 +15,7 @@ $role = $line2['role_name'];
 
 if (isset($_POST['hide'])) {
     $name = $line['name'];
-    echo "<script>alert('You are login with $name Account as Teacher')</script>";
+    echo "<script>alert('You are login with $name Account as Student')</script>";
 }
 ?>
 <!DOCTYPE html>
@@ -33,12 +33,14 @@ if (isset($_POST['hide'])) {
 
 <body>
     <!-- Header -->
-    <?php include "Component/header_login.php";?>
-
-    <form method="post" action="home_page_students.php">
-        <input type="hidden" value="2" name="hide">
-        <input type="submit" value="Change To Student Mode" name="change" class="student-mode">
-    </form>
+    <?php include "Component/header_login.php";
+        if ($role_id == 2) {
+           echo "<form method='post' action='home_page.php'>
+        <input type='hidden' value='2' name='hide'>
+        <input type='submit' value='Change To Teacher Mode' name='change' class='student-mode'>
+    </form>";
+        }
+    ?>
 
     <div class="right-bar">
         <div class="account-info">
@@ -92,7 +94,7 @@ if (isset($_POST['hide'])) {
                                     <li class="contain-third">
                                         <div class="title-to-review-third">
                                             <!-- Deck Title -->
-                                            <a href="deck_progress.php" class="title-third">Active Chinese 1.1</a>
+                                            <a href="flashcard.php" class="title-third">Active Chinese 1.1</a>
                                             <!-- To Review Green Red Blue-->
                                             <div class="to-review">
                                                 <span class="green">169</span>
@@ -123,7 +125,7 @@ if (isset($_POST['hide'])) {
                                     <li class="contain-third">
                                         <div class="title-to-review-third">
                                             <!-- Deck Title -->
-                                            <a href="deck_progress.php" class="title-third">Active Chinese 1.2</a>
+                                            <a href="flashcard.php" class="title-third">Active Chinese 1.2</a>
                                             <!-- To Review Green Red Blue-->
                                             <div class="to-review">
                                                 <span class="green">169</span>

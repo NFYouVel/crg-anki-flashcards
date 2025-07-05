@@ -1,10 +1,39 @@
 <?php
+//Session
 session_start();
 include "../../SQL_Queries/connection.php";
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = $_COOKIE['user_id'];
 }
 $user_id = $_SESSION["user_id"];
+
+//Cancel and updates
+$name = filter_input(INPUT_POST, 'name');
+$password = filter_input(INPUT_POST, 'password');
+$character = filter_input(INPUT_POST, "character-set");
+$cancel = filter_input(INPUT_POST, "cancel");
+$update = filter_input(INPUT_POST, "update");
+if ($cancel) {
+    header("Location: home_page.php");
+    exit;
+}
+
+if ($name && $password && $character) {
+    if (strlen($password) < 6) {
+        echo "<script>alert('Your password must be more than 6 character!')</script>";
+    } else {
+    $password_hashed = password_hash($password,PASSWORD_BCRYPT);
+        $query = "UPDATE users SET name = '$name', password_hash = '$password_hashed', character_set = '$character' WHERE user_id = '$user_id'";
+        $update_result = mysqli_query($con,$query);
+        if ($update_result) {
+            echo "<script>alert('Update success!'); window.location.href='home_page.php';</script>";
+        } else {
+            echo "<script>alert('Update failed. Please try again!')</script>";
+        }
+    }
+}
+
+// Ngambil data dari user untuk hader
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
 $line = mysqli_fetch_assoc($result);
@@ -45,6 +74,7 @@ $role = $line2['role_name'];
     </div>
     </div>
     </div>
+    <?php include "Component/account_logout.php"; ?>
 
     <div class="wrapper-setting">
         <div class="wrapper-mid">
@@ -64,13 +94,16 @@ $role = $line2['role_name'];
                     </select>
                 </div>
                 <div class="action">
-                    <input type="submit" value="Cancel">
-                    <input type="submit" value="Update">
+                    <input type="submit" value="Cancel" name="cancel">
+                    <input type="submit" value="Update" name="update">
                 </div>
             </form>
-
         </div>
     </div>
+
+    <?php
+ 
+    ?>
 </body>
 
 </html>
