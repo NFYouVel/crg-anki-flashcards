@@ -163,5 +163,8 @@
     #overview_user {
         color: #ffa72a;
     }
+    #user {
+        color: #ffa72a;
+    }
 </style>
 </html>

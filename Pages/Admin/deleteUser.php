@@ -11,8 +11,13 @@
             align-items: center;
         }
         #container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #wrapper {
             background-color: #143d59;
-            width: 500px;
+            width: 75%;
             height: 250px;
             border-radius: 25px;
             padding: 12px 24px;
@@ -62,7 +67,6 @@
     </style>
 </head>
     <?php
-        include "Components/sidebar.php";
         include "../../SQL_Queries/connection.php";
         if(isset($_POST["delete"])) {
             $deleteID = $_POST["delete"];
@@ -77,41 +81,49 @@
     ?>
 <body>
     <?php
+        include "Components/sidebar.php";
+    ?>
+    <?php
         $id = $_GET["id"];
     ?>
     <div id="container">
-        <h1>Are you sure you want to delete this user?</h1>
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>User Status</th>
-            </tr>
-            <tr>
-                <?php
-                    $data = mysqli_query($con, "SELECT name, email, role, user_status FROM users WHERE user_id = '$id'");
-                    $data = mysqli_fetch_array($data);
-                    $name = $data["name"];
-                    $email = $data["email"];
-                    $role = $data["role"];
-                    $status = $data["user_status"];
+        <div id = "wrapper">
+            <h1>Are you sure you want to delete this user?</h1>
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>User Status</th>
+                </tr>
+                <tr>
+                    <?php
+                        $data = mysqli_query($con, "SELECT name, email, role, user_status FROM users WHERE user_id = '$id'");
+                        $data = mysqli_fetch_array($data);
+                        $name = $data["name"];
+                        $email = $data["email"];
+                        $role = $data["role"];
+                        $status = $data["user_status"];
 
-                    echo "<td>$name</td>";
-                    echo "<td>$email</td>";
-                    echo "<td>$role</td>";
-                    echo "<td>$status</td>";
-                ?>
-            </tr>
-        </table>
-        <form method = "post">
-            <a id = 'button' href = 'overview_user.php'>Cancel</a>
-            <button id = 'button' name = "delete" value = "<?php echo $id; ?>" onclick = "">Confirm</button>
-        </form>
+                        echo "<td>$name</td>";
+                        echo "<td>$email</td>";
+                        echo "<td>$role</td>";
+                        echo "<td>$status</td>";
+                    ?>
+                </tr>
+            </table>
+            <form method = "post">
+                <a id = 'button' href = 'overview_user.php'>Cancel</a>
+                <button id = 'button' name = "delete" value = "<?php echo $id; ?>" onclick = "">Confirm</button>
+            </form>
+        </div>
     </div>
 </body>
 <style>
     #overview_user {
+        color: #ffa72a;
+    }
+    #user {
         color: #ffa72a;
     }
 </style>

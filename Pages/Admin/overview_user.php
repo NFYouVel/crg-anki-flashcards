@@ -125,7 +125,7 @@
                     console.log(str)
                 }
             }
-            xmlhttp.open("GET", "AJAX/search_user_overview.php.php?search=" + str, true);
+            xmlhttp.open("GET", "AJAX/search_user_overview.php?search=" + str, true);
             xmlhttp.send();
         }
     </script>
@@ -233,6 +233,9 @@
 </body>
 <style>
     #overview_user {
+        color: #ffa72a;
+    }
+    #user {
         color: #ffa72a;
     }
 </style>

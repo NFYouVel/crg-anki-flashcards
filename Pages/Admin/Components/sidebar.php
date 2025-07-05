@@ -1,4 +1,9 @@
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+
+    * {
+        font-family: 'Nunito', sans-serif;
+    }
     html, body {
         height: 100%;
         width: 100%;
@@ -24,6 +29,10 @@
         position: fixed;
         left: 0;
         top: 0;
+    }
+
+    #container, #sidebar {
+        padding-top: 9vh;
     }
 
     a {
@@ -86,7 +95,7 @@
         <li><a id="classroom" href="classroom.php">Classroom</a></li>
         <li><a id="dictionary" href="dictionary.php">Dictionary</a></li>
         <li>
-            <a href="">Sentence</a>
+            <a id = "sentence" href="">Sentence</a>
             <ul>
                 <li><a id="overview_sentence" href="overview_sentence.php">Overview</a></li>
                 <li><a id="report" href="report.php">Report</a></li>

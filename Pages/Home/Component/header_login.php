@@ -14,7 +14,8 @@
 
     .wrapper-header {
         display: flex;
-
+        position: relative;
+        z-index: 100;
     }
 
     .wrapper-header .header {

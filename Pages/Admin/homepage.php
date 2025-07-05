@@ -25,12 +25,13 @@
             font-weight: bolder;
         }
     </style>
-    <?php
-        include "Components/sidebar.php";
-    ?>
 </head>
 <body>
-
+    <?php
+        include "Components/sidebar.php";
+        include "../Home/Component/header_login.php";
+    ?>
+    </div></div>
     <div id="container">
         <h1>Hello, Herodian!</h1>
         <h3>What would you like to do?</h3>
@@ -44,4 +45,9 @@
         </div>
     </div>
 </body>
+<style>
+    #home {
+        color: #ffa72a;
+    }
+</style>
 </html>

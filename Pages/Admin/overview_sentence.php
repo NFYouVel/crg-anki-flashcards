@@ -14,6 +14,9 @@
 <body>
 </body>
 <style>
+    #sentence {
+        color: #ffa72a;
+    }
     #overview_sentence {
         color: #ffa72a;
     }

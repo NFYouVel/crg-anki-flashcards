@@ -23,18 +23,23 @@
             //search berdasarkan id (bisa berdasarkan field lain)
             $cards = mysqli_query($con, "SELECT * FROM cards WHERE card_id = $search");
         }
-        while ($card = mysqli_fetch_array($cards)) {
-            echo "<tr>";
-            echo "<td>" . $card["card_id"] . "</td>";
-            echo "<td>" . $card["chinese_tc"] . "</td>";
-            echo "<td>" . $card["chinese_sc"] . "</td>";
-            echo "<td>" . $card["priority"] . "</td>";
-            echo "<td>" . $card["pinyin"] . "</td>";
-            echo "<td>" . $card["word_class"] . "</td>";
-            echo "<td id = 'long'>" . $card["meaning_eng"] . "</td>";
-            echo "<td id = 'long'>" . $card["meaning_ina"] . "</td>";
-            echo "<td>0</td>";
-            echo "</tr>";
+        if(mysqli_num_rows($cards) > 0) {
+            while ($card = mysqli_fetch_array($cards)) {
+                echo "<tr>";
+                echo "<td>" . $card["card_id"] . "</td>";
+                echo "<td>" . $card["chinese_tc"] . "</td>";
+                echo "<td>" . $card["chinese_sc"] . "</td>";
+                echo "<td>" . $card["priority"] . "</td>";
+                echo "<td>" . $card["pinyin"] . "</td>";
+                echo "<td>" . $card["word_class"] . "</td>";
+                echo "<td id = 'long'>" . $card["meaning_eng"] . "</td>";
+                echo "<td id = 'long'>" . $card["meaning_ina"] . "</td>";
+                echo "<td>0</td>";
+                echo "</tr>";
+            }
+        }
+        else {
+            echo "<h1>Cards Not Found</h1>";
         }
     ?>
 </table>

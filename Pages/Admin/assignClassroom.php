@@ -213,6 +213,8 @@
             </table>
         </div>
     </div>
+
+    <a href="classroom.php" style = "position: fixed; bottom: 24px; left: 30px; display: flex; justify-content: center; align-items: center;" class="button"><span>Back</span></a>
 </body>
 <style>
     #classroom {

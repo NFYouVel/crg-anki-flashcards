@@ -11,6 +11,8 @@ html, body {
 
 .wrapper-header {
     display: flex;
+    z-index: 100;
+    position: relative;
 }
 
 .wrapper-header .header {

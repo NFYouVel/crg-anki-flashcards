@@ -16,9 +16,16 @@
             margin: 16px 0;
         }
         #header {
+            background-color: #262626;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: fixed;
+            width: 85%;
+            left: calc(15% + 24px);
+            top: 0;
+            padding-right: 48px;
+            box-sizing: border-box;
         }
         input {
             height: 50px;
@@ -50,6 +57,7 @@
             font-size: 20px;
             border-collapse: collapse;
             margin-bottom: 48px;
+            margin-top: 80px;
         }
         th {
             color: white;
@@ -58,6 +66,12 @@
         th, td {
             border: 2px solid black;
             padding: 5px 10px;
+        }
+        tr {
+            transition: box-shadow 0.5s ease;
+        }
+        .highlighted {
+            box-shadow: 0 0 0 4px red inset;
         }
         #long {
             white-space: normal;
@@ -76,7 +90,7 @@
     <script>
         function searchCards(str) {
             var xmlhttp;
-            if(str == "") {
+            if (isNaN(str) || str === "") {
                 return;
             }
             if (window.XMLHttpRequest != null) {
@@ -94,6 +108,25 @@
             xmlhttp.open("GET", "AJAX/search_cards.php?search=" + str, true);
             xmlhttp.send();
         }
+        let searchTimeout = null;
+        function searchCards(str) {
+            // Clear previous timeout to debounce
+            clearTimeout(searchTimeout);
+
+            // Set new timeout
+            searchTimeout = setTimeout(() => {
+                str = str.trim();
+                if (isNaN(str) || str === "") {
+                    return;
+                }
+                var row = document.getElementById("card-" + str);
+                if (row) {
+                    row.scrollIntoView({ behavior: "smooth", block: "center" });
+                    row.classList.add("highlighted");
+                    setTimeout(() => row.classList.remove("highlighted"), 2500);
+                }
+            }, 300); // Delay in ms
+        }
     </script>
 </head>
 <body>
@@ -101,15 +134,15 @@
         include "Components/sidebar.php";
         include "../../SQL_Queries/connection.php";
     ?>
+    <div id="header">
+        <h1>Dictionary (Card) Overview</h1>
+        <input type="text" placeholder = "&#128269;Search" onkeyup = "searchCards(this.value)">
+        <form action="addCards.php" method="POST" enctype="multipart/form-data">
+            <input id = "file" name = "excel_file" style = "display: none" class = "button" type="file" onchange="this.form.submit()">
+            <label class = "button" for="file">Import</label>
+        </form>
+    </div>
     <div id="container">
-        <div id="header">
-            <h1>Dictionary (Card) Overview</h1>
-            <input type="text" placeholder = "&#128269;Search" onkeyup = "searchCards(this.value)">
-            <form action="addCards.php" method="POST" enctype="multipart/form-data">
-                <input id = "file" name = "excel_file" style = "display: none" class = "button" type="file" onchange="this.form.submit()">
-                <label class = "button" for="file">Import</label>
-            </form>
-        </div>
         <table id = "cardsTable">
             <tr>
                 <th>ID</th>
@@ -126,7 +159,8 @@
             <?php
                 $cards = mysqli_query($con, "SELECT * FROM cards");
                 while($card = mysqli_fetch_array($cards)) {
-                    echo "<tr>";
+                    $cardID = $card["card_id"];
+                    echo "<tr id = 'card-$cardID'>";
                     echo "<td>" . $card["card_id"] . "</td>";
                     echo "<td>" . $card["chinese_tc"] . "</td>";
                     echo "<td>" . $card["chinese_sc"] . "</td>";

@@ -93,7 +93,10 @@
     <form method = "post" id = "container">
         <div id="heading">
             <h1>Edit Classroom</h1>
-            <button class = 'button'><span>Confirm</span></button>
+            <div style = "display: flex; justify-content: space-evenly; align-items: center; gap: 16px;">
+                <a href = "classroom.php" class = "button">Cancel</a>
+                <button class = 'button'><span>Confirm</span></button>
+            </div>
         </div>
         <table>
             <tr>

@@ -17,5 +17,8 @@
     #report {
         color: #ffa72a;
     }
+    #sentence {
+        color: #ffa72a;
+    }
 </style>
 </html>
