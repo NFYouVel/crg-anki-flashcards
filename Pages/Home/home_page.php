@@ -35,16 +35,16 @@ if (isset($_POST['hide'])) {
     <!-- Header -->
     <?php include "Component/header_login.php";?>
 
-    <form method="post" action="home_page_students.php">
-        <input type="hidden" value="2" name="hide">
-        <input type="submit" value="Change To Student Mode" name="change" class="student-mode">
-    </form>
-
     <div class="right-bar">
         <div class="account-info">
             <span class="username"><?php echo $line['name'] ?></span>
-            <span class="as"><?php echo $role ?></span>
+            <span class="as" style="cursor: pointer;" onclick="Mode()"><?php echo $role ?> Mode</span>
         </div>
+        <script>
+            function Mode(){
+                window.location.href = "home_page_students.php";
+            }
+        </script>
 
         <div class="navbar">
             <span class="icon">&#9776;</span>

@@ -34,19 +34,32 @@ if (isset($_POST['hide'])) {
 <body>
     <!-- Header -->
     <?php include "Component/header_login.php";
-        if ($role_id == 2) {
-           echo "<form method='post' action='home_page.php'>
-        <input type='hidden' value='2' name='hide'>
-        <input type='submit' value='Change To Teacher Mode' name='change' class='student-mode'>
-    </form>";
-        }
+
     ?>
 
     <div class="right-bar">
         <div class="account-info">
             <span class="username"><?php echo $line['name'] ?></span>
-            <span class="as"><?php echo $role ?></span>
+            <span class='as' 
+
+            <?php 
+            if ($role_id == 2) {
+                echo " style='cursor: pointer;' onclick='Mode()'";
+            } 
+            ?>> Student
+            <?php
+            if ($role_id == 2) {
+                echo " Mode";
+            } 
+            ?>
+        </span>
         </div>
+
+        <script>
+            function Mode(){
+                window.location.href = "home_page.php";
+            }
+        </script>
 
         <div class="navbar">
             <span class="icon">&#9776;</span>

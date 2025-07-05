@@ -8,7 +8,6 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION["user_id"];
 
 //Cancel and updates
-$name = filter_input(INPUT_POST, 'name');
 $password = filter_input(INPUT_POST, 'password');
 $character = filter_input(INPUT_POST, "character-set");
 $cancel = filter_input(INPUT_POST, "cancel");
@@ -18,12 +17,19 @@ if ($cancel) {
     exit;
 }
 
-if ($name && $password && $character) {
-    if (strlen($password) < 6) {
+if ($update && ($password || $character)) {
+    if ($password && strlen($password) < 6) {
         echo "<script>alert('Your password must be more than 6 character!')</script>";
     } else {
-    $password_hashed = password_hash($password,PASSWORD_BCRYPT);
-        $query = "UPDATE users SET name = '$name', password_hash = '$password_hashed', character_set = '$character' WHERE user_id = '$user_id'";
+        if ($password && $character) {
+            $password_hashed = password_hash($password,PASSWORD_BCRYPT);
+            $query = "UPDATE users SET password_hash = '$password_hashed', character_set = '$character' WHERE user_id = '$user_id'";
+        }
+        else if ($password) {
+            $query = "UPDATE users SET password_hash = '$password_hashed' WHERE user_id = '$user_id'";
+        } else {
+            $query = "UPDATE users SET character_set = '$character' WHERE user_id = '$user_id'";
+        }
         $update_result = mysqli_query($con,$query);
         if ($update_result) {
             echo "<script>alert('Update success!'); window.location.href='home_page.php';</script>";
