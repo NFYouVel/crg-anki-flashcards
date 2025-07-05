@@ -157,7 +157,10 @@
             </tr>
 
             <?php
-                $cards = mysqli_query($con, "SELECT * FROM cards");
+                $limit = $_GET["limit"];
+                $bottomLimit = $limit * 100;
+                $upperLimit = ($limit + 1) * 100;
+                $cards = mysqli_query($con, "SELECT * FROM cards WHERE card_id > $bottomLimit AND card_id <= $upperLimit");
                 while($card = mysqli_fetch_array($cards)) {
                     $cardID = $card["card_id"];
                     echo "<tr id = 'card-$cardID'>";
