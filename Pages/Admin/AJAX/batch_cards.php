@@ -101,7 +101,8 @@
             echo "<td>" . $value["reason"] . "</td>";
             echo "</tr>";
         }
-        session_unset();
-        session_destroy();
+        unset($_SESSION["allCards"]);
+        unset($_SESSION["validCards"]);
+        unset($_SESSION["invalidCards"]);
     ?>
 </table>

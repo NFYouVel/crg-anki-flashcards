@@ -72,7 +72,7 @@
             $deleteID = $_POST["delete"];
             
             if(mysqli_query($con, "UPDATE users SET user_status = 'deleted', deleted_at = CURRENT_TIMESTAMP WHERE user_id = '$deleteID'")) {
-                echo "<script>alert('Data berhasil dihapus')</script>";
+                echo "<script>alert('Data berhasil dihapus'); window.location.href = 'overview_user.php';</script>";
             }
             else {
                 echo "<script>alert('Data gagal dihapus)</script>";

@@ -137,7 +137,12 @@
                                     $roleID = $role["role_id"];
                                     $roleName = $role["role_name"];
 
-                                    echo "<option value = '$roleID'>$roleName</option>";
+                                    if($roleName == "Student") {
+                                        echo "<option value = '$roleID' selected>$roleName</option>";
+                                    }
+                                    else {
+
+                                    }
                                 }
                             ?>
                         </select>

@@ -141,6 +141,9 @@
                                 foreach ($sheet->getRowIterator() as $row) {
                                     //mengambil data dari setiap kolumn
                                     $index = $row->getRowIndex();
+                                    if($index == 1) {
+                                        continue;
+                                    }
                                     $name = $sheet->getCell("A$index")->getValue();
                                     $email = $sheet->getCell("B$index")->getValue();
                                     $role = $sheet->getCell("C$index")->getValue();

@@ -83,10 +83,26 @@
             color: black;
             font-size: 24px;
         }
+        #loadingScreen {
+            background-color: #262626;
+            position: absolute;
+            border-radius: 24px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 25%;
+            height: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            display: none;
+        }
     </style>
     <script>
         //function ajax untuk upload cards
         function uploadCards() {
+            document.getElementById("loadingScreen").style.display = "flex";
             var xmlhttp;
             if (window.XMLHttpRequest != null) {
                 xmlhttp = new XMLHttpRequest();
@@ -98,6 +114,7 @@
             xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     document.getElementById("tables").innerHTML = xmlhttp.responseText;
+                    document.getElementById("loadingScreen").style.display = "none";
                 }
             }
             xmlhttp.open("GET", "AJAX/batch_cards.php", true);
@@ -109,6 +126,10 @@
     <?php
         include "Components/sidebar.php";
     ?>
+    <div id="loadingScreen">
+        <img src="Components/loading.gif" alt="">
+        <h1>Importing</h1>
+    </div>
     <div id="bookmarks">
         <a href="#preview">Preview</a>
         <a href="#valid">Valid</a>

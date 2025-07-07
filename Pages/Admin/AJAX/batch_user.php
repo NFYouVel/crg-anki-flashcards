@@ -42,8 +42,7 @@
 <?php
     if(mysqli_query($con, $query)) {
         echo "<h1>Upload Successful</h1>";
-        session_unset();
-        session_destroy();
+        unset($_SESSION["validUsers"]);
     }
     else {
         echo "<h1>Upload Failed</h1>";
