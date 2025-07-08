@@ -5,20 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deck</title>
     <style>
-        h1 {
+        h2, h1 {
             color: white;
-            font-size: 50px;
-        }
-        input {
-            height: 40px;
-            width: 250px;
-            border-radius: 12px;
-            border: 2px solid #e9a345;
-            font-size: 20px;
-        }
-        input::placeholder {
-            color: #e9a345;
-            font-size: 20px;
         }
         .button {
             font-family: 'Arial', sans-serif;
@@ -42,6 +30,29 @@
             justify-content: space-between;
             align-items: center;
         }
+        #container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        #main {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 16px;
+            flex: 1;
+        }
+        #list {
+            flex: 1.2;
+        }
+        #details {
+            flex: 2;
+        }
+        .content {
+            width: 100%;
+            border: 1px solid white;
+            height: 80%;
+        }
     </style>
 </head>
 <body>
@@ -52,8 +63,16 @@
     <div id="container">
         <div id="header">
             <h1>Deck Overview</h1>
-            <input type="text" placeholder = "&#128269;Search" onkeyup = "searchUser(this.value)">
-            <a href="" class="button"><span>Add Deck</span></a>
+        </div>
+        <div id="main">
+            <div id="list">
+                <h2>Deck List</h2>
+                <div class="content"></div>
+            </div>
+            <div id="details">
+                <h2>Deck Details</h2>
+                <div class="content"></div>
+            </div>
         </div>
     </div>
 </body>

@@ -85,7 +85,7 @@
         }
         #loadingScreen {
             background-color: #262626;
-            position: absolute;
+            position: fixed;
             border-radius: 24px;
             left: 50%;
             top: 50%;

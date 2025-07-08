@@ -117,47 +117,6 @@
             -moz-appearance: textfield;
         }
     </style>
-    <script>
-        function searchCards(str) {
-            var xmlhttp;
-            if (isNaN(str) || str === "") {
-                return;
-            }
-            if (window.XMLHttpRequest != null) {
-                xmlhttp = new XMLHttpRequest();
-            }
-            else {
-                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-            }
-
-            xmlhttp.onreadystatechange = function () {
-                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    document.getElementById("cardsTable").innerHTML = xmlhttp.responseText;
-                }
-            }
-            xmlhttp.open("GET", "AJAX/search_cards.php?search=" + str, true);
-            xmlhttp.send();
-        }
-        let searchTimeout = null;
-        function searchCards(str) {
-            // Clear previous timeout to debounce
-            clearTimeout(searchTimeout);
-
-            // Set new timeout
-            searchTimeout = setTimeout(() => {
-                str = str.trim();
-                if (isNaN(str) || str === "") {
-                    return;
-                }
-                var row = document.getElementById("card-" + str);
-                if (row) {
-                    row.scrollIntoView({ behavior: "smooth", block: "center" });
-                    row.classList.add("highlighted");
-                    setTimeout(() => row.classList.remove("highlighted"), 2500);
-                }
-            }, 300); // Delay in ms
-        }
-    </script>
 </head>
 <body>
     <?php
@@ -187,12 +146,15 @@
             </tr>
 
             <?php
-                $limit = $_GET["limit"] ?? 0;
+                $limit = $_GET["page"] ?? 0;
                 $bottomLimit = $limit * 100;
                 $upperLimit = ($limit + 1) * 100;
                 $cards = mysqli_query($con, "SELECT * FROM cards WHERE card_id > $bottomLimit AND card_id <= $upperLimit ORDER BY card_id ASC");
                 while($card = mysqli_fetch_array($cards)) {
                     $cardID = $card["card_id"];
+                    $countLinked = mysqli_query($con, "SELECT COUNT(*) as total FROM junction_card_sentence WHERE card_id = $cardID");
+                    $countLinked = mysqli_fetch_assoc($countLinked);
+                    $countLinked = $countLinked["total"];
                     echo "<tr id = 'card-$cardID'>";
                     echo "<td>" . $card["card_id"] . "</td>";
                     echo "<td>" . $card["chinese_tc"] . "</td>";
@@ -202,7 +164,7 @@
                     echo "<td>" . $card["word_class"] . "</td>";
                     echo "<td id = 'long'>" . $card["meaning_eng"] . "</td>";
                     echo "<td id = 'long'>" . $card["meaning_ina"] . "</td>";
-                    echo "<td>0</td>";
+                    echo "<td>$countLinked</td>";
                     echo "</tr>";
                 }
             ?>
@@ -210,11 +172,11 @@
 
         <div id="pageNav">
             <div id="actions">
-                <a href="dictionary.php?limit=0"><span><<</span></a>
-                <a href="dictionary.php?limit=<?php echo $limit - 1 ?>"><span><</span></a>
+                <a href="dictionary.php?page=0"><span><<</span></a>
+                <a href="dictionary.php?page=<?php echo $limit - 1 ?>"><span><</span></a>
                 <input type="number" id = "pageInput" value = "<?php echo $limit + 1; ?>">
-                <a href="dictionary.php?limit=<?php echo $limit + 1 ?>"><span>></span></a>
-                <a href="dictionary.php?limit=<?php 
+                <a href="dictionary.php?page=<?php echo $limit + 1 ?>"><span>></span></a>
+                <a href="dictionary.php?page=<?php 
                     $maxPage = mysqli_query($con, "SELECT MAX(card_id) as total FROM cards;");
                     $maxPage = mysqli_fetch_array($maxPage);
                     $maxPage = $maxPage["total"];
@@ -229,7 +191,50 @@
                 event.preventDefault(); // Optional: prevent form submission or new line
                 let limit = document.getElementById("pageInput").value;
                 console.log("tes");
-                window.location.href = "dictionary.php?limit=" + limit;
+                window.location.href = "dictionary.php?page=" + limit;
+            }
+        });
+        let searchTimeout = null;
+    
+        function searchCards(str) {
+            clearTimeout(searchTimeout);
+    
+            searchTimeout = setTimeout(() => {
+                str = str.trim();
+                if (isNaN(str) || str === "") {
+                    return;
+                }
+    
+                var cardID = parseInt(str);
+                var page = Math.floor((cardID - 1) / 100);
+    
+                var currentPage = <?php echo $limit ?>;
+    
+                if (currentPage !== page) {
+                    window.location.href = "dictionary.php?page=" + page + "&cardID=" + cardID;
+                    return;
+                }
+    
+                const row = document.getElementById("card-" + cardID);
+                if (row) {
+                    row.scrollIntoView({ behavior: "smooth", block: "center" });
+                    row.classList.add("highlighted");
+                    setTimeout(() => row.classList.remove("highlighted"), 2500);
+                }
+            }, 300);
+        }
+    
+        // On page load: check if a highlight ID is present in the URL
+        window.addEventListener("DOMContentLoaded", () => {
+            var highlightID = <?php echo $_GET["cardID"]; ?>;
+    
+            if (highlightID) {
+                const row = document.getElementById("card-" + highlightID);
+                if (row) {
+                    row.scrollIntoView({ behavior: "smooth", block: "center" });
+                    row.classList.add("highlighted");
+                    setTimeout(() => row.classList.remove("highlighted"), 2500);
+                }
             }
         });
     </script>
