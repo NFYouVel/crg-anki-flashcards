@@ -69,6 +69,28 @@ if (isset($_POST['hide'])) {
     </div>
     <?php include "Component/account_logout.php"; ?>
     <!-- Main Deck -->
+    <?php
+    $query = "SELECT * FROM users WHERE user_id = '$user_id'";
+    $result = mysqli_query($con, $query);
+    $line = mysqli_fetch_array($result);
+
+    if (isset($line["user_status"]) && $line["user_status"] === "pending")  {
+        echo "<div class='wrapper-update'>
+        <div class='update'>
+            <div class='title-update'><span>Update Your Password!</span></div>
+            <div class='explanation'>
+                <span>Important!</span>
+                <span>To keep your account, you should change your password immediately!</span>
+                <span class='br'>You will be moved to user setting page!</span>
+            </div>
+            <div class='button'>
+                <button class='button-update'>Update</button>
+            </div>
+        </div>
+    </div>";
+    
+    }
+    ?>
     <div class="wrapper-main">
         <div class="deck-layout">
             <!-- Example: For Teacher -->

@@ -152,17 +152,17 @@ if ($line['role'] == 0) {
     <div class="wrapper-show-answer">
         <button class="forgot" id="criteria">
             <span>
-                < 1m</span>
+                X</span>
                     <span>Forgot</span>
         </button>
         <button class="hard" id="criteria">
             <span>
-                < 1m</span>
+                ...</span>
                     <span>Hard</span>
         </button>
         <button class="remember" id="criteria">
             <span>
-                < 1m</span>
+                V</span>
                     <span>Remember</span>
         </button>
     </div>

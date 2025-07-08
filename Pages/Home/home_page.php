@@ -7,16 +7,18 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION["user_id"];
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
-$line = mysqli_fetch_assoc($result);
+$line = mysqli_fetch_array($result);
 $role_id = $line['role'];
-$result2 = mysqli_query($con,"SELECT * FROM user_role WHERE role_id = '$role_id'");
-$line2 = mysqli_fetch_assoc($result2);
+$result2 = mysqli_query($con, "SELECT * FROM user_role WHERE role_id = '$role_id'");
+$line2 = mysqli_fetch_array($result2);
 $role = $line2['role_name'];
 
 if (isset($_POST['hide'])) {
     $name = $line['name'];
     echo "<script>alert('You are login with $name Account as Teacher')</script>";
 }
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -33,7 +35,7 @@ if (isset($_POST['hide'])) {
 
 <body>
     <!-- Header -->
-    <?php include "Component/header_login.php";?>
+    <?php include "Component/header_login.php"; ?>
 
     <div class="right-bar">
         <div class="account-info">
@@ -41,7 +43,7 @@ if (isset($_POST['hide'])) {
             <span class="as" style="cursor: pointer;" onclick="Mode()"><?php echo $role ?> Mode</span>
         </div>
         <script>
-            function Mode(){
+            function Mode() {
                 window.location.href = "home_page_students.php";
             }
         </script>
@@ -53,7 +55,32 @@ if (isset($_POST['hide'])) {
     </div>
     </div>
     <?php include "Component/account_logout.php"; ?>
+
     <!-- Main Deck -->
+    <?php
+    $query = "SELECT * FROM users WHERE user_id = '$user_id'";
+    $result = mysqli_query($con, $query);
+    $line = mysqli_fetch_array($result);
+
+    if (isset($line["user_status"]) && $line["user_status"] === "pending")  {
+        header("Location: setting.php");
+    //     echo "<div class='wrapper-update'>
+    //     <div class='update'>
+    //         <div class='title-update'><span>Update Your Password!</span></div>
+    //         <div class='explanation'>
+    //             <span>Important!</span>
+    //             <span>To keep your account, you should change your password immediately!</span>
+    //             <span class='br'>You will be moved to user setting page!</span>
+    //         </div>
+    //         <div class='button'>
+    //             <button class='button-update'>Update</button>
+    //         </div>
+    //     </div>
+    // </div>";
+
+    }
+    ?>
+
     <div class="wrapper-main">
         <div class="deck-layout">
             <!-- Example: For Teacher -->

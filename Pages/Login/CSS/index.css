@@ -46,7 +46,7 @@ span.description {
     border: none;
     border-radius: 7.5px;
     cursor: pointer;
-    margin-top: 8%;
+    margin-top: 6%;
 }
 
 form {
@@ -54,7 +54,7 @@ form {
 }
 
 .remember{
-    margin-top: 10px;
+    /* margin-top: 10px; */
     display: flex;
     justify-content: space-between;
 }
@@ -65,7 +65,8 @@ form {
 }
 
 input[type="email"],
-input[type="password"] {
+input[type="password"],
+input[type="text"] {
     margin: 3.7% 0;
     border: 2px solid rgb(216, 149, 33);
     font-size: 17px;
@@ -82,6 +83,12 @@ span.alert {
     margin-top: 12px;
 }
 
+a {
+    margin-top: 12px;
+    text-decoration: none;
+    color: blue;
+    font-weight: bold;
+}
 @media screen and (max-width: 768px) {
     .form-side {
         display: flex;

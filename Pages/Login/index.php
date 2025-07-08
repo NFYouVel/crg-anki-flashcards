@@ -14,28 +14,42 @@
     <?php include "../Global Assets/header.php"; ?>
 
     <!-- Form -->
+    <?php
+    // Save email
+    if (isset($_POST['email'])) {
+        $_SESSION['sv_email'] = $_POST['email'];
+    }
+    ?>
     <div class="wrapper">
         <div class="form-side">
             <span class="h2">Login</span>
             <span class="description">Login in to your account</span>
             <form method="post">
-                <input type="email" name="email" placeholder="Email" required> <br>
+                <input type="email" name="email" placeholder="Email"
+                    <?php
+                    if (isset($_SESSION['sv_email'])) {
+                        $temp_email = $_SESSION['sv_email'];
+                        echo 'value="' . $temp_email . '"';
+                    }
+                    ?>> <br>
                 <input type="password" name="password" placeholder="Password" required> <br>
                 <div class="remember">
                     <div class="in-remember">
                         <input type="checkbox" name="cookie" value="check">
                         <span>Remember Me</span> <br>
                     </div>
-                    <a href="forgetpassword.php">Forget Password?</a>
+                    
                 </div>
                 <input type="submit" value="Log In" name="submit" class="submit" id="submit">
             </form>
             <span class='alert' id="error" style='visibility: hidden;'>Wrong email or password. Please contact our admin</span>
+            <a href="forgetpassword.php">Reset Password</a>
 
             <!-- Script PHP -->
             <?php
             session_start();
             include "../../SQL_Queries/connection.php";
+
 
             // Kalo ada cookie
             if (isset($_COOKIE['user_id'])) {
@@ -75,8 +89,8 @@
                     $_SESSION['count_brute_force'] = 1;
                 }
 
-                echo "Chance remaining: ";
-                echo 4 - $_SESSION['count_brute_force'];
+                // echo "Chance remaining: ";
+                // echo 4 - $_SESSION['count_brute_force'];
                 if ($_SESSION['count_brute_force'] >= 5) {
                     setcookie(md5('fake1'), md5("funlock1"), time() + (600), "/");
                     setcookie(md5('fake2'), md5("funlock2"), time() + (600), "/");
@@ -107,9 +121,7 @@
                                 setcookie('user_id', $line['user_id'], time() + (86400), '/', '', false, true);
                             }
 
-                            $result = mysqli_query($con, "SELECT * FROM users WHERE user_id = '$user_id'");
-                            $row = mysqli_fetch_assoc($result);
-                            if ($row['role'] == 1 || $row['role'] == 2) {
+                            if ($line['role'] == 1 || $line['role'] == 2) {
                                 header("Location: ../Home/home_page.php");
                             } else {
                                 header("Location: ../Home/home_page_students.php");

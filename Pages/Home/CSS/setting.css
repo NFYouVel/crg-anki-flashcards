@@ -97,3 +97,22 @@ input[type="text"][name="name"]:focus,input[type='password']:focus {
     box-shadow: 0 0 0 3px rgb(235, 193, 136);
     background-color: #fff;
 }
+
+table {
+    margin: 0;
+    display: flex;
+    font-size: 16px;    
+    padding: 5px 0 ;
+}
+
+td {
+    border: none;
+}
+
+tr > td:first-child {
+    width: 40vh;
+    padding-left: 20px;
+}
+tr > td:nth-child(2) {
+    transform: scale(1.5);
+}

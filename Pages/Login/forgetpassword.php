@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forget Password</title>
+    <link rel="icon" href="../../Logo/circle.png">
+    <link rel="stylesheet" href="CSS/index.css">
     <link rel="stylesheet" href="CSS/forgetpassword.css">
 </head>
 
@@ -12,27 +14,22 @@
     <!-- Header -->
     <?php include "../Global Assets/header.php"; ?>
 
-    <!-- Forget Password Form -->
-    <div class="container">
-        <div class="wrapper">
+    <!-- Form -->
+    <div class="wrapper">
+        <div class="form-side">
+            <span class="h2">Reset Password</span>
+            <span class="description">Reset your account</span>
             <form method="post">
-                <h1>Forget Password</h1>
-                <div class="inputbox">
-                    <input type="text" name="username" required>
-                    <label for="username">Username</label>
-                </div>
-                <div class="inputbox">
-                    <input type="email" name="email" required id="username">
-                    <label for="email">Email</label>
-                </div>
-                <button class="btn" name="input" value="Submit">Submit</button>
+                <span>Your account name:</span>
+                <input type="text" name="username" placeholder="Your username..."><br>
+                <span>Your email:</span>
+                <input type="email" name="email" placeholder="Your email..." required> <br>
+                <input type="submit" value="Reset Password" name="submit" class="submit" id="submit">
             </form>
-            <div id="response" style="color:red; text-align:center; margin-top:10px;"></div>
-        </div>
-    </div>
+            <span class='alert' id="error" style='visibility: hidden;'>Wrong email or password. Please contact our admin</span>
 
-    <?php
-        include "../../SQL_Queries/connection.php";
+            <?php
+            include "../../SQL_Queries/connection.php";
             $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
             $submit = filter_input(INPUT_POST, 'input');
             $username = filter_input(INPUT_POST, 'username');
@@ -44,7 +41,7 @@
 
                 if ($line) {
                     if ($line['email'] == $email) {
-                        $text = "Location: newpassword.php?name=".$username;
+                        $text = "Location: newpassword.php?name=" . $username;
                         header($text);
                         exit;
                     } else {
@@ -54,7 +51,10 @@
                     echo "<script>document.getElementById('response').textContent = 'Email not found.';</script>";
                 }
             }
-    ?>
+            ?>
+        </div>
+    </div>
+
 </body>
 
 </html>

@@ -7,6 +7,12 @@ if (!isset($_SESSION['user_id'])) {
 }
 $user_id = $_SESSION["user_id"];
 
+
+$query = "SELECT * FROM users WHERE user_id = '$user_id'";
+$result = mysqli_query($con, $query);
+$line = mysqli_fetch_array($result);
+
+
 //Cancel and updates
 $password = filter_input(INPUT_POST, 'password');
 $character = filter_input(INPUT_POST, "character-set");
@@ -21,16 +27,27 @@ if ($update && ($password || $character)) {
     if ($password && strlen($password) < 6) {
         echo "<script>alert('Your password must be more than 6 character!')</script>";
     } else {
-        if ($password && $character) {
-            $password_hashed = password_hash($password,PASSWORD_BCRYPT);
+        $check = false;
+        if ($password && $character) { // Klo ganti pw dan chara set
+            $password_hashed = password_hash($password, PASSWORD_BCRYPT);
             $query = "UPDATE users SET password_hash = '$password_hashed', character_set = '$character' WHERE user_id = '$user_id'";
-        }
-        else if ($password) {
+            $check = true;
+        } else if ($password) { // Klo ganti pw
+            $password_hashed = password_hash($password, PASSWORD_BCRYPT);
             $query = "UPDATE users SET password_hash = '$password_hashed' WHERE user_id = '$user_id'";
-        } else {
+            $check = true;
+        } else { // Klo ganti chara set
             $query = "UPDATE users SET character_set = '$character' WHERE user_id = '$user_id'";
         }
-        $update_result = mysqli_query($con,$query);
+        
+        $update_result = mysqli_query($con, $query);
+        // Check ganti password
+        if ($check) {
+            $query = "UPDATE users SET user_status = 'active' WHERE user_id = '$user_id'";
+        }
+
+        // Message klo udah ganti pw
+        $update_result = mysqli_query($con, $query);
         if ($update_result) {
             echo "<script>alert('Update success!'); window.location.href='home_page.php';</script>";
         } else {
@@ -89,15 +106,24 @@ $role = $line2['role_name'];
             </div>
             <form method="post">
                 <div class="form">
-                    <span class="title-contain">Full Name <span style="color: red;">*</span></span>
-                    <input type="text" name="name" placeholder="Your Full Name...">
-                    <span class="title-contain">Password <span style="color: red;">*</span></span>
+                    <span class="title-contain">Password</span>
                     <input type="password" name="password" placeholder="Your Password...">
                     <span class="title-contain">Character Set</span>
-                    <select name="character-set">
+                    <table>
+                        <tr>
+                            <td>Simplified</td>
+                            <td><input type="radio" name="character-set" value="Simplified"></td>
+                        </tr>
+                        <tr>
+                            <td>Traditional</td>
+                            <td><input type="radio" name="character-set" value="Traditional"></td>
+
+                        </tr>
+                    </table>
+                    <!-- <select name="character-set">
                         <option value="simplified">Simplified</option>
                         <option value="traditional">Traditional</option>
-                    </select>
+                    </select> -->
                 </div>
                 <div class="action">
                     <input type="submit" value="Cancel" name="cancel">
@@ -108,7 +134,7 @@ $role = $line2['role_name'];
     </div>
 
     <?php
- 
+
     ?>
 </body>
 

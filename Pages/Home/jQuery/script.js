@@ -32,5 +32,7 @@ $(document).ready(function () {
         let box = $(".wrapper-delete");
         box.fadeOut(150);
     });
-
+    $(".button-update").click(function () {
+        $(location).attr('href', 'setting.php');
+    });
 });
