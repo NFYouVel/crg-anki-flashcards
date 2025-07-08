@@ -114,7 +114,9 @@
             xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     document.getElementById("tables").innerHTML = xmlhttp.responseText;
+                    document.getElementById("cancel").innerText = "Back";
                     document.getElementById("loadingScreen").style.display = "none";
+                    document.getElementById("importButton").style.display = "none";
                 }
             }
             xmlhttp.open("GET", "AJAX/batch_cards.php", true);
@@ -137,10 +139,10 @@
     </div>
     <div id="container">
         <div id="header">
-            <h1>Import User (Preview)</h1>
+            <h1>Import Cards (Preview)</h1>
             <div>
-                <a href="dictionary.php" class="button">Cancel</a>
-                <button class="button" name = "import" onclick = "uploadCards()">Import</button>
+                <a href="dictionary.php" id = "cancel" class="button">Cancel</a>
+                <button id = "importButton" class="button" name = "import" onclick = "uploadCards()">Import</button>
             </div>
         </div>
         <div id="tables">

@@ -12,7 +12,7 @@
     <style>
         h1 {
             color: white;
-            font-size: 45px;
+            font-size: 35px;
             margin: 16px 0;
         }
         #header {
@@ -86,6 +86,36 @@
         tr:nth-child(odd) {
             background-color: #a5a5a5;
         }
+        #pageNav {
+            width: 100%;
+        }
+        #actions {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+        #actions input {
+            width: 50px;
+            text-align: center;
+        }
+        #actions a {
+            font-size: 18px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* For Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
     <script>
         function searchCards(str) {
@@ -157,7 +187,7 @@
             </tr>
 
             <?php
-                $limit = $_GET["limit"];
+                $limit = $_GET["limit"] ?? 0;
                 $bottomLimit = $limit * 100;
                 $upperLimit = ($limit + 1) * 100;
                 $cards = mysqli_query($con, "SELECT * FROM cards WHERE card_id > $bottomLimit AND card_id <= $upperLimit ORDER BY card_id ASC");
@@ -177,7 +207,32 @@
                 }
             ?>
         </table>
+
+        <div id="pageNav">
+            <div id="actions">
+                <a href="dictionary.php?limit=0"><span><<</span></a>
+                <a href="dictionary.php?limit=<?php echo $limit - 1 ?>"><span><</span></a>
+                <input type="number" id = "pageInput" value = "<?php echo $limit + 1; ?>">
+                <a href="dictionary.php?limit=<?php echo $limit + 1 ?>"><span>></span></a>
+                <a href="dictionary.php?limit=<?php 
+                    $maxPage = mysqli_query($con, "SELECT MAX(card_id) as total FROM cards;");
+                    $maxPage = mysqli_fetch_array($maxPage);
+                    $maxPage = $maxPage["total"];
+                    echo (int)($maxPage / 100);
+                ?>"><span>>></span></a>
+            </div>
+        </div>
     </div>
+    <script>
+        document.getElementById("pageInput").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Optional: prevent form submission or new line
+                let limit = document.getElementById("pageInput").value;
+                console.log("tes");
+                window.location.href = "dictionary.php?limit=" + limit;
+            }
+        });
+    </script>
 </body>
 <style>
     #dictionary {

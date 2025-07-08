@@ -86,6 +86,8 @@
             xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     document.getElementById("tables").innerHTML = xmlhttp.responseText;
+                    document.getElementById("cancel").innerText = "Back";
+                    document.getElementById("importButton").style.display = "none";
                 }
             }
             xmlhttp.open("GET", "AJAX/batch_user.php", true);
@@ -102,9 +104,9 @@
         <div id="header">
             <h1>Import User (Preview)</h1>
             <div>
-                <a href="overview_user.php" class="button">Cancel</a>
+                <a href="overview_user.php" id = "cancel" class="button">Cancel</a>
                 <!-- memanggil function ajax melalui tombol -->
-                <button class="button" name = "import" onclick = "uploadUsers()">Import</button>
+                <button class="button" id = "importButton" name = "import" onclick = "uploadUsers()">Import</button>
             </div>
         </div>
         <div id="tables">
