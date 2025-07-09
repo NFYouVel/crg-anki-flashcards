@@ -40,7 +40,7 @@
         text-decoration: none;
     }
 
-    li {
+    nav li {
         list-style: none;
     }
 
@@ -74,11 +74,11 @@
         margin: 12px 0;
     }
 
-    ul {
+    nav ul {
         display: none;
     }
 
-    li:hover>ul {
+    nav li:hover>ul {
         display: block;
     }
 </style>
