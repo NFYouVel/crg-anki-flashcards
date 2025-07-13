@@ -1,15 +1,15 @@
 $(document).ready(function () {
     $(".title-to-review").click(function () {
-        $(".contain").slideToggle(400);
+        $(this).closest(".class-title").find(".contain").slideToggle(400);
     });
     $(".title-to-review-second").click(function () {
         $(this).next().children().slideToggle(400);
-        // let el = $(this);
-        // el.addClass("clicked");
+        let el = $(this);
+        el.addClass("clicked");
 
-        // setTimeout(function () {
-        //     el.removeClass("clicked");
-        // }, 300);
+        setTimeout(function () {
+            el.removeClass("clicked");
+        }, 300);
     });
     $(".icon").click(function () {
         let box = $(".account-logout");

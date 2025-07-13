@@ -121,10 +121,12 @@
                                 setcookie('user_id', $line['user_id'], time() + (86400), '/', '', false, true);
                             }
 
-                            if ($line['role'] == 1 || $line['role'] == 2) {
+                            if ($line['role'] == 2) {
                                 header("Location: ../Home/home_page.php");
+                            } else if ($line['role'] == 1) {
+                                header("Location: ../Admin/homepage.php");
                             } else {
-                                header("Location: ../Home/home_page_students.php");
+                            header("Location: ../Home/home_page_students.php");
                             }
                             exit;
                         }

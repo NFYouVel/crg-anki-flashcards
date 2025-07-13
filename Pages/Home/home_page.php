@@ -62,21 +62,21 @@ if (isset($_POST['hide'])) {
     $result = mysqli_query($con, $query);
     $line = mysqli_fetch_array($result);
 
-    if (isset($line["user_status"]) && $line["user_status"] === "pending")  {
+    if (isset($line["user_status"]) && $line["user_status"] === "pending") {
         header("Location: setting.php");
-    //     echo "<div class='wrapper-update'>
-    //     <div class='update'>
-    //         <div class='title-update'><span>Update Your Password!</span></div>
-    //         <div class='explanation'>
-    //             <span>Important!</span>
-    //             <span>To keep your account, you should change your password immediately!</span>
-    //             <span class='br'>You will be moved to user setting page!</span>
-    //         </div>
-    //         <div class='button'>
-    //             <button class='button-update'>Update</button>
-    //         </div>
-    //     </div>
-    // </div>";
+        //     echo "<div class='wrapper-update'>
+        //     <div class='update'>
+        //         <div class='title-update'><span>Update Your Password!</span></div>
+        //         <div class='explanation'>
+        //             <span>Important!</span>
+        //             <span>To keep your account, you should change your password immediately!</span>
+        //             <span class='br'>You will be moved to user setting page!</span>
+        //         </div>
+        //         <div class='button'>
+        //             <button class='button-update'>Update</button>
+        //         </div>
+        //     </div>
+        // </div>";
 
     }
     ?>
@@ -87,88 +87,96 @@ if (isset($_POST['hide'])) {
             <ul>
                 <!-- First Main -->
                 <!-- Active Chinese Senin Kamis 20.30-->
-                <li class="class-title">
-                    <!-- Colored Title -->
-                    <div class="title-to-review">
+                <?php
+                $query = "SELECT * FROM junction_classroom_user WHERE user_id = '$user_id'";
+                $result = mysqli_query($con, $query);
+
+                while ($rowClassRaw = mysqli_fetch_array($result)) {
+                    $classroom = mysqli_real_escape_string($con, $rowClassRaw['classroom_id']);
+                    $query = "SELECT * FROM classroom WHERE classroom_id = '$classroom'";
+                    $classroomResult = mysqli_query($con, $query);
+                    $rowClass = mysqli_fetch_array($classroomResult);
+                    echo "<li class='class-title'>"; // ????
+                    // Colored Title
+                    echo "<div class='title-to-review'>";
+                    // Deck Title
+                    echo "<span class='title'>";
+                    echo $rowClass['name'];
+                    echo "</span>";
+
+                    // To Review Green Red Blue
+                    echo
+                    "<div class='to-review'>
+                            <span class='click'>Deck</span>
+                        </div>
+                        </div>";
+
+                    echo "<!-- Second Line -->";
+                    echo "<div class='subdeck'><ul>";
+
+                    // Deck title
+                    $secondQuery = "SELECT * FROM junction_classroom_user WHERE classroom_id = '$classroom' AND classroom_role_id = '3' ";
+                    $secondResult = mysqli_query($con, $secondQuery);
+
+                    while ($rowClassUser = mysqli_fetch_array($secondResult)) {
+                        echo "<li class='contain'>
+                                <div class='title-to-review-second'>";
+                        echo "<span class='title-second'>";
+                        $name = mysqli_real_escape_string($con, $rowClassUser['user_id']);
+                        $nameQuery = "SELECT * FROM users WHERE user_id = '$name'";
+                        $nameResult = mysqli_query($con, $nameQuery);
+                        $nameRow = mysqli_fetch_assoc($nameResult);
+                        echo $nameRow['name'];
+                        echo "</span>";
+
+                        // To Review Green Red Blue
+                        echo "
+                        <div class='to-review'>
+                                        <span class='green'>169</span>
+                                        <span class='red'>28</span>
+                                        <span class='blue'>1638</span>
+                                    </div>
+                                </div>
+                        ";
+
+                        // blom beressss
+                        echo "<ul>";
+                        echo "
+                        <li class='contain-third'>
+                    <div class='title-to-review-third'>
                         <!-- Deck Title -->
-                        <span class="title">Active Chinese Senin Kamis 20.30</span>
+                        <a href='deck_progress.php' class='title-third'>Active Chinese 1.1</a>
                         <!-- To Review Green Red Blue-->
-                        <div class="to-review">
-                            <span class="click">Deck</span>
+                        <div class='to-review'>
+                            <span class='green'>169</span>
+                            <span class='red'>28</span>
+                            <span class='blue'>1638</span>
                         </div>
                     </div>
+                    </li>
+                    </ul>
+                    </li>
+                        ";
+                    }
+                    
+                    echo "</ul>";
+                    echo "</div>";
+                    echo "</li>";
+                }
+                ?>
+
+                <!-- Third Main -->
+
+                
+
+            <!-- </li> -->
+            <!-- Sampe Sini (Second)-->
 
 
-                    <div class="subdeck">
-                        <ul>
-                            <!-- Second Main -->
-                            <li class="contain">
-                                <div class="title-to-review-second">
-                                    <!-- Deck Title -->
-                                    <span class="title-second">Eric Lim</span>
-                                    <!-- To Review Green Red Blue-->
-                                    <div class="to-review">
-                                        <span class="green">169</span>
-                                        <span class="red">28</span>
-                                        <span class="blue">1638</span>
-                                    </div>
-                                </div>
 
-                                <!-- Third Main -->
-                                <ul>
-                                    <li class="contain-third">
-                                        <div class="title-to-review-third">
-                                            <!-- Deck Title -->
-                                            <a href="deck_progress.php" class="title-third">Active Chinese 1.1</a>
-                                            <!-- To Review Green Red Blue-->
-                                            <div class="to-review">
-                                                <span class="green">169</span>
-                                                <span class="red">28</span>
-                                                <span class="blue">1638</span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-
-                            <!-- Copas Second Main Dari Sini -->
-                            <li class="contain">
-                                <div class="title-to-review-second">
-                                    <!-- Deck Title -->
-                                    <span class="title-second">Marvel Nathanael Lie</span>
-                                    <!-- To Review Green Red Blue-->
-                                    <div class="to-review">
-                                        <span class="green">169</span>
-                                        <span class="red">28</span>
-                                        <span class="blue">1638</span>
-                                    </div>
-                                </div>
-
-                                <!-- Third Main -->
-                                <ul>
-                                    <!-- Copas Third Main Dari Sini -->
-                                    <li class="contain-third">
-                                        <div class="title-to-review-third">
-                                            <!-- Deck Title -->
-                                            <a href="deck_progress.php" class="title-third">Active Chinese 1.2</a>
-                                            <!-- To Review Green Red Blue-->
-                                            <div class="to-review">
-                                                <span class="green">169</span>
-                                                <span class="red">28</span>
-                                                <span class="blue">1638</span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <!-- Sampe Sini (Third)-->
-                                </ul>
-                            </li>
-                            <!-- Sampe Sini (Second)-->
-                        </ul>
-                    </div>
-                </li>
-                <!-- Sampe Sini (First)-->
-            </ul>
-        </div>
+        <!-- Sampe Sini (First)-->
+        </ul>
+    </div>
     </div>
 
 </body>
