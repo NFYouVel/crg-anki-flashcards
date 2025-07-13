@@ -190,7 +190,6 @@
             if (event.key === "Enter") {
                 event.preventDefault(); // Optional: prevent form submission or new line
                 let limit = document.getElementById("pageInput").value;
-                console.log("tes");
                 window.location.href = "dictionary.php?page=" + limit;
             }
         });
@@ -226,7 +225,7 @@
     
         // On page load: check if a highlight ID is present in the URL
         window.addEventListener("DOMContentLoaded", () => {
-            var highlightID = <?php echo $_GET["cardID"]; ?>;
+            var highlightID = "<?php echo json_decode($_GET["cardID"] ?? 0); ?>";
     
             if (highlightID) {
                 const row = document.getElementById("card-" + highlightID);

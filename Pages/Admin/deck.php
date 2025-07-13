@@ -123,8 +123,8 @@
         }
 
         .icon {
-            width: 24px;
-            height: 24px;
+            width: 30px;
+            height: 30px;
             vertical-align: middle;
         }
 
@@ -158,6 +158,9 @@
         .label:hover, .menu:hover {
             background-color: #595959;
         }
+        .selectedDeck {
+            background-color: #595959;
+        }
         #confirmation {
             position: absolute;
             left: 50%;
@@ -169,7 +172,7 @@
             border-radius: 25px;
             z-index: 200;
             padding: 12px 24px;
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: space-evenly;
             align-items: center;
@@ -184,7 +187,6 @@
             width: 100%;
         }
         button {
-            font-family: 'Arial', sans-serif;
             width: 200px;
             height: 75px;
             background-color: #ffa72a;
@@ -196,10 +198,47 @@
             align-items: center;
             cursor: pointer;
         }
+        table {
+            width: 100%;
+            font-size: 20px;
+            border-collapse: collapse;
+        }
+        th {
+            color: white;
+            background-color: #003b58;
+        }
+        th, td {
+            border: 2px solid black;
+            padding: 5px 10px;
+        }
+        tr {
+            transition: box-shadow 0.5s ease;
+        }
+        td {
+            padding: 5px;
+            word-break: break-word;
+            white-space: normal;
+        }
+        .short {
+            word-break: normal;
+        }
+        tr:nth-child(even) {
+            background-color: #838383;
+        }
+        tr:nth-child(odd) {
+            background-color: #a5a5a5;
+        }
+        #deckTable {
+            padding: 0;
+            overflow: auto;
+        }
+        ::-webkit-scrollbar-track {
+            background: #404040;
+        }
     </style>
 <script>
     loadDOM();
-
+    //keep expanded decks
     function getExpandedIDs() {
         let expanded = [];
         $("#tree .maximized").each(function () {
@@ -211,6 +250,23 @@
         return expanded;
     }
 
+    function getDeckDetails(deckID) {
+        var xmlhttp;
+        if (window.XMLHttpRequest != null) {
+            xmlhttp = new XMLHttpRequest();
+        } else {
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                document.getElementById("deckTable").innerHTML = xmlhttp.responseText;
+            }
+        }
+        xmlhttp.open("GET", "AJAX/getDeckDetails.php?deckID=" + deckID, true);
+        xmlhttp.send();
+    }
+
     function restoreExpandedIDs(expanded) {
         expanded.forEach(function (id) {
             const toggle = $("#" + id).siblings(".toggle");
@@ -220,7 +276,8 @@
         });
     }
 
-    function addFolder(name, parent) {
+    //ajax add folder
+    function addFolder(name, parent, type) {
         const expandedBefore = getExpandedIDs();
 
         var xmlhttp;
@@ -242,10 +299,11 @@
 
             }
         }
-        xmlhttp.open("GET", "AJAX/addFolder.php?name=" + name + "&parent=" + parent, true);
+        xmlhttp.open("GET", "AJAX/addFolder.php?name=" + name + "&parent=" + parent + "&type=" + type, true);
         xmlhttp.send();
     }
 
+    //ajax delete folder
     function deleteFolder(deckID) {
         const expandedBefore = getExpandedIDs();
 
@@ -271,8 +329,10 @@
         xmlhttp.send();
     }
 
+    //refresh dom
     function loadDOM() {
         $(document).ready(function () {
+            //expand and minimize decks
             $(".toggle").click(function () {
                 let $ul = $(this).closest("li").children("ul");
                 let $img = $(this).find("img");
@@ -287,21 +347,38 @@
         })
 
         $(document).ready(function () {
+            //remove right click menu
             $("body").click(function () {
                 $("#deckMenu").css({
                     display: "none"
                 });
             })
 
+            //right click menu
             $(".label").on("contextmenu", function (e) {
                 e.preventDefault();
                 let label = $(this);
+                let type = $(this).children("img").attr("id");
+                if (type == "deck") {
+                    $("#addFolder").css({
+                        "pointer-events": "none",
+                        opacity: 0.3
+                    });
+                }
+                else {
+                    $("#addFolder").css({
+                        "pointer-events": "auto",
+                        cursor: "pointer",
+                        opacity: 1
+                    });
+                }
                 $("#deckMenu").css({
                     top: e.pageY + "px",
                     left: e.pageX + "px",
                     display: "block"
                 });
 
+                //click add folder
                 $("#addFolder").off("click").on("click", function () {
                     let parentID = label.attr("id");
                     const parent = label.closest("li");
@@ -320,16 +397,65 @@
                             var name = $(this).val();
                             var parent = $(this).closest("li").parent().siblings(".label");
                             var parentID = parent.attr("id");
-                            addFolder(name, parentID);
+                            addFolder(name, parentID, 0);
                         }
                     });
                 })
 
+                //click add deck
+                $("#addDeck").off("click").on("click", function () {
+                    let parentID = label.attr("id");
+                    const parent = label.closest("li");
+                    const newFolder = `
+                    <ul class = "maximized" style = "height: fit-content;">
+                        <li>
+                            <span class="toggle"><img src="../../Assets//Icons/maximizeDeck.png" class="min"></span> 
+                            <span class="label"><img src="../../Assets//Icons/deck.png" class="icon"> <input id = "input_newFolder" autofocus type = "text" placeholder = "New Folder"></span>
+                        </li>
+                    </ul>
+                    `;
+                    parent.append(newFolder);
+
+                    $("#input_newFolder").on('keydown', function(e) {
+                        if (e.key === 'Enter' || e.which === 13) {
+                            var name = $(this).val();
+                            var parent = $(this).closest("li").parent().siblings(".label");
+                            var parentID = parent.attr("id");
+                            addFolder(name, parentID, 1);
+                        }
+                    });
+                })
+
+                //click delete
                 $("#delete").off("click").on("click", function () {
                     let deckID = label.attr("id");
-
-                    deleteFolder(deckID);
+                    $.ajax({
+                        url: "AJAX/getDeckName.php",
+                        method: "POST",
+                        data: { deck_id: deckID },
+                        success: function (response) {
+                            $("#deletedDeck").text(response);
+                            $("#confirmation").css({ display: "flex" });
+                        }
+                    });
+                    $("#confirmDelete").off("click").on("click", function () {
+                        deleteFolder(deckID);
+                        $("#confirmation").css({display: "none"});
+                        alert("Deck succesfully deleted!");
+                    });
                 });
+
+                $("#cancelDelete").off("click").on("click", function () {
+                    $("#confirmation").css({display: "none"});
+                });
+            });
+
+            $(".label").off("click").on("click", function () {
+                $(".selectedDeck").removeClass("selectedDeck");
+                $(this).addClass("selectedDeck");
+                let deckID = $(this).attr("id");
+                $("#deck_id").val(deckID);
+                getDeckDetails(deckID);
             });
         });
     };
@@ -343,10 +469,10 @@
         function getDecks($parentID) {
             global $con;
             if($parentID == "root") {
-                $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
+                $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
             }
             else {
-                $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
+                $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
             }
             if(mysqli_num_rows($getDecks) > 0) {
                 if($parentID == "root") {
@@ -359,11 +485,20 @@
                         $deckID = $deck["deck_id"];
                         $name = $deck["name"];
 
-                        echo "
+                        if($deck["is_leaf"] == 0) {
+                            echo "
                             <li>
                                 <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
-                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon'> $name</span>
+                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder'> $name</span>
                             ";
+                        }
+                        else {
+                            echo "
+                            <li>
+                                <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name</span>
+                            ";
+                        }
                             getDecks($deckID);
                         echo"</li>
                         ";  
@@ -381,10 +516,10 @@
         </div>
         <div id="confirmation">
             <h1>Are you sure you want to delete this deck and it's child decks?</h1>
-            <h1 id="deletedDeck">HSK</h1>
+            <h1 id="deletedDeck"></h1>
             <div>
-                <button>Cancel</button>
-                <button>Confirm</button>
+                <button id = "cancelDelete">Cancel</button>
+                <button id = "confirmDelete">Confirm</button>
             </div>
         </div>
         <div id="header">
@@ -398,7 +533,7 @@
                         <ul id="tree">
                             <li>
                                 <span class="toggle"><img src="../../Assets//Icons/minimizeDeck.png" class = "min"></span> 
-                                <span class="label" id = "masterDeck"><img src="../../Assets//Icons/folder.png" class = "icon"> Master Deck Folder</span>
+                                <span class="label selectedDeck" id = "masterDeck"><img src="../../Assets//Icons/folder.png" class = "icon"> Master Deck Folder</span>
                                 <?php
                                     getDecks("root");
                                 ?>
@@ -408,8 +543,57 @@
                 </div>
             </div>
             <div id="details">
-                <h2>Deck Details</h2>
-                <div class="content"></div>
+                <div id="header">
+                    <h2>Deck Details</h2>
+                    <!-- DI SINI -->
+                    <form action="link_deck_card.php" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name = "deckID" id = "deck_id">
+                        <input id = "file" name = "excel_file" style = "display: none" type="file" onchange="this.form.submit()">
+                        <label class = "button" style = "padding-inline: 16px;" for="file">Update Deck</label>
+                    </form>
+                </div>
+                <div id = "deckTable" class="content">
+                    <table>
+                        <tr>
+                            <th>No.</th>
+                            <th>ID</th>
+                            <th>Trad</th>
+                            <th>Simp</th>
+                            <th>Prio</th>
+                            <th>Pinyin</th>
+                            <th>Word Class</th>
+                            <th>English</th>
+                            <th>Indo</th>
+                        </tr>
+                        <?php
+                            $count = 1;
+                            $getCards = mysqli_query($con, "SELECT c.* FROM junction_deck_card dc JOIN cards c ON dc.card_id = c.card_id");
+                            while($card = mysqli_fetch_array($getCards)) {
+                                $cardID = $card["card_id"];
+                                $traditional = $card["chinese_tc"];
+                                $simplified = $card["chinese_sc"];
+                                $prio = $card["priority"];
+                                $pinyin = $card["pinyin"];
+                                $class = $card["word_class"];
+                                $eng = $card["meaning_eng"];
+                                $indo = $card["meaning_ina"];
+                                echo "
+                                <tr>
+                                    <td>$count</td>
+                                    <td class = 'short'>$cardID</td>
+                                    <td>$traditional</td>
+                                    <td>$simplified</td>
+                                    <td>$prio</td>
+                                    <td>$pinyin</td>
+                                    <td class = 'short'>$class</td>
+                                    <td>$eng</td>
+                                    <td>$indo</td>
+                                </tr>";
+                                $count++;
+                            }
+                        ?>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

@@ -3,10 +3,10 @@
     function getDecks($parentID) {
         global $con;
         if($parentID == "root") {
-            $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
+            $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
         }
         else {
-            $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
+            $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
         }
         if(mysqli_num_rows($getDecks) > 0) {
             if($parentID == "root") {
@@ -19,11 +19,20 @@
                     $deckID = $deck["deck_id"];
                     $name = $deck["name"];
 
-                    echo "
+                    if($deck["is_leaf"] == 0) {
+                        echo "
                         <li>
                             <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
                             <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon'> $name</span>
                         ";
+                    }
+                    else {
+                        echo "
+                        <li>
+                            <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                            <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon'> $name</span>
+                        ";
+                    }
                         getDecks($deckID);
                     echo"</li>
                     ";  
@@ -40,6 +49,7 @@
                 deleteDecks($childID);
             }
         }
+        mysqli_query($con, "DELETE FROM junction_deck_card WHERE deck_id = '$deckID'");
         mysqli_query($con, "DELETE FROM decks WHERE deck_id = '$deckID'");
     }
     deleteDecks($_GET["deckID"]);

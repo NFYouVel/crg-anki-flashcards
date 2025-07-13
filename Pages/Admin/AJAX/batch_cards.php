@@ -20,7 +20,7 @@
 
         // pembangunan string query insert sql
         $query = "INSERT INTO cards (card_id, chinese_tc, chinese_sc, priority, pinyin, word_class, meaning_eng, meaning_ina) VALUES ";
-        foreach ($_SESSION["allCards"] as $key => $value) {
+        foreach ($_SESSION["validCards"] as $key => $value) {
             // mysqli_real_escape_string untuk menghindari error saat input contohnya jika data dalam cell memiliki " / ' / ( / )
             $cardID = mysqli_real_escape_string($con, $value["cardID"]);
             $traditional = mysqli_real_escape_string($con, $value["traditional"]);
