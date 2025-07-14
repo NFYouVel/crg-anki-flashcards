@@ -1,3 +1,4 @@
+<link rel="icon" href="../../../Logo/circle.png">
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
 

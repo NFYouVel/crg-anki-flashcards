@@ -9,6 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dictionary</title>
+    <link rel="icon" href="../../Logo/circle.png">
     <style>
         h1 {
             color: white;
@@ -125,7 +126,7 @@
     ?>
     <div id="header">
         <h1>Dictionary (Card) Overview</h1>
-        <input type="text" placeholder = "&#128269;Search" onkeyup = "searchCards(this.value)">
+        <input type="text" placeholder = "&#128269;Search" value = "<?php echo $_GET["cardID"] ?? ""; ?>" onkeyup = "searchCards(this.value)">
         <form action="addCards.php" method="POST" enctype="multipart/form-data">
             <input id = "file" name = "excel_file" style = "display: none" class = "button" type="file" onchange="this.form.submit()">
             <label class = "button" for="file">Import</label>

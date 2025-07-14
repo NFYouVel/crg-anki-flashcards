@@ -12,7 +12,6 @@
             <th>Pinyin</th>
             <th>English</th>
             <th>Indo</th>
-            <th id = 'short'>Linked Cards</th>
         </tr>
         <?php
             foreach($_SESSION["allSentences"] as $sentence) {

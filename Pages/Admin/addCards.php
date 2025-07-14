@@ -6,6 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../Logo/circle.png">
     <title>Add Cards</title>
     <style>
         html {
@@ -127,6 +128,18 @@
 <body>
     <?php
         include "Components/sidebar.php";
+        if(isset($_POST["import"])) {
+            $date = date("ymd_Hi");
+            $fileExtension = pathinfo($_FILES['excel_file']['name'], PATHINFO_EXTENSION);
+            $fileName = "CRG_backup_card_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
+            move_uploaded_file($_FILES['excel_file']['tmp_name'], "../../Backup/card" . $fileName);
+            echo "
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    uploadCards();
+                });
+            </script>";
+        }
     ?>
     <div id="loadingScreen">
         <img src="Components/loading.gif" alt="">
@@ -142,7 +155,7 @@
             <h1>Import Cards (Preview)</h1>
             <div>
                 <a href="dictionary.php" id = "cancel" class="button">Cancel</a>
-                <button id = "importButton" class="button" name = "import" onclick = "uploadCards()">Import</button>
+                <button type = "submit" id = "importButton" class="button" onclick = "uploadCards();">Import</button>
             </div>
         </div>
         <div id="tables">
@@ -196,7 +209,7 @@
                         if (in_array($fileExtension, $allowedExtensions)) {
                             try {
                                 $spreadsheet = IOFactory::load($fileTmpPath);
-                                $sheet = $spreadsheet->getActiveSheet();
+                                $sheet = $spreadsheet->getSheet(0);
                                 foreach ($sheet->getRowIterator() as $row) {
                                     $index = $row->getRowIndex();
                                     //skip index 1 karena itu header
@@ -292,6 +305,12 @@
                         $_SESSION["allCards"] = $allCards;
                         $_SESSION["validCards"] = $validCards;
                         $_SESSION["invalidCards"] = $invalidCards;
+                        date_default_timezone_set("Asia/Jakarta");
+                        $date = date("ymd_Hi");
+                        $fileExtension = pathinfo($_FILES['excel_file']['name'], PATHINFO_EXTENSION);
+                        $fileName = "CRG_backup_card_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
+                        $_SESSION["filePath"] = $fileName;
+                        move_uploaded_file($_FILES['excel_file']['tmp_name'], "../../Backup/card/temp/" . $fileName);
                     } 
                 ?>
             </table>
