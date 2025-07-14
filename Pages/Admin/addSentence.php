@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Sentence</title>
+    <link rel="icon" href="../../Logo/circle.png">
     <style>
         h1 {
             color: white;
@@ -275,6 +276,13 @@
                         $_SESSION["allSentences"] = $allSentences;
                         $_SESSION["validSentences"] = $validSentences;
                         $_SESSION["invalidSentences"] = $invalidSentences;
+
+                        date_default_timezone_set("Asia/Jakarta");
+                        $date = date("ymd_Hi");
+                        $fileExtension = pathinfo($_FILES['sentence']['name'], PATHINFO_EXTENSION);
+                        $fileName = "CRG_backup_sentence_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
+                        $_SESSION["filePath"] = $fileName;
+                        move_uploaded_file($_FILES['sentence']['tmp_name'], "../../Backup/sentence/temp/" . $fileName);
                     } 
                 ?>
             </table>

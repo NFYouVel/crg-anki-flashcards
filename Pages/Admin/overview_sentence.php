@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sentence Overview</title>
+    <link rel="icon" href="../../Logo/circle.png">
     <style>
         h1 {
             color: white;

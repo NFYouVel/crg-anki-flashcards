@@ -66,7 +66,36 @@
 ?>
 
 <!-- menampilkan data yang berhasil ke upload -->
- <?php if($success) { ?>
+<?php 
+    if($success) { 
+        if(mysqli_num_rows(mysqli_query($con, "SELECT import_type FROM data_backup WHERE import_type = 'card'")) == 7) {
+            $old = mysqli_query($con, "SELECT import_batch_id, import_batch_name FROM data_backup WHERE import_type = 'card' ORDER BY imported_at ASC LIMIT 1");
+            $old = mysqli_fetch_assoc($old);
+            $importID = $old["import_batch_id"];
+            $importName = $old["import_batch_name"];
+
+            mysqli_query($con, "DELETE FROM data_backup WHERE import_batch_id = '$importID'");
+            unlink("../../../Backup/card/" . $importName);
+        }
+
+        $countAll = count($_SESSION["allCards"]);
+        $countValid = count($_SESSION["validCards"]);
+        $countInvalid = count($_SESSION["invalidCards"]);
+        $importedBy = $_COOKIE["user_id"];
+
+        $fileName = $_SESSION["filePath"];
+        $oldPath = "../../../Backup/card/temp/" . $fileName;
+        $newPath = "../../../Backup/card/" . $fileName;
+        $userID = $_COOKIE["user_id"];
+
+        if (!rename($oldPath, $newPath)) {
+            echo "<h2>Failed to move backup file from temp folder.</h2>";
+        }
+
+        mysqli_query($con, "UPDATE data_backup SET is_current_version = 0 WHERE import_type = 'card'");
+        mysqli_query($con, "INSERT INTO data_backup (import_type, import_batch_name, total_records, successful_import, skipped_import, imported_by, is_current_version) 
+        VALUES ('card', '$fileName', $countAll, $countValid, $countInvalid, '$userID', 1)")
+?>
 <table id="valid">
     <caption style="background-color: green;">Cards Successfully Uploaded</caption>
     <tr>
@@ -133,6 +162,7 @@
         unset($_SESSION["allCards"]);
         unset($_SESSION["validCards"]);
         unset($_SESSION["invalidCards"]);
+        unset($_SESSION["filePath"]);
     ?>
 </table>
 <?php }

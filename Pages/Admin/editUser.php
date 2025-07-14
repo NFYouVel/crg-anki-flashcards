@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit User</title>
+    <link rel="icon" href="../../Logo/circle.png">
     <style>
         form {
             width: 100%;

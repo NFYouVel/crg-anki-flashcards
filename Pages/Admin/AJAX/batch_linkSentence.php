@@ -61,7 +61,36 @@
 ?>
 
 <!-- menampilkan data yang berhasil ke upload -->
-<?php if($success) { ?>
+<?php 
+    if($success) { 
+        if(mysqli_num_rows(mysqli_query($con, "SELECT import_type FROM data_backup WHERE import_type = 'card_sentence'")) == 7) {
+            $old = mysqli_query($con, "SELECT import_batch_id, import_batch_name FROM data_backup WHERE import_type = 'card_sentence' ORDER BY imported_at ASC LIMIT 1");
+            $old = mysqli_fetch_assoc($old);
+            $importID = $old["import_batch_id"];
+            $importName = $old["import_batch_name"];
+
+            mysqli_query($con, "DELETE FROM data_backup WHERE import_batch_id = '$importID'");
+            unlink("../../../Backup/card_sentence/" . $importName);
+        }
+
+        $countAll = count($_SESSION["allLinks"]);
+        $countValid = count($_SESSION["validLinks"]);
+        $countInvalid = count($_SESSION["invalidLinks"]);
+        $importedBy = $_COOKIE["user_id"];
+
+        $fileName = $_SESSION["filePath"];
+        $oldPath = "../../../Backup/card_sentence/temp/" . $fileName;
+        $newPath = "../../../Backup/card_sentence/" . $fileName;
+        $userID = $_COOKIE["user_id"];
+
+        if (!rename($oldPath, $newPath)) {
+            echo "<h2>Failed to move backup file from temp folder.</h2>";
+        }
+
+        mysqli_query($con, "UPDATE data_backup SET is_current_version = 0 WHERE import_type = 'card_sentence'");
+        mysqli_query($con, "INSERT INTO data_backup (import_type, import_batch_name, total_records, successful_import, skipped_import, imported_by, is_current_version) 
+        VALUES ('card_sentence', '$fileName', $countAll, $countValid, $countInvalid, '$userID', 1)")
+?>
 <table id="valid">
     <caption style="background-color: green;">Cards Successfully Uploaded</caption>
     <tr>
@@ -99,7 +128,7 @@
             $reason = $links["reason"];
             echo "<tr>";
                 echo "<td>$cardID</td>";
-                echo "<td>$cardID</td>";
+                echo "<td>$sentenceCode</td>";
                 echo "<td>$priority</td>";
                 echo "<td>$reason</td>";
             echo "</tr>";
@@ -107,7 +136,7 @@
         unset($_SESSION["allLinks"]);
         unset($_SESSION["validLinks"]);
         unset($_SESSION["invalidLinks"]);
-
+        unset($_SESSION["filePath"]);
     ?>
 </table>
 <?php }

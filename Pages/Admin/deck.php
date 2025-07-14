@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deck</title>
+    <link rel="icon" href="../../Logo/circle.png">
     <script src="../../library/jquery.js"></script>
     <style>
         h2, h1 {
@@ -387,7 +388,7 @@
                 }
                 else if (type == "deck") {
                     $("#updateDeck").css({
-                        "display": "block"
+                        "display": "flex"
                     })
                     $("#addFolder").css({
                         "pointer-events": "none",
