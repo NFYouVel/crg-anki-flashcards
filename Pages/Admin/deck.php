@@ -235,6 +235,9 @@
         ::-webkit-scrollbar-track {
             background: #404040;
         }
+        #updateDeck {
+            display: none;
+        }
     </style>
 <script>
     loadDOM();
@@ -349,6 +352,11 @@
         $(document).ready(function () {
             //remove right click menu
             $("body").click(function () {
+                $(".menu").css({
+                    "pointer-events": "auto",
+                    cursor: "pointer",
+                    opacity: 1
+                });
                 $("#deckMenu").css({
                     display: "none"
                 });
@@ -356,16 +364,40 @@
 
             //right click menu
             $(".label").on("contextmenu", function (e) {
+                $(".menu").css({
+                    "pointer-events": "auto",
+                    cursor: "pointer",
+                    opacity: 1
+                });
                 e.preventDefault();
                 let label = $(this);
                 let type = $(this).children("img").attr("id");
-                if (type == "deck") {
+                if($(this).attr("id") == "masterDeck") {
+                    $("#updateDeck").css({
+                        "display": "none"
+                    })
+                    $("#rename").css({
+                        "pointer-events": "none",
+                        opacity: 0.3
+                    });
+                    $("#delete").css({
+                        "pointer-events": "none",
+                        opacity: 0.3
+                    });
+                }
+                else if (type == "deck") {
+                    $("#updateDeck").css({
+                        "display": "block"
+                    })
                     $("#addFolder").css({
                         "pointer-events": "none",
                         opacity: 0.3
                     });
                 }
                 else {
+                    $("#updateDeck").css({
+                        "display": "none"
+                    })
                     $("#addFolder").css({
                         "pointer-events": "auto",
                         cursor: "pointer",
@@ -448,13 +480,47 @@
                 $("#cancelDelete").off("click").on("click", function () {
                     $("#confirmation").css({display: "none"});
                 });
+
+                //click rename
+                $("#rename").off("click").on("click", function () {
+                    let deckID = label.attr("id");
+                    $(label).html(`
+                        <img src='../../Assets//Icons/folder.png' class='icon' id='folder' style='vertical-align: middle;'>
+                        <form method='post' style='display: inline;'>
+                            <input type = 'hidden' name = 'deckID' value = '${deckID}'>
+                            <input id='renameDeck' name = 'renameDeck' type='text' style='font-size: 16px; vertical-align: middle; width: auto;'>
+                        </form>
+                    `);
+                });
+
+                $("#renameDeck").on('keydown', function(e) {
+                    if (e.key === 'Enter' || e.which === 13) {
+                        $(this).closest("form").submit();
+                    }
+                });
             });
 
             $(".label").off("click").on("click", function () {
+                let type = $(this).children("img").attr("id");
+                if($(this).attr("id") == "masterDeck") {
+                    $("#updateDeck").css({
+                        "display": "none"
+                    })
+                }
+                else if (type == "deck") {
+                    $("#updateDeck").css({
+                        "display": "flex"
+                    })
+                }
+                else {
+                    $("#updateDeck").css({
+                        "display": "none"
+                    })
+                }
                 $(".selectedDeck").removeClass("selectedDeck");
                 $(this).addClass("selectedDeck");
                 let deckID = $(this).attr("id");
-                $("#deck_id").val(deckID);
+                $("#updateDeck").attr("href", "updateDeck.php?deckID=" + deckID);
                 getDeckDetails(deckID);
             });
         });
@@ -466,6 +532,11 @@
     <?php
         include "Components/sidebar.php";
         include "../../SQL_Queries/connection.php";
+        if(isset($_POST["renameDeck"])) {
+            $name = $_POST["renameDeck"];
+            $deckID = $_POST["deckID"];
+            mysqli_query($con, "UPDATE decks SET name = '$name' WHERE deck_id = '$deckID'");
+        }
         function getDecks($parentID) {
             global $con;
             if($parentID == "root") {
@@ -546,11 +617,7 @@
                 <div id="header">
                     <h2>Deck Details</h2>
                     <!-- DI SINI -->
-                    <form action="link_deck_card.php" method="POST" enctype="multipart/form-data">
-                        <input type="hidden" name = "deckID" id = "deck_id">
-                        <input id = "file" name = "excel_file" style = "display: none" type="file" onchange="this.form.submit()">
-                        <label class = "button" style = "padding-inline: 16px;" for="file">Update Deck</label>
-                    </form>
+                    <a href="" id = "updateDeck" class="button" style = "padding-inline: 16px;">Update Deck</a>
                 </div>
                 <div id = "deckTable" class="content">
                     <table>
@@ -567,7 +634,7 @@
                         </tr>
                         <?php
                             $count = 1;
-                            $getCards = mysqli_query($con, "SELECT c.* FROM junction_deck_card dc JOIN cards c ON dc.card_id = c.card_id");
+                            $getCards = mysqli_query($con, "SELECT DISTINCT c.* FROM junction_deck_card dc JOIN cards c ON dc.card_id = c.card_id");
                             while($card = mysqli_fetch_array($getCards)) {
                                 $cardID = $card["card_id"];
                                 $traditional = $card["chinese_tc"];

@@ -105,6 +105,11 @@
             display: flex;
             gap: 12px;
         }
+        #menu {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
     </style>
     <script>
         function uploadCards() {
@@ -126,7 +131,7 @@
                     document.getElementById("filter").style.display = "none";
                 }
             }
-            xmlhttp.open("GET", "AJAX/batch_junction_deck_card.php?deckID=<?php $deckID = $_POST["deckID"]; echo $deckID; ?>", true);
+            xmlhttp.open("GET", "AJAX/batch_junction_deck_card.php?deckID=<?php $deckID = $_GET["deckID"]; echo $deckID; ?>", true);
             xmlhttp.send();
         }
     </script>
@@ -134,6 +139,7 @@
 <body>
     <?php
         include "Components/sidebar.php";
+        include "../../SQL_Queries/connection.php";
     ?>
     <div id="loadingScreen">
         <img src="Components/loading.gif" alt="">
@@ -142,18 +148,32 @@
     <div id="container">
         <div id="header">
             <h1>Update Deck (Preview)</h1>
+        </div>
+        <div id="menu">
+            <h1>
+                <?php
+                    $ancestor = [];
+                    while($deckID) {
+                        $getDecks = mysqli_query($con, "SELECT parent_deck_id, name FROM decks WHERE deck_id = '$deckID'");
+                        $getDecks = mysqli_fetch_assoc($getDecks);
+                        array_unshift($ancestor, $getDecks["name"]);
+                        $deckID = $getDecks["parent_deck_id"];
+                    }
+                    $decks = "";
+                    foreach($ancestor as $index => $deck) {
+                        $decks .= $deck;
+                        if ($index < count($ancestor) - 1) {
+                            $decks .= "<span style='margin-inline: 8px;'>&gt;</span> ";
+                        }
+                    }
+                    echo $decks;
+                    ?>
+            </h1>
             <div id = "form">
                 <a href="deck.php" id = "cancel" class="button">Cancel</a>
-                <button class="button" id = "importButton" onclick = "uploadCards()">Confirm</button>
+                <button class="button" id = "importButton" onclick = "uploadCards()">Save</button>
             </div>
         </div>
-            <?php
-                include "../../SQL_Queries/connection.php";
-                $deckName = mysqli_query($con, "SELECT name FROM decks WHERE deck_id = '$deckID'");
-                $deckName = mysqli_fetch_array($deckName);
-                $deckName = $deckName["name"];
-                echo "<h1>$deckName</h1>";
-            ?>
         <div id="tables">
             <table>
                 <caption style = "background-color: white; color: black;">Preview</caption>
@@ -162,6 +182,7 @@
                     <th>Card ID</th>
                 </tr>
                 <?php
+                    $deckID = $_GET["deckID"];
                     require '../../Composer_Excel/vendor/autoload.php';
                     use PhpOffice\PhpSpreadsheet\IOFactory;
                     //jika page ke refresh, tidak perlu nge read ulang file, tapi mengambil dari session yang dibuat sebelum ke refresh

@@ -1,7 +1,9 @@
 <?php
     include "../../../SQL_Queries/connection.php";
     $count = 1;
+    $cards = [];
     function getDeck($deckID) {
+        global $cards;
         global $count;
         global $con;
         $getCards = mysqli_query($con, "
@@ -20,19 +22,19 @@
             $class = $card["word_class"];
             $eng = $card["meaning_eng"];
             $indo = $card["meaning_ina"];
-            echo "
-            <tr>
-                <td>$count</td>
-                <td class = 'short'>$cardID</td>
-                <td>$traditional</td>
-                <td>$simplified</td>
-                <td>$prio</td>
-                <td>$pinyin</td>
-                <td class = 'short'>$class</td>
-                <td>$eng</td>
-                <td>$indo</td>
-            </tr>";
-            $count++;
+
+            if(!isset($cards[$cardID])) {
+                $cards[$cardID] = [
+                    "card_id" => $cardID, 
+                    "chinese_tc" => $traditional, 
+                    "chinese_sc" => $simplified, 
+                    "priority" => $prio, 
+                    "pinyin" => $pinyin, 
+                    "word_class" => $class, 
+                    "meaning_eng" => $eng, 
+                    "meaning_ina" => $indo, 
+                ];
+            }
         }
 
         $deck = mysqli_query($con, "SELECT is_leaf FROM decks WHERE deck_id = '$deckID'");
@@ -92,6 +94,31 @@
     }
     else {
         getDeck($deckID);
+        $count = 1;
+        foreach($cards as $card) {
+            $cardID = $card["card_id"];
+            $traditional = $card["chinese_tc"];
+            $simplified = $card["chinese_sc"];
+            $prio = $card["priority"];
+            $pinyin = $card["pinyin"];
+            $class = $card["word_class"];
+            $eng = $card["meaning_eng"];
+            $indo = $card["meaning_ina"];
+
+            echo "
+            <tr>
+                <td>$count</td>
+                <td class = 'short'>$cardID</td>
+                <td>$traditional</td>
+                <td>$simplified</td>
+                <td>$prio</td>
+                <td>$pinyin</td>
+                <td class = 'short'>$class</td>
+                <td>$eng</td>
+                <td>$indo</td>
+            </tr>";
+            $count++;
+        }
     }
     ?>
 </table>
