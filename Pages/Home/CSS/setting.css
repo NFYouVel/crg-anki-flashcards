@@ -2,5 +2,176 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  height: 100%;
+  align-items: center;
+  min-height: 83vh;
+  font-size: 14px;
 }
+
+.container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+h1 {
+  font-size: 32px;
+}
+
+table {
+  margin: 0;
+  font-size: 12px;
+}
+
+.information {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  /* font-size: 12px; */
+}
+
+td {
+  border: none;
+  padding: 10px 0;
+  font-size: 14px;
+}
+
+tr td:nth-of-type(1) {
+  padding-right: 20px;
+}
+
+tr td:nth-of-type(2) {
+  padding: 0 8px;
+}
+
+tr td:nth-of-type(4) {
+  text-align: right;
+  padding-left: 7px;
+}
+
+a {
+  color: blue;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.notification {
+  display: flex;
+  float: left;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.toggle-reminder {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.button-days {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+  font-size: 14px;
+  justify-content: space-between;
+}
+
+.day-name {
+  width: 35px;
+  height: 35px;
+  background-color: #848484;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 14px;
+}
+
+.day.active {
+  background-color: orange;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  font-size: 14px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.4s;
+}
+
+.slider:before {
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  position: absolute;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: orange;
+}
+
+input:checked + .slider:before {
+  transform: translateX(16px);
+}
+
+.time {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+h2 {
+  font-size: 18px;
+}
+.notification h2 {
+  margin: 10px 0;
+}
+.days {
+  margin-bottom: 10px;
+}
+
+ @media screen and (max-width:768px) {
+    .wrapper-setting {
+      min-height: 75vh;
+    }
+    .container {
+      margin: 0 20px;
+    }
+    tr td:nth-of-type(1) {
+      padding-right: 0px;
+    }
+    tr td:nth-of-type(2) {
+      padding-right: 5px;
+    }
+    td {
+      padding: 5px 0;
+    }
+ }

@@ -12,54 +12,6 @@ $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
 $line = mysqli_fetch_array($result);
 
-
-//Cancel and updates
-$password = filter_input(INPUT_POST, 'password');
-$character = filter_input(INPUT_POST, "character-set");
-$cancel = filter_input(INPUT_POST, "cancel");
-$update = filter_input(INPUT_POST, "update");
-if ($cancel) {
-    header("Location: home_page.php");
-    exit;
-}
-
-if ($update && ($password || $character)) {
-    if ($password && strlen($password) < 6) {
-        echo "<script>alert('Your password must be more than 6 character!')</script>";
-    } else {
-        $check = false;
-        if ($password && $character) { // Klo ganti pw dan chara set
-            $password_hashed = password_hash($password, PASSWORD_BCRYPT);
-            $query = "UPDATE users SET password_hash = '$password_hashed', character_set = '$character' WHERE user_id = '$user_id'";
-            $check = true;
-        } else if ($password) { // Klo ganti pw
-            $password_hashed = password_hash($password, PASSWORD_BCRYPT);
-            $query = "UPDATE users SET password_hash = '$password_hashed' WHERE user_id = '$user_id'";
-            $check = true;
-        } else { // Klo ganti chara set
-            $query = "UPDATE users SET character_set = '$character' WHERE user_id = '$user_id'";
-        }
-        
-        $update_result = mysqli_query($con, $query);
-        // Check ganti password
-        if ($check) {
-            $query = "UPDATE users SET user_status = 'active' WHERE user_id = '$user_id'";
-        }
-
-        // Message klo udah ganti pw
-        $update_result = mysqli_query($con, $query);
-        if ($update_result) {
-            echo "<script>alert('Update success!'); window.location.href='home_page.php';</script>";
-        } else {
-            echo "<script>alert('Update failed. Please try again!')</script>";
-        }
-    }
-}
-
-// Ngambil data dari user untuk hader
-$query = "SELECT * FROM users WHERE user_id = '$user_id'";
-$result = mysqli_query($con, $query);
-$line = mysqli_fetch_assoc($result);
 $role_id = $line['role'];
 $result2 = mysqli_query($con, "SELECT * FROM user_role WHERE role_id = '$role_id'");
 $line2 = mysqli_fetch_assoc($result2);
@@ -74,7 +26,10 @@ $role = $line2['role_name'];
     <title>Welcome <?php echo $line['name'] ?></title>
     <link rel="icon" href="../../Logo/circle.png">
     <link rel="stylesheet" href="../../Pages/Home/CSS/home_page.css">
+    <link rel="stylesheet" href="../../Pages/Home/CSS/notification.css">
     <link rel="stylesheet" href="../../Pages/Home/CSS/setting.css">
+    <script src="../../Pages/Home/jQuery/notification.js"></script>
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../Home/jQuery/script.js"></script>
@@ -108,29 +63,29 @@ $role = $line2['role_name'];
                     <tr>
                         <td>Account Name</td>
                         <td>:</td>
-                        <td>Herodian Petro Marlim</td>
+                        <td><?php echo $line['name']; ?></td>
                     </tr>
                     <tr>
                         <td>Email</td>
                         <td>:</td>
-                        <td>herodianpm@gmail.com</td>
+                        <td><?php echo $line['email']; ?></td>
                     </tr>
                     <tr>
                         <td>Account Type</td>
                         <td>:</td>
-                        <td>Teacher</td>
+                        <td><?php echo $role; ?></td>
                     </tr>
                     <tr>
                         <td>Character Set</td>
                         <td>:</td>
-                        <td>Herodian Petro Marlim</td>
-                        <td class="right"><a href="#">edit</a></td>
+                        <td id="editChara"><?php echo $line['character_set']; ?></td>
+                        <td class="right" onclick="changeCharacterSet()" style="cursor: pointer;">edit</td>
                     </tr>
                     <tr>
                         <td>Password</td>
                         <td>:</td>
                         <td>******</td>
-                        <td class="right"><a href="#">reset password</a></td>
+                        <td class="right"><a href="../Login/newpassword.php">reset password</a></td>
                     </tr>
                     <tr>
                         <td>Card Meaning</td>
@@ -140,13 +95,36 @@ $role = $line2['role_name'];
                     </tr>
                 </table>
             </div>
+
+            <script>
+                function changeCharacterSet() {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("GET", "jQuery/ajax.php", true);
+
+                    xhr.onload = function() {
+                        if (xhr.status == 200) {
+                            // alert("You Have Change Your Character Set!")
+                            document.getElementById("editChara").innerHTML = xhr.responseText;
+                        } else {
+                            alert("Failed to change Character Set");
+                        }
+                    };
+
+                    xhr.send();
+                }
+            </script>
+
             <div class="notification">
+                <h2>Notification</h2>
                 <div class="toggle-reminder">
                     <span>Study Reminder</span>
-                    <input type="radio" name="" id="">
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider round"></span>
+                    </label>
                 </div>
                 <div class="days">
-                    <span>Which Days</span>
+                    <span class="ask">Which Days?</span>
                     <div class="button-days">
                         <span class="day-name">M</span>
                         <span class="day-name">T</span>
