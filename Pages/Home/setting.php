@@ -100,42 +100,71 @@ $role = $line2['role_name'];
     <?php include "Component/account_logout.php"; ?>
 
     <div class="wrapper-setting">
-        <div class="wrapper-mid">
-            <div class="title-setting">
-                <span>Setting</span>
+        <div class="container">
+            <h1 class="title-setting">Settings</h1>
+            <div class="information">
+                <h2 class="title-setting-information">Personal Information</h2>
+                <table>
+                    <tr>
+                        <td>Account Name</td>
+                        <td>:</td>
+                        <td>Herodian Petro Marlim</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>:</td>
+                        <td>herodianpm@gmail.com</td>
+                    </tr>
+                    <tr>
+                        <td>Account Type</td>
+                        <td>:</td>
+                        <td>Teacher</td>
+                    </tr>
+                    <tr>
+                        <td>Character Set</td>
+                        <td>:</td>
+                        <td>Herodian Petro Marlim</td>
+                        <td class="right"><a href="#">edit</a></td>
+                    </tr>
+                    <tr>
+                        <td>Password</td>
+                        <td>:</td>
+                        <td>******</td>
+                        <td class="right"><a href="#">reset password</a></td>
+                    </tr>
+                    <tr>
+                        <td>Card Meaning</td>
+                        <td>:</td>
+                        <td>Indonesia, English</td>
+                        <td class="right"><a href="#">edit</a></td>
+                    </tr>
+                </table>
             </div>
-            <form method="post">
-                <div class="form">
-                    <span class="title-contain">Password</span>
-                    <input type="password" name="password" placeholder="Your Password...">
-                    <span class="title-contain">Character Set</span>
-                    <table>
-                        <tr>
-                            <td>Simplified</td>
-                            <td><input type="radio" name="character-set" value="Simplified"></td>
-                        </tr>
-                        <tr>
-                            <td>Traditional</td>
-                            <td><input type="radio" name="character-set" value="Traditional"></td>
-
-                        </tr>
-                    </table>
-                    <!-- <select name="character-set">
-                        <option value="simplified">Simplified</option>
-                        <option value="traditional">Traditional</option>
-                    </select> -->
+            <div class="notification">
+                <div class="toggle-reminder">
+                    <span>Study Reminder</span>
+                    <input type="radio" name="" id="">
                 </div>
-                <div class="action">
-                    <input type="submit" value="Cancel" name="cancel">
-                    <input type="submit" value="Update" name="update">
+                <div class="days">
+                    <span>Which Days</span>
+                    <div class="button-days">
+                        <span class="day-name">M</span>
+                        <span class="day-name">T</span>
+                        <span class="day-name">W</span>
+                        <span class="day-name">T</span>
+                        <span class="day-name">F</span>
+                        <span class="day-name">S</span>
+                        <span class="day-name" style='color: red;'>S</span>
+                    </div>
                 </div>
-            </form>
+                <div class="time">
+                    <span>Time</span>
+                    <span>17:00</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <?php
-
-    ?>
 </body>
 
 </html>

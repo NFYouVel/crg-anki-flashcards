@@ -40,11 +40,11 @@ if (isset($_POST['hide'])) {
     <div class="right-bar">
         <div class="account-info">
             <span class="username"><?php echo $line['name'] ?></span>
-            <span class="as" style="cursor: pointer;" onclick="Mode()"><?php echo $role ?> Mode</span>
+            <span class="as" style="cursor: pointer;" onclick="Mode()"><?php echo "Student " ?> Mode</span>
         </div>
         <script>
             function Mode() {
-                window.location.href = "home_page_teacher_student.php";
+                window.location.href = "home_page.php";
             }
         </script>
 
