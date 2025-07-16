@@ -354,11 +354,12 @@
         $(document).ready(function () {
             //remove right click menu
             $("body").click(function () {
-                $(".menu").css({
-                    "pointer-events": "auto",
-                    cursor: "pointer",
-                    opacity: 1
-                });
+                // $(".menu").css({
+                //     "pointer-events": "auto",
+                //     cursor: "pointer",
+                //     opacity: 1
+                // });
+
                 $("#deckMenu").css({
                     display: "none"
                 });
@@ -386,6 +387,10 @@
                         "pointer-events": "none",
                         opacity: 0.3
                     });
+                    $("#addDeck").css({
+                        "pointer-events": "none",
+                        opacity: 0.3
+                    });
                 }
                 else if (type == "deck") {
                     $("#updateDeck").css({
@@ -395,8 +400,26 @@
                         "pointer-events": "none",
                         opacity: 0.3
                     });
+                    $("#addDeck").css({
+                        "pointer-events": "none",
+                        opacity: 0.3
+                    });
                 }
-                else {
+                else if (type == "folder_folder") {
+                    $("#updateDeck").css({
+                        "display": "none"
+                    })
+                    $("#addDeck").css({
+                        "pointer-events": "none",
+                        opacity: 0.3
+                    });
+                    $("#addFolder").css({
+                        "pointer-events": "auto",
+                        cursor: "pointer",
+                        opacity: 1
+                    });
+                }
+                else if (type == "folder_deck") {
                     $("#updateDeck").css({
                         "display": "none"
                     })
@@ -404,6 +427,10 @@
                         "pointer-events": "auto",
                         cursor: "pointer",
                         opacity: 1
+                    });
+                    $("#addFolder").css({
+                        "pointer-events": "none",
+                        opacity: 0.3
                     });
                 }
                 $("#deckMenu").css({
@@ -573,11 +600,20 @@
                         $name = $deck["name"];
 
                         if($deck["is_leaf"] == 0) {
-                            echo "
-                            <li>
-                                <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
-                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder'> $name</span>
-                            ";
+                            if(mysqli_num_rows(mysqli_query($con, "SELECT is_leaf FROM decks WHERE parent_deck_id = '$deckID' AND is_leaf = 1")) > 0) {
+                                echo "
+                                <li>
+                                    <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name</span>
+                                ";
+                            }
+                            else {
+                                echo "
+                                <li>
+                                    <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_folder'> $name</span>
+                                ";
+                            }
                         }
                         else {
                             echo "
