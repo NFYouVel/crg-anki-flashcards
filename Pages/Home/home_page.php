@@ -97,7 +97,7 @@ if (isset($_POST['hide'])) {
                     $query = "SELECT * FROM classroom WHERE classroom_id = '$classroom'";
                     $classroomResult = mysqli_query($con, $query);
                     $rowClass = mysqli_fetch_array($classroomResult);
-                    echo "<li class='class-title'>"; // ????
+                    echo "<li class='class-title' onclick='Cls()'>"; // ????
                     // Colored Title
                     echo "<div class='title-to-review'>";
                     // Deck Title
@@ -180,6 +180,11 @@ if (isset($_POST['hide'])) {
     </div>
     </div>
 
+    <script>
+    function Cls() {
+        window.location.href = "classroom_information.php";
+    }
+    </script>
 </body>
 
 </html>

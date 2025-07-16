@@ -1,0 +1,49 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+table {
+    margin: 0;
+    margin: 10px 0;
+}
+
+td {
+    border: none;
+}
+
+tr td:nth-of-type(2) {
+    padding: 0 10px;
+}
+
+.container-classroom-information {
+    display: flex;
+    flex-direction: column;
+}
+#contain {
+    font-size: 16px;
+}
+.classroom-information-toggle {
+    background-color: rgb(229, 229, 229);
+}
+
+.subdeck {
+    display: flex;
+}
+
+.arrow {
+    margin-right: 20px;
+    transform: rotate(-90deg);
+    transition: transform 0.3s ease;
+    font-size: 30px;
+    color: grey;
+}
+
+.arrow.rotate {
+    transform: rotate(90deg);
+}
+
+.contain-ci {
+    display: none;
+}
