@@ -100,6 +100,9 @@
                 <td>$reason</td>
             </tr>";
         }
+        unset($_SESSION["allCards"]);
+        unset($_SESSION["validCards"]);
+        unset($_SESSION["invalidCards"]);
     ?>
 </table>
 

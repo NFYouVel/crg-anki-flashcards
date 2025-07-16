@@ -41,7 +41,7 @@
             align-items: center;
         }
         table {
-            width: 50%;
+            width: 100%;
             font-size: 20px;
             border-collapse: collapse;
             margin-bottom: 48px;
@@ -53,11 +53,10 @@
         th, td {
             border: 2px solid black;
             padding: 5px 10px;
+        }
+        #long {
             white-space: normal;
             word-break: break-word;
-        }
-        #short {
-            word-break: normal;
         }
         td {
             padding: 5px;
@@ -176,8 +175,13 @@
                 <caption style = "background-color: white; color: black;">Preview</caption>
                 <tr>
                     <th>Card ID</th>
+                    <th>Card Simplified</th>
+                    <th>Pinyin</th>
+                    <th>Word Class</th>
+                    <th id = 'long'>English</th>
                     <th>Sentence Code</th>
                     <th>Priority</th>
+                    <th id = 'long'>Sentence Simplified</th>
                 </tr>
                 <?php
                     include "../../SQL_Queries/connection.php";
@@ -209,11 +213,29 @@
                                     $sentenceCode = $sheet->getCell("B$index")->getValue();
                                     $priority = $sheet->getCell("C$index")->getCalculatedValue();
 
-                                    echo "<tr>";
-                                        echo "<td>$cardID</td>";
-                                        echo "<td>$sentenceCode</td>";
-                                        echo "<td>$priority</td>";
-                                    echo "</tr>";
+                                    $cardInfo = mysqli_query($con, "SELECT chinese_sc, pinyin, word_class, meaning_eng FROM cards WHERE card_id = $cardID");
+                                    $cardInfo = mysqli_fetch_array($cardInfo);
+
+                                    $sentenceInfo = mysqli_query($con, "SELECT chinese_sc FROM example_sentence WHERE sentence_code = '$sentenceCode'");
+                                    $sentenceInfo = mysqli_fetch_array($sentenceInfo);
+
+                                    $cardSc     = $cardInfo ? $cardInfo['chinese_sc']    : 'Not Found';
+                                    $pinyin     = $cardInfo ? $cardInfo['pinyin']        : 'Not Found';
+                                    $wordClass  = $cardInfo ? $cardInfo['word_class']    : 'Not Found';
+                                    $meaningEng = $cardInfo ? $cardInfo['meaning_eng']   : 'Not Found';
+                                    $sentSc     = $sentenceInfo ? $sentenceInfo['chinese_sc'] : 'Not Found';
+
+                                    echo "
+                                    <tr>
+                                        <td>$cardID</td>
+                                        <td>$cardSc</td>
+                                        <td>$pinyin</td>
+                                        <td>$wordClass</td>
+                                        <td id='long'>$meaningEng</td>
+                                        <td>$sentenceCode</td>
+                                        <td>$priority</td>
+                                        <td id='long'>$sentSc</td>
+                                    </tr>";
 
                                     $reason = "";
                                     //check if card id exists

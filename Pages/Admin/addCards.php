@@ -14,7 +14,6 @@
         }
         h1 {
             color: white;
-            font-size: 50px;
         }
         #header {
             display: flex;
@@ -73,17 +72,6 @@
         #invalid {
             background-color: red;
         }
-        #bookmarks {
-            position: fixed;
-            left: 0;
-            bottom: 250px;
-            z-index: 100;
-            background-color: white;
-        }
-        #bookmarks a {
-            color: black;
-            font-size: 24px;
-        }
         #loadingScreen {
             background-color: #262626;
             position: fixed;
@@ -98,6 +86,25 @@
             align-items: center;
             justify-content: center;
             display: none;
+        }
+        select {
+            appearance: none;
+            width: 250px;
+            padding: 10px 16px;
+            border: 2px solid #e9a345;
+            border-radius: 12px;
+            background-color: white;
+            font-size: 18px;
+            color: #333;
+            cursor: pointer;
+        }
+        select:focus {
+            outline: none;
+            border-color: #ffa72a;
+            box-shadow: 0 0 5px #ffa72a;
+        }
+        select option[disabled] {
+            color: #999;
         }
     </style>
     <script>
@@ -123,6 +130,24 @@
             xmlhttp.open("GET", "AJAX/batch_cards.php", true);
             xmlhttp.send();
         }
+
+        function previewModes(str) {
+            var xmlhttp;
+            if (window.XMLHttpRequest != null) {
+                xmlhttp = new XMLHttpRequest();
+            }
+            else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.getElementById("tables").innerHTML = xmlhttp.responseText;
+                }
+            }
+            xmlhttp.open("GET", "AJAX/cardPreviewMode.php?mode=" + str, true);
+            xmlhttp.send();
+        }
     </script>
 </head>
 <body>
@@ -145,14 +170,14 @@
         <img src="Components/loading.gif" alt="">
         <h1>Importing</h1>
     </div>
-    <div id="bookmarks">
-        <a href="#preview">Preview</a>
-        <a href="#valid">Valid</a>
-        <a href="#invalid">Invalid</a>
-    </div>
     <div id="container">
         <div id="header">
             <h1>Import Cards (Preview)</h1>
+            <select id = "filter" onchange = 'previewModes(this.value)'>
+                <option value="preview">Preview (Default)</option>
+                <option value="valid">Valid Cards</option>
+                <option value="invalid">Invalid Cards</option>
+            </select>
             <div>
                 <a href="dictionary.php" id = "cancel" class="button">Cancel</a>
                 <button type = "submit" id = "importButton" class="button" onclick = "uploadCards();">Import</button>
@@ -312,70 +337,6 @@
                         $_SESSION["filePath"] = $fileName;
                         move_uploaded_file($_FILES['excel_file']['tmp_name'], "../../Backup/card/temp/" . $fileName);
                     } 
-                ?>
-            </table>
-
-            <table id = "valid">
-                <caption style = "background-color: green;">Valid Cards</caption>
-                <tr>
-                <th>ID</th>
-                    <th>Traditional</th>
-                    <th>Simplified</th>
-                    <th>Priority</th>
-                    <th>Pinyin</th>
-                    <th>Word Class</th>
-                    <th>English</th>
-                    <th>Indo</th>
-                    <th>Sentence Count</th>
-                </tr>
-                <?php
-                    //menampilkan hasil validasi card
-                    foreach($_SESSION["validCards"] as $key => $value) {
-                        echo "<tr>";
-                            echo "<td>" . $value["cardID"] . "</td>";
-                            echo "<td>" . $value["traditional"] . "</td>";
-                            echo "<td>" . $value["simplified"] . "</td>";
-                            echo "<td>" . $value["priority"] . "</td>";
-                            echo "<td>" . $value["pinyin"] . "</td>";
-                            echo "<td>" . $value["class"] . "</td>";
-                            echo "<td id = 'long'>" . $value["english"] . "</td>";
-                            echo "<td id = 'long'>" . $value["indo"] . "</td>";
-                            echo "<td>0</td>";
-                        echo "</tr>";
-                    }
-                ?>
-            </table>
-
-            <table id = "invalid">
-                <caption style = "background-color: red;">Invalid Cards</caption>
-                <tr>
-                <th>ID</th>
-                    <th>Traditional</th>
-                    <th>Simplified</th>
-                    <th>Priority</th>
-                    <th>Pinyin</th>
-                    <th>Word Class</th>
-                    <th>English</th>
-                    <th>Indo</th>
-                    <th>Sentence Count</th>
-                    <th>Reason</th>
-                </tr>
-                <?php
-                    //menampilkan kartu2 yang tidak valid
-                    foreach($_SESSION["invalidCards"] as $key => $value) {
-                        echo "<tr>";
-                            echo "<td>" . $value["cardID"] . "</td>";
-                            echo "<td>" . $value["traditional"] . "</td>";
-                            echo "<td>" . $value["simplified"] . "</td>";
-                            echo "<td>" . $value["priority"] . "</td>";
-                            echo "<td>" . $value["pinyin"] . "</td>";
-                            echo "<td>" . $value["class"] . "</td>";
-                            echo "<td id = 'long'>" . $value["english"] . "</td>";
-                            echo "<td id = 'long'>" . $value["indo"] . "</td>";
-                            echo "<td>0</td>";
-                            echo "<td>" . $value["reason"] . "</td>";
-                        echo "</tr>";
-                    }
                 ?>
             </table>
         </div>

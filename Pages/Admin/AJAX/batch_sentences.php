@@ -89,6 +89,14 @@
         if (!rename($oldPath, $newPath)) {
             echo "<h2>Failed to move backup file from temp folder.</h2>";
         }
+        $folder = '../../../Backup/sentence/temp/';
+
+        $files = glob($folder . '*');
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
 
         mysqli_query($con, "UPDATE data_backup SET is_current_version = 0 WHERE import_type = 'sentence'");
         mysqli_query($con, "INSERT INTO data_backup (import_type, import_batch_name, total_records, successful_import, skipped_import, imported_by, is_current_version) 
