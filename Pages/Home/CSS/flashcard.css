@@ -1,6 +1,3 @@
-*::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Edge */
-}
 
 * {
     margin: 0;
@@ -15,6 +12,7 @@ body {
     font-weight: bold;
     font-size: 20px;
     margin-left: 21px;
+    z-index: 100;
 }
 .title-to-review {
     height: 24px;
@@ -23,10 +21,18 @@ body {
 /* Flashcard */
 .wrapper-flashcard {
     color: white;
+    position: absolute;
+    overflow-y: auto;
     width: 100%;
+    height: 75vh;
     display: flex;
     justify-content: center;
-    padding-bottom: 5.5%;
+    transition: font-size 0.2s ease;
+    font-size: 100%;
+}
+.wrapper-flashcard,
+.wrapper-flashcard * {
+  font-size: inherit;
 }
 .wrapper-mid {
     width: 97%;
@@ -41,22 +47,38 @@ body {
     flex-direction: column;
 }
 .hanzi {
-    font-size: 40px;
+    font-size: 2em;
 }
 .vocab-card .pinyin {
-    font-size: 20px;
+    font-size: 1em;
 }
 .word-class {
     color: gray;
 }
-
+div.sentence {
+    margin-top: 0.7em;
+}
 span.word-class,span.mean-EN,span.mean-ID {
     padding-bottom: 7px;
-    font-size: 16px;
+    font-size: 0.9em;
 }
-div.sentence {
+span.sentence {
     padding: 6px 0;
-    font-size: 17px;
+    font-size: 1em;
+}
+.chinese-sentence {
+    display: flex;
+    justify-content: space-between;
+}
+.report {
+    border-radius: 20px;
+    background: rgb(255, 165, 5);
+    border: none;
+    cursor: pointer;
+    color: rgb(20, 61, 89);
+    font-weight: bold   ;
+    padding: 5px;
+
 }
 table {
     margin: 0;
@@ -117,7 +139,7 @@ td.meaning {
 }
 
 .show {
-    color: rgb(217, 163, 70);
+    color: rgb(255, 165, 5);
     font-weight: bold;
     font-size: 20px;
 }

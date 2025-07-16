@@ -77,6 +77,7 @@ if (isset($_POST['hide'])) {
         //         </div>
         //     </div>
         // </div>";
+        exit;
 
     }
     ?>

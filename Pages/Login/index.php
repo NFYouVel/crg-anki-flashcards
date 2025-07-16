@@ -126,7 +126,7 @@
                             } else if ($line['role'] == 1) {
                                 header("Location: ../Admin/homepage.php");
                             } else {
-                            header("Location: ../Home/home_page_students.php");
+                                header("Location: ../Home/home_page_students.php");
                             }
                             exit;
                         }

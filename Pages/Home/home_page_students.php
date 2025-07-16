@@ -103,9 +103,6 @@ if (isset($_POST['hide'])) {
                         <!-- Deck Title -->
                         <span class="title">Active Chinese Senin Kamis 20.30</span>
                         <!-- To Review Green Red Blue-->
-                        <div class="to-review">
-                            <span class="click">Deck</span>
-                        </div>
                     </div>
 
 
