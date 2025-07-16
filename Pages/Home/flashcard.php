@@ -54,8 +54,9 @@ if ($line['role'] == 0) {
     <div class="title-to-review">
         <!-- Deck Title -->
         <div>
-            <span class="calc">+</span>
-            <span class="calc">-</span>
+            <span class="calc" id="zoomIn">+</span>
+            <span class="calc" id="zoomDisplay">100%</span>
+            <span class="calc" id="zoomOut">-</span>
         </div>
         <!-- To Review Green Red Blue-->
         <div class="to-review">
@@ -66,7 +67,7 @@ if ($line['role'] == 0) {
     </div>
 
     <!-- Cards -->
-    <div class="wrapper-flashcard">
+    <div class="wrapper-flashcard" id="target">
         <div class="wrapper-mid">
             <div class="vocab-card">
                 <span class="hanzi">老师</span>
@@ -88,7 +89,10 @@ if ($line['role'] == 0) {
                 </table>
             </div>
             <div class="sentence">
-                <span class="sentence">他是老师。</span>
+                <div class="chinese-sentence">
+                    <span class="sentence">他是老师。</span>
+                    <button class="report">Report Sentence</button>
+                </div>
                 <span class="pinyin">Ta1 shi2 lao3shi1</span>
                 <table>
                     <!-- Meaning English -->
@@ -106,7 +110,10 @@ if ($line['role'] == 0) {
                 </table>
             </div>
             <div class="sentence">
-                <span class="sentence">我要当中文老师</span>
+                <div class="chinese-sentence">
+                    <span class="sentence">我要当中文老师</span>
+                    <button class="report">Report Sentence</button>
+                </div>
                 <span class="pinyin">wo3 yao3 dang1 zhong1wen2 lao3shi1</span>
                 <table>
                     <!-- Meaning English -->
@@ -124,7 +131,11 @@ if ($line['role'] == 0) {
                 </table>
             </div>
             <div class="sentence">
-                <span class="sentence">老师好！</span>
+                <div class="chinese-sentence">
+                    <span class="sentence">老师好！</span>
+
+                    <button class="report">Report Sentence</button>
+                </div>
                 <span class="pinyin">lao3shi1 hao3</span>
                 <table>
                     <!-- Meaning English -->
@@ -153,19 +164,50 @@ if ($line['role'] == 0) {
         <button class="forgot" id="criteria">
             <span>
                 X</span>
-                    <span>Forgot</span>
+            <span>Forgot</span>
         </button>
         <button class="hard" id="criteria">
             <span>
                 ...</span>
-                    <span>Hard</span>
+            <span>Hard</span>
         </button>
         <button class="remember" id="criteria">
             <span>
                 V</span>
-                    <span>Remember</span>
+            <span>Remember</span>
         </button>
     </div>
+
+    <script>
+        let fontSize = 100;
+        const zoomStep = 10;
+        const minZoom = 50;
+        const maxZoom = 200;
+
+        const zoomTarget = document.querySelector('.wrapper-flashcard');
+        const zoomDisplay = document.getElementById('zoomDisplay');
+
+        function applyZoom() {
+            zoomTarget.style.fontSize = fontSize + '%';
+            zoomDisplay.textContent = fontSize + '%';
+        }
+
+        document.getElementById('zoomIn').addEventListener('click', () => {
+            if (fontSize < maxZoom) {
+                fontSize += zoomStep;
+                applyZoom();
+            }
+        });
+
+        document.getElementById('zoomOut').addEventListener('click', () => {
+            if (fontSize > minZoom) {
+                fontSize -= zoomStep;
+                applyZoom();
+            }
+        });
+
+        applyZoom(); // Init
+    </script>
 
 
 </body>

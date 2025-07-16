@@ -49,7 +49,7 @@ tr td:nth-of-type(4) {
   padding-left: 7px;
 }
 
-a {
+a,td.right {
   color: blue;
   font-weight: bold;
   font-size: 14px;

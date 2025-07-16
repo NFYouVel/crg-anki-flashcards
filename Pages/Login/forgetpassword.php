@@ -26,29 +26,48 @@
                 <input type="email" name="email" placeholder="Your email..." required> <br>
                 <input type="submit" value="Reset Password" name="submit" class="submit" id="submit">
             </form>
-            <span class='alert' id="error" style='visibility: hidden;'>Wrong email or password. Please contact our admin</span>
+            <span class='alert' id="error" style='visibility: visible;'></span>
 
             <?php
             include "../../SQL_Queries/connection.php";
-            $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
-            $submit = filter_input(INPUT_POST, 'input');
             $username = filter_input(INPUT_POST, 'username');
+            $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+            $submit = filter_input(INPUT_POST, 'submit');
 
             if ($email && $username && $submit) {
-                $query_username = "SELECT * FROM users WHERE name = '$username'";
+                $query_username = "SELECT * FROM users WHERE email = '$email'";
                 $result = mysqli_query($con, $query_username);
                 $line = mysqli_fetch_assoc($result);
 
                 if ($line) {
-                    if ($line['email'] == $email) {
-                        $text = "Location: newpassword.php?name=" . $username;
-                        header($text);
+                    if ($line['name'] == $username) {
+                        echo "<script>
+window.onload = function() {
+    const result = confirm('Your password has been reset successfully. Do you want to immediately update your password?');
+    if (result) {
+        fetch('update_password.php?email=$email')
+        .then(response => response.text())
+        .then(data => {
+            if (data === 'success') {
+                window.location.href = 'newpassword.php?email=$email';
+            } else {
+                alert('Failed to update password.');
+            }
+        });
+    } else {
+        window.location.href = 'index.php';
+    }
+}
+                                    </script>";
                         exit;
                     } else {
-                        echo "<script>document.getElementById('response').textContent = 'Email does not match the username.';</script>";
+                        echo "<script>document.getElementById('error').textContent = 'Email does not match the username.';</script>";
                     }
                 } else {
-                    echo "<script>document.getElementById('response').textContent = 'Email not found.';</script>";
+                    echo "<script>
+                    document.getElementById('error').style.visibility = 'visible';
+                    document.getElementById('error').innerHTML = 'Wrong email or password. Please contact our admin for more information!';
+                    </script>";
                 }
             }
             ?>

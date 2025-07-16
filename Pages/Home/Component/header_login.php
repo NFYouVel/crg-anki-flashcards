@@ -19,7 +19,7 @@
 
     .wrapper-header .header {
         display: flex;
-        background-color: rgb(216, 149, 33);
+        background-color: rgb(255, 165, 5);
         width: 100%;
         height: 9.65vh;
         align-items: center;
@@ -113,7 +113,7 @@ $line2 = mysqli_fetch_assoc($result2);
 $role = $line2['role_name'];
 
 $tempo;
-if ($role == "Students") {
+if ($role == "Student") {
     $tempo = "BackHome()";
 } else {
     $tempo = "BackHomeTeacher()";

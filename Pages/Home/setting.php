@@ -11,6 +11,7 @@ $user_id = $_SESSION["user_id"];
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
 $line = mysqli_fetch_array($result);
+$email = $line['email'];
 
 $role_id = $line['role'];
 $result2 = mysqli_query($con, "SELECT * FROM user_role WHERE role_id = '$role_id'");
@@ -85,7 +86,7 @@ $role = $line2['role_name'];
                         <td>Password</td>
                         <td>:</td>
                         <td>******</td>
-                        <td class="right"><a href="../Login/newpassword.php">reset password</a></td>
+                        <td class="right"><a href="../Login/newpassword.php?email=<?php echo $email; ?>">reset password</a></td>
                     </tr>
                     <tr>
                         <td>Card Meaning</td>
