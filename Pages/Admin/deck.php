@@ -220,6 +220,11 @@
             word-break: break-word;
             white-space: normal;
         }
+        th {
+            position: sticky;
+            z-index: 200;
+            top: 0;
+        }
         .short {
             word-break: normal;
         }

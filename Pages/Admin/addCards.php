@@ -65,6 +65,11 @@
         tr:nth-child(odd) {
             background-color: #a5a5a5;
         }
+        th {
+            position: sticky;
+            z-index: 200;
+            top: 0;
+        }
         caption {
             color: white;
             border: 2px solid black;

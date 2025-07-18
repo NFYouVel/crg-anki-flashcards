@@ -57,6 +57,11 @@
         td {
             padding: 5px;
         }
+        th {
+            position: sticky;
+            z-index: 200;
+            top: 0;
+        }
         .long {
             word-break: break-word;
             white-space: normal;

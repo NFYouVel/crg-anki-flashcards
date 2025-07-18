@@ -72,7 +72,7 @@
             transition: box-shadow 0.5s ease;
         }
         .highlighted {
-            box-shadow: 0 0 0 4px red inset;
+            box-shadow: 0 0 0 4px white inset;
         }
         #long {
             white-space: normal;
@@ -117,12 +117,18 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
+        th {
+            position: sticky;
+            z-index: 200;
+            top: 70px;
+        }
     </style>
 </head>
 <body>
     <?php
         include "Components/sidebar.php";
         include "../../SQL_Queries/connection.php";
+        include "convertPinyin.php";
     ?>
     <div id="header">
         <h1>Dictionary (Card) Overview</h1>
@@ -134,7 +140,7 @@
     </div>
     <div id="container">
         <table id = "cardsTable">
-            <tr>
+            <tr id = "tableHeader">
                 <th>ID</th>
                 <th>Traditional</th>
                 <th>Simplified</th>
@@ -161,7 +167,7 @@
                     echo "<td>" . $card["chinese_tc"] . "</td>";
                     echo "<td>" . $card["chinese_sc"] . "</td>";
                     echo "<td>" . $card["priority"] . "</td>";
-                    echo "<td>" . $card["pinyin"] . "</td>";
+                    echo "<td>" . convert($card["pinyin"]) . "</td>";
                     echo "<td>" . $card["word_class"] . "</td>";
                     echo "<td id = 'long'>" . $card["meaning_eng"] . "</td>";
                     echo "<td id = 'long'>" . $card["meaning_ina"] . "</td>";
@@ -175,12 +181,14 @@
             <div id="actions">
                 <a href="dictionary.php?page=0"><span><<</span></a>
                 <a href="dictionary.php?page=<?php echo $limit - 1 ?>"><span><</span></a>
-                <input type="number" id = "pageInput" value = "<?php echo $limit + 1; ?>">
-                <a href="dictionary.php?page=<?php echo $limit + 1 ?>"><span>></span></a>
-                <a href="dictionary.php?page=<?php 
+                <div><input type="number" id = "pageInput" value = "<?php echo $limit + 1; ?>"> <span style = "color: white; font-size: 18px;"> / <?php 
                     $maxPage = mysqli_query($con, "SELECT MAX(card_id) as total FROM cards;");
                     $maxPage = mysqli_fetch_array($maxPage);
                     $maxPage = $maxPage["total"];
+                    echo (int)($maxPage / 100) + 1;
+                ?></span></div>
+                <a href="dictionary.php?page=<?php echo $limit + 1 ?>"><span>></span></a>
+                <a href="dictionary.php?page=<?php 
                     echo (int)($maxPage / 100);
                 ?>"><span>>></span></a>
             </div>

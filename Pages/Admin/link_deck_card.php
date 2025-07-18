@@ -68,6 +68,11 @@
             color: white;
             border: 2px solid black;
         }
+        th {
+            position: sticky;
+            z-index: 200;
+            top: 0;
+        }
         select {
             appearance: none;
             width: 250px;

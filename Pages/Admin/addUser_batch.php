@@ -42,6 +42,11 @@
         tr:nth-child(odd) {
             background-color: #a5a5a5;
         }
+        th {
+            position: sticky;
+            z-index: 200;
+            top: 0;
+        }
         #header {
             display: flex;
             justify-content: space-between;
