@@ -112,8 +112,6 @@
             -webkit-appearance: none;
             margin: 0;
         }
-
-        /* For Firefox */
         input[type=number] {
             -moz-appearance: textfield;
         }
@@ -132,15 +130,15 @@
     ?>
     <div id="header">
         <h1>Dictionary (Card) Overview</h1>
-        <input type="text" placeholder = "&#128269;Search" value = "<?php echo $_GET["cardID"] ?? ""; ?>" onkeyup = "searchCards(this.value)">
+        <input type="text" placeholder="&#128269;Search" value="<?php echo $_GET['search'] ?? ($_GET['cardID'] ?? ''); ?>" onkeyup="searchCards(this.value)">
         <form action="addCards.php" method="POST" enctype="multipart/form-data">
-            <input id = "file" name = "excel_file" style = "display: none" class = "button" type="file" onchange="this.form.submit()">
-            <label class = "button" for="file">Import</label>
+            <input id="file" name="excel_file" style="display: none" class="button" type="file" onchange="this.form.submit()">
+            <label class="button" for="file">Import</label>
         </form>
     </div>
     <div id="container">
-        <table id = "cardsTable">
-            <tr id = "tableHeader">
+        <table id="cardsTable">
+            <tr id="tableHeader">
                 <th>ID</th>
                 <th>Traditional</th>
                 <th>Simplified</th>
@@ -151,7 +149,6 @@
                 <th>Indo</th>
                 <th>Sentence Count</th>
             </tr>
-
             <?php
                 $limit = $_GET["page"] ?? 0;
                 $bottomLimit = $limit * 100;
@@ -160,82 +157,100 @@
                 while($card = mysqli_fetch_array($cards)) {
                     $cardID = $card["card_id"];
                     $countLinked = mysqli_query($con, "SELECT COUNT(*) as total FROM junction_card_sentence WHERE card_id = $cardID");
-                    $countLinked = mysqli_fetch_assoc($countLinked);
-                    $countLinked = $countLinked["total"];
-                    echo "<tr id = 'card-$cardID'>";
-                    echo "<td>" . $card["card_id"] . "</td>";
-                    echo "<td>" . $card["chinese_tc"] . "</td>";
-                    echo "<td>" . $card["chinese_sc"] . "</td>";
-                    echo "<td>" . $card["priority"] . "</td>";
-                    echo "<td>" . convert($card["pinyin"]) . "</td>";
-                    echo "<td>" . $card["word_class"] . "</td>";
-                    echo "<td id = 'long'>" . $card["meaning_eng"] . "</td>";
-                    echo "<td id = 'long'>" . $card["meaning_ina"] . "</td>";
+                    $countLinked = mysqli_fetch_assoc($countLinked)["total"];
+                    echo "<tr id='card-$cardID'>";
+                    echo "<td>{$card['card_id']}</td>";
+                    echo "<td>{$card['chinese_tc']}</td>";
+                    echo "<td>{$card['chinese_sc']}</td>";
+                    echo "<td>{$card['priority']}</td>";
+                    echo "<td>" . convert($card['pinyin']) . "</td>";
+                    echo "<td>{$card['word_class']}</td>";
+                    echo "<td id='long'>{$card['meaning_eng']}</td>";
+                    echo "<td id='long'>{$card['meaning_ina']}</td>";
                     echo "<td>$countLinked</td>";
                     echo "</tr>";
                 }
             ?>
         </table>
-
         <div id="pageNav">
             <div id="actions">
                 <a href="dictionary.php?page=0"><span><<</span></a>
                 <a href="dictionary.php?page=<?php echo $limit - 1 ?>"><span><</span></a>
-                <div><input type="number" id = "pageInput" value = "<?php echo $limit + 1; ?>"> <span style = "color: white; font-size: 18px;"> / <?php 
+                <div><input type="number" id="pageInput" value="<?php echo $limit + 1; ?>"> <span style="color: white; font-size: 18px;"> / <?php 
                     $maxPage = mysqli_query($con, "SELECT MAX(card_id) as total FROM cards;");
-                    $maxPage = mysqli_fetch_array($maxPage);
-                    $maxPage = $maxPage["total"];
-                    echo (int)($maxPage / 100) + 1;
+                    echo (int)(mysqli_fetch_array($maxPage)["total"] / 100) + 1;
                 ?></span></div>
                 <a href="dictionary.php?page=<?php echo $limit + 1 ?>"><span>></span></a>
-                <a href="dictionary.php?page=<?php 
-                    echo (int)($maxPage / 100);
-                ?>"><span>>></span></a>
+                <a href="dictionary.php?page=<?php echo (int)(mysqli_fetch_array(mysqli_query($con, "SELECT MAX(card_id) as total FROM cards;"))["total"] / 100); ?>"><span>>></span></a>
             </div>
         </div>
     </div>
     <script>
-        document.getElementById("pageInput").addEventListener("keydown", function(event) {
+        document.getElementById("pageInput").addEventListener("keydown", function (event) {
             if (event.key === "Enter") {
-                event.preventDefault(); // Optional: prevent form submission or new line
-                let limit = document.getElementById("pageInput").value;
-                window.location.href = "dictionary.php?page=" + limit;
+                event.preventDefault();
+                let limit = parseInt(document.getElementById("pageInput").value);
+                if (!isNaN(limit)) {
+                    window.location.href = "dictionary.php?page=" + (limit - 1);
+                }
             }
         });
+
         let searchTimeout = null;
-    
+
         function searchCards(str) {
             clearTimeout(searchTimeout);
-    
             searchTimeout = setTimeout(() => {
                 str = str.trim();
-                if (isNaN(str) || str === "") {
-                    return;
-                }
-    
-                var cardID = parseInt(str);
-                var page = Math.floor((cardID - 1) / 100);
-    
-                var currentPage = <?php echo $limit ?>;
-    
-                if (currentPage !== page) {
-                    window.location.href = "dictionary.php?page=" + page + "&cardID=" + cardID;
-                    return;
-                }
-    
-                const row = document.getElementById("card-" + cardID);
-                if (row) {
-                    row.scrollIntoView({ behavior: "smooth", block: "center" });
-                    row.classList.add("highlighted");
-                    setTimeout(() => row.classList.remove("highlighted"), 2500);
+                if (str === "") return;
+
+                if (isNaN(str)) {
+                    const xmlhttp = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+                    xmlhttp.onreadystatechange = function () {
+                        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                            let cardID = parseInt(xmlhttp.responseText);
+                            if (!cardID) {
+                                alert("Card not found.");
+                                return;
+                            }
+                            handleSearch(cardID, str);
+                        }
+                    };
+                    xmlhttp.open("GET", "AJAX/getCardID.php?hanzi=" + encodeURIComponent(str), true);
+                    xmlhttp.send();
+                } else {
+                    const cardID = parseInt(str);
+                    handleSearch(cardID);
                 }
             }, 300);
         }
-    
-        // On page load: check if a highlight ID is present in the URL
+
+        function handleSearch(cardID, originalSearch = null) {
+            const page = Math.floor((cardID - 1) / 100);
+            const currentPage = <?php echo $limit; ?>;
+
+            const url = new URL(window.location.href);
+            url.searchParams.set("page", page);
+            url.searchParams.set("cardID", cardID);
+            if (originalSearch) {
+                url.searchParams.set("search", originalSearch);
+            }
+
+            if (currentPage !== page) {
+                window.location.href = url.toString();
+                return;
+            }
+
+            const row = document.getElementById("card-" + cardID);
+            if (row) {
+                row.scrollIntoView({ behavior: "smooth", block: "center" });
+                row.classList.add("highlighted");
+                setTimeout(() => row.classList.remove("highlighted"), 2500);
+            }
+        }
+
         window.addEventListener("DOMContentLoaded", () => {
-            var highlightID = "<?php echo json_decode($_GET["cardID"] ?? 0); ?>";
-    
+            const highlightID = <?php echo json_encode($_GET["cardID"] ?? 0); ?>;
             if (highlightID) {
                 const row = document.getElementById("card-" + highlightID);
                 if (row) {

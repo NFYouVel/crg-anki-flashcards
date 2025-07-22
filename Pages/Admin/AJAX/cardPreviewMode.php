@@ -1,5 +1,6 @@
 <?php
 session_start();
+include "../convertPinyin.php";
 $mode = $_GET["mode"];
 ?>
 <?php if ($mode == "preview") { ?>
@@ -23,7 +24,7 @@ $mode = $_GET["mode"];
             echo "<td>" . $value["cardID"] . "</td>";
             echo "<td>" . $value["traditional"] . "</td>";
             echo "<td>" . $value["simplified"] . "</td>";
-            echo "<td>" . $value["priority"] . "</td>";
+            echo "<td>" . convert($value["priority"]) . "</td>";
             echo "<td>" . $value["pinyin"] . "</td>";
             echo "<td>" . $value["class"] . "</td>";
             echo "<td id = 'long'>" . $value["english"] . "</td>";
@@ -54,7 +55,7 @@ $mode = $_GET["mode"];
                 echo "<td>" . $value["traditional"] . "</td>";
                 echo "<td>" . $value["simplified"] . "</td>";
                 echo "<td>" . $value["priority"] . "</td>";
-                echo "<td>" . $value["pinyin"] . "</td>";
+                echo "<td>" . convert($value["pinyin"]) . "</td>";
                 echo "<td>" . $value["class"] . "</td>";
                 echo "<td id = 'long'>" . $value["english"] . "</td>";
                 echo "<td id = 'long'>" . $value["indo"] . "</td>";
@@ -86,7 +87,7 @@ $mode = $_GET["mode"];
                 echo "<td>" . $value["traditional"] . "</td>";
                 echo "<td>" . $value["simplified"] . "</td>";
                 echo "<td>" . $value["priority"] . "</td>";
-                echo "<td>" . $value["pinyin"] . "</td>";
+                echo "<td>" . convert($value["pinyin"]) . "</td>";
                 echo "<td>" . $value["class"] . "</td>";
                 echo "<td id = 'long'>" . $value["english"] . "</td>";
                 echo "<td id = 'long'>" . $value["indo"] . "</td>";

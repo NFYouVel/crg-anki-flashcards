@@ -80,6 +80,7 @@
         #loadingScreen {
             background-color: #262626;
             position: fixed;
+            z-index: 999;
             border-radius: 24px;
             left: 50%;
             top: 50%;
@@ -137,6 +138,7 @@
         }
 
         function previewModes(str) {
+            document.getElementById("loadingScreen").style.display = "flex";
             var xmlhttp;
             if (window.XMLHttpRequest != null) {
                 xmlhttp = new XMLHttpRequest();
@@ -148,6 +150,7 @@
             xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     document.getElementById("tables").innerHTML = xmlhttp.responseText;
+                    document.getElementById("loadingScreen").style.display = "none";
                 }
             }
             xmlhttp.open("GET", "AJAX/cardPreviewMode.php?mode=" + str, true);
@@ -157,6 +160,7 @@
 </head>
 <body>
     <?php
+        include "convertPinyin.php";
         include "Components/sidebar.php";
         if(isset($_POST["import"])) {
             $date = date("ymd_Hi");
@@ -173,7 +177,7 @@
     ?>
     <div id="loadingScreen">
         <img src="Components/loading.gif" alt="">
-        <h1>Importing</h1>
+        <h1>Loading</h1>
     </div>
     <div id="container">
         <div id="header">
@@ -214,7 +218,7 @@
                                 echo "<td>" . $value["traditional"] . "</td>";
                                 echo "<td>" . $value["simplified"] . "</td>";
                                 echo "<td>" . $value["priority"] . "</td>";
-                                echo "<td>" . $value["pinyin"] . "</td>";
+                                echo "<td>" . convert($value["pinyin"]) . "</td>";
                                 echo "<td>" . $value["class"] . "</td>";
                                 echo "<td id = 'long'>" . $value["english"] . "</td>";
                                 echo "<td id = 'long'>" . $value["indo"] . "</td>";
@@ -261,7 +265,7 @@
                                         echo "<td>$traditional</td>";
                                         echo "<td>$simplified</td>";
                                         echo "<td>$priority</td>";
-                                        echo "<td>$pinyin</td>";
+                                        echo "<td>" . convert($pinyin) . "</td>";
                                         echo "<td>$class</td>";
                                         echo "<td id = 'long'>$english</td>";
                                         echo "<td id = 'long'>$indo</td>";

@@ -65,6 +65,45 @@
             z-index: 200;
             top: 0;
         }
+        #pageNav {
+            width: 100%;
+        }
+        #actions {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+        #actions input {
+            width: 50px;
+            text-align: center;
+        }
+        #actions a {
+            font-size: 18px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        input {
+            height: 50px;
+            width: 275px;
+            border-radius: 12px;
+            border: 2px solid #e9a345;
+            font-size: 20px;
+        }
+        input::placeholder {
+            color: #e9a345;
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
@@ -99,7 +138,9 @@
 
             <?php
                 include "../../SQL_Queries/connection.php";
-                $sentences = mysqli_query($con, "SELECT * FROM example_sentence");
+                $page = $_GET["page"] ?? 0;
+                $offset = $page * 100;
+                $sentences = mysqli_query($con, "SELECT * FROM example_sentence ORDER BY sentence_code ASC LIMIT 100 OFFSET $offset");
                 while ($sentence = mysqli_fetch_array($sentences)) {
                     $sentenceCode = $sentence["sentence_code"];
                     $countLinked = mysqli_query($con, "SELECT COUNT(*) as total FROM junction_card_sentence WHERE sentence_code = '$sentenceCode'");
@@ -117,6 +158,19 @@
                 }
             ?>
         </table>
+        <div id="pageNav">
+            <div id="actions">
+                <a href="overview_sentence.php?page=0"><span><<</span></a>
+                <a href="overview_sentence.php?page=<?php echo $page - 1 ?>"><span><</span></a>
+                <div><input type="number" id="pageInput" value="<?php echo $page + 1; ?>"> <span style="color: white; font-size: 18px;"> / <?php 
+                    $maxPage = mysqli_query($con, "SELECT COUNT(*) as total FROM example_sentence");
+                    $maxPage = (int)(mysqli_fetch_array($maxPage)["total"] / 100) + 1;
+                    echo $maxPage;
+                ?></span></div>
+                <a href="overview_sentence.php?page=<?php echo $page + 1 ?>"><span>></span></a>
+                <a href="overview_sentence.php?page=<?php echo $maxPage - 1; ?>"><span>>></span></a>
+            </div>
+        </div>
     </div>
 </body>
 <style>

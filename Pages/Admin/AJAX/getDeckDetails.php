@@ -1,5 +1,6 @@
 <?php
     include "../../../SQL_Queries/connection.php";
+    include "../convertPinyin.php";
     $count = 1;
     $cards = [];
     function getDeck($deckID) {
@@ -84,7 +85,7 @@
                 <td>$traditional</td>
                 <td>$simplified</td>
                 <td>$prio</td>
-                <td>$pinyin</td>
+                <td>" . convert($pinyin) . "</td>
                 <td class = 'short'>$class</td>
                 <td>$eng</td>
                 <td>$indo</td>
@@ -112,7 +113,7 @@
                 <td>$traditional</td>
                 <td>$simplified</td>
                 <td>$prio</td>
-                <td>$pinyin</td>
+                <td>" . convert($pinyin) . "</td>
                 <td class = 'short'>$class</td>
                 <td>$eng</td>
                 <td>$indo</td>
