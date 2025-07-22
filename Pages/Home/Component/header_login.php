@@ -69,13 +69,13 @@
     }
 
     .navbar .icon {
-        font-size: 7.65vh;
+        font-size: 6.65vh;
         cursor: pointer;
     }
 
     @media screen and (max-width: 768px) {
         .navbar .icon {
-            font-size: 5vh;
+            font-size: 4vh;
         }
 
         .right-bar span {

@@ -33,14 +33,17 @@
     flex-direction: column;
     width: 100%;
 }
-
+.contain {
+    padding-left: 20px;
+    /* border-bottom: var(--border-size) solid var(--border-color); */
+}
 .title-to-review {
     display: flex;
     background-color: var(--deck-title);
     padding: 11px 0;
     justify-content: space-between;
     align-items: center;
-    border-bottom: var(--border-size) solid var(--border-color);
+    /* border-bottom: var(--border-size) solid var(--border-color); */
     cursor: pointer;
 }
 .title {
@@ -74,14 +77,22 @@
     padding: 11px 0;
     align-items: center;
     padding-left: 35px;
-    border-bottom: var(--border-size) solid var(--border-color);
+    /* border-bottom: var(--border-size) solid var(--border-color); */
+    width: 100%;
     cursor: pointer;
 }
 .title-second {
     cursor: pointer;
 }
+.line {
+    width: 100%;
+    position: absolute;
+    right: 20px;
+    overflow: hidden;
+    border-bottom: var(--border-size) solid var(--border-color);
+}
 .contain-third {
-    display: none;
+    /* display: none; */
     /* transition: background-color 0.3s ease-in-out; */
 }
 .title-to-review-third {

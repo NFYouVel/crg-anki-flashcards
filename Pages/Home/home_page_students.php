@@ -7,16 +7,18 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION["user_id"];
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
-$line = mysqli_fetch_assoc($result);
+$line = mysqli_fetch_array($result);
 $role_id = $line['role'];
-$result2 = mysqli_query($con,"SELECT * FROM user_role WHERE role_id = '$role_id'");
-$line2 = mysqli_fetch_assoc($result2);
+$result2 = mysqli_query($con, "SELECT * FROM user_role WHERE role_id = '$role_id'");
+$line2 = mysqli_fetch_array($result2);
 $role = $line2['role_name'];
 
 if (isset($_POST['hide'])) {
     $name = $line['name'];
-    echo "<script>alert('You are login with $name Account as Student')</script>";
+    echo "<script>alert('You are login with $name Account as Teacher')</script>";
 }
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -33,31 +35,16 @@ if (isset($_POST['hide'])) {
 
 <body>
     <!-- Header -->
-    <?php include "Component/header_login.php";
-
-    ?>
+    <?php include "Component/header_login.php"; ?>
 
     <div class="right-bar">
         <div class="account-info">
             <span class="username"><?php echo $line['name'] ?></span>
-            <span class='as' 
-
-            <?php 
-            if ($role_id == 2) {
-                echo " style='cursor: pointer;' onclick='Mode()'";
-            } 
-            ?>> Student
-            <?php
-            if ($role_id == 2) {
-                echo " Mode";
-            } 
-            ?>
-        </span>
+            <span class="as" style="cursor: pointer;" onclick="Mode()"><?php echo $role ?> Mode</span>
         </div>
-
         <script>
-            function Mode(){
-                window.location.href = "home_page.php";
+            function Mode() {
+                window.location.href = "home_page_students.php";
             }
         </script>
 
@@ -68,29 +55,14 @@ if (isset($_POST['hide'])) {
     </div>
     </div>
     <?php include "Component/account_logout.php"; ?>
+
     <!-- Main Deck -->
     <?php
     $query = "SELECT * FROM users WHERE user_id = '$user_id'";
     $result = mysqli_query($con, $query);
     $line = mysqli_fetch_array($result);
-
-    if (isset($line["user_status"]) && $line["user_status"] === "pending")  {
-        echo "<div class='wrapper-update'>
-        <div class='update'>
-            <div class='title-update'><span>Update Your Password!</span></div>
-            <div class='explanation'>
-                <span>Important!</span>
-                <span>To keep your account, you should change your password immediately!</span>
-                <span class='br'>You will be moved to user setting page!</span>
-            </div>
-            <div class='button'>
-                <button class='button-update'>Update</button>
-            </div>
-        </div>
-    </div>";
-    
-    }
     ?>
+
     <div class="wrapper-main">
         <div class="deck-layout">
             <!-- Example: For Teacher -->
@@ -101,76 +73,67 @@ if (isset($_POST['hide'])) {
                     <!-- Colored Title -->
                     <div class="title-to-review">
                         <!-- Deck Title -->
-                        <span class="title">Active Chinese Senin Kamis 20.30</span>
+                        <span class="title">Main Deck</span>
                         <!-- To Review Green Red Blue-->
+                        <div class="to-review">
+                            <span class="green">169</span>
+                            <span class="red">28</span>
+                            <span class="blue">1638</span>
+                        </div>
                     </div>
 
 
                     <div class="subdeck">
-                        <ul>
-                            <!-- Second Main -->
-                            <li class="contain">
-                                <div class="title-to-review-second">
-                                    <!-- Deck Title -->
-                                    <span class="title-second">Eric Lim</span>
-                                    <!-- To Review Green Red Blue-->
-                                    <div class="to-review">
-                                        <span class="green">169</span>
-                                        <span class="red">28</span>
-                                        <span class="blue">1638</span>
-                                    </div>
-                                </div>
+                        <?php showDecks($con, $user_id); ?>
 
-                                <!-- Third Main -->
-                                <ul>
-                                    <li class="contain-third">
-                                        <div class="title-to-review-third">
-                                            <!-- Deck Title -->
-                                            <a href="flashcard.php" class="title-third">Active Chinese 1.1</a>
-                                            <!-- To Review Green Red Blue-->
-                                            <div class="to-review">
-                                                <span class="green">169</span>
-                                                <span class="red">28</span>
-                                                <span class="blue">1638</span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
+                        <?php 
+                            function showDecks($con, $user_id, $parentID = null)
+                            {
+                                $getDeckIDs = mysqli_query($con, "SELECT deck_id FROM junction_deck_user WHERE user_id = '$user_id'");
+                                $ownedDecks = [];
+                                while ($row = mysqli_fetch_assoc($getDeckIDs)) {
+                                    $ownedDecks[] = $row['deck_id'];
+                                }           
+                                // Ambil semua deck yang punya parent tertentu
+                                if ($parentID === null) {
+                                    $getDecks = mysqli_query($con, "SELECT * FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
+                                } else {
+                                    $getDecks = mysqli_query($con, "SELECT * FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
+                                }
+                                
+                                // Loop semua deck yang sesuai
+                                while ($deck = mysqli_fetch_assoc($getDecks)) {
+                                    // Cek: user punya deck ini nggak?
 
-                            <!-- Copas Second Main Dari Sini -->
-                            <li class="contain">
-                                <div class="title-to-review-second">
-                                    <!-- Deck Title -->
-                                    <span class="title-second">Marvel Nathanael Lie</span>
-                                    <!-- To Review Green Red Blue-->
-                                    <div class="to-review">
-                                        <span class="green">169</span>
-                                        <span class="red">28</span>
-                                        <span class="blue">1638</span>
-                                    </div>
-                                </div>
-
-                                <!-- Third Main -->
-                                <ul>
-                                    <!-- Copas Third Main Dari Sini -->
-                                    <li class="contain-third">
-                                        <div class="title-to-review-third">
-                                            <!-- Deck Title -->
-                                            <a href="flashcard.php" class="title-third">Active Chinese 1.2</a>
-                                            <!-- To Review Green Red Blue-->
-                                            <div class="to-review">
-                                                <span class="green">169</span>
-                                                <span class="red">28</span>
-                                                <span class="blue">1638</span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <!-- Sampe Sini (Third)-->
-                                </ul>
-                            </li>
-                            <!-- Sampe Sini (Second)-->
-                        </ul>
+                                    // echo "Deck saat ini: " . $deck['deck_id'] . "<br>";
+                                    if (in_array($deck['deck_id'], $ownedDecks)) {
+                                        echo "<!-- Debug: nemu deck: " . $deck['name'] . " -->";
+                                        echo "<li class='contain'>";
+                                        echo "<div class='title-to-review-second'>";
+                                        echo "<span class='title-second'>" . htmlspecialchars($deck['name']) . "</span>";
+                                        echo "<div class='to-review'>
+                                                <span class='green'>169</span>
+                                                <span class='red'>28</span>
+                                                <span class='blue'>1638</span>
+                                              </div>";
+                                        echo "</div>";
+                                        echo "<div class='line'></div>";
+                            
+                                        // Recursive call buat subdeck (kalau is_leaf = 0)
+                                        if ($deck['is_leaf'] == 0) {
+                                            echo "<ul>"; // start subdeck
+                                            showDecks($con, $user_id, $deck['deck_id']);
+                                            echo "</ul>"; // end subdeck
+                                        }
+                            
+                                        echo "</li>";
+                                        
+                                    }
+                                    
+                                }
+                            }
+                            
+                        ?>
                     </div>
                 </li>
                 <!-- Sampe Sini (First)-->
