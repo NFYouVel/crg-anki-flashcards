@@ -529,7 +529,7 @@
                                 <img src='../../Assets/Icons/folder.png' class='icon' id='folder' style='vertical-align: middle;'>
                                 <form method='post' style='display: inline;'>
                                     <input type='hidden' name='deckID' value='${deckID}'>
-                                    <input id='renameDeck' name='renameDeck' type='text' value='${deckName}' style='font-size: 16px; vertical-align: middle; width: auto;'>
+                                    <input id='renameDeck' name='renameDeck' type='text' value='${deckName}' style='font-size: 16px; vertical-align: middle; width: auto;' autofocus>
                                 </form>
                             `);
                         },
