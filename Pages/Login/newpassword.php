@@ -36,7 +36,7 @@
                 $email = $_GET['email'];
 
                 if ($password_confirmation && $password && $submit && (strlen($password) < 6 || strlen($password_confirmation) < 6)) {
-                    echo "<script>alert('Your password can not less than 6 character!')</script>";
+                    echo "<script>alert('Your password can not less than 6 character.')</script>";
                 } else {
                     if ($password_confirmation && $password && $submit) {
         

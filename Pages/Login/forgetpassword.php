@@ -66,7 +66,7 @@ window.onload = function() {
                 } else {
                     echo "<script>
                     document.getElementById('error').style.visibility = 'visible';
-                    document.getElementById('error').innerHTML = 'Wrong email or password. Please contact our admin for more information!';
+                    document.getElementById('error').innerHTML = 'Wrong email or password. Please contact our admin for more information.';
                     </script>";
                 }
             }

@@ -5,6 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = $_COOKIE['user_id'];
 }
 $user_id = $_SESSION["user_id"];
+$classroom_id = $_GET["classroom_id"];
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
 $line = mysqli_fetch_array($result);
@@ -18,6 +19,16 @@ if (isset($_POST['hide'])) {
     echo "<script>alert('You are login with $name Account as Teacher')</script>";
 }
 
+$query = "SELECT * FROM junction_classroom_user WHERE classroom_id = '$classroom_id' AND classroom_role_id = '3'";
+$result = mysqli_query($con, $query);
+$count = 0;
+while ($classroom_line = mysqli_fetch_array($result)) {
+    $count++;
+}
+
+$query_classroom = "SELECT * FROM classroom WHERE classroom_id = '$classroom_id'";
+$result_classroom = mysqli_query($con, $query_classroom);
+$classroom_name = mysqli_fetch_array($result_classroom);
 
 ?>
 <!DOCTYPE html>
@@ -62,25 +73,26 @@ if (isset($_POST['hide'])) {
     $query = "SELECT * FROM users WHERE user_id = '$user_id'";
     $result = mysqli_query($con, $query);
     $line = mysqli_fetch_array($result);
-
-    if (isset($line["user_status"]) && $line["user_status"] === "pending") {
-        header("Location: setting.php");
-        //     echo "<div class='wrapper-update'>
-        //     <div class='update'>
-        //         <div class='title-update'><span>Update Your Password!</span></div>
-        //         <div class='explanation'>
-        //             <span>Important!</span>
-        //             <span>To keep your account, you should change your password immediately!</span>
-        //             <span class='br'>You will be moved to user setting page!</span>
-        //         </div>
-        //         <div class='button'>
-        //             <button class='button-update'>Update</button>
-        //         </div>
-        //     </div>
-        // </div>";
-
-    }
     ?>
+    <div class='wrapper-add'>
+        <div class='add'>
+            <div class='title-add'>
+                <span>Add Premade Deck To Clasroom</span>
+                <span>(If the student already has the deck, then the deck will not be added)</span>
+            </div>
+            <div class='search-bar'>
+                <input type="text" placeholder="Search deck" name="search" class="search-bar">
+                <div class="icon-add">🔍</div>
+            </div> <hr>
+            <div class='explanation'>
+                <span>bla bla bla</span>
+            </div>
+            <div class='button'>
+                <button class='button-cancel'>Cancel</button>
+                <button class='button-add'>Add to Classroom</button>
+            </div>
+        </div>
+    </div>
 
     <div class="wrapper-main">
         <div class="deck-layout">
@@ -92,17 +104,19 @@ if (isset($_POST['hide'])) {
                     <!-- Colored Title -->
                     <div class="title-to-review classroom-information-toggle">
                         <!-- Deck Title -->
-                         <div class="container-classroom-information">
-                             <span class="title">
-                                 Classroom Information
-                             </span>
-                             <span class="title" id="contain">
-                                 Active Chinese Senin Kamis 20.30
-                             </span>
-                         </div>
-                         <div class="icon-ci" id="content">
+                        <div class="container-classroom-information">
+                            <span class="title">
+                                Classroom Information
+                            </span>
+                            <span class="title" id="contain">
+                                <?php 
+                                echo $classroom_name['name'];
+                                ?>
+                            </span>
+                        </div>
+                        <div class="icon-ci" id="content">
                             <div class="arrow">▶</div>
-                         </div>
+                        </div>
                     </div>
                     <div class="subdeck">
                         <ul>
@@ -165,18 +179,39 @@ if (isset($_POST['hide'])) {
                     </div>
 
                     <!-- Student List -->
-                    <div class="title-to-review">
+                    <div class="students-to-review">
                         <!-- Deck Title -->
                         <span class="title">
-                            Student List (7)
+                            Student List (<?php echo $count ?>)
                         </span>
                         <!-- To Review Green Red Blue-->
                         <div class="to-review">
                             <span class="click">Add Deck to Classroom</span>
                         </div>
                     </div>
-
                 </li>
+                <?php
+                $query = "SELECT * FROM junction_classroom_user WHERE classroom_id = '$classroom_id' AND classroom_role_id = '3'";
+                $result = mysqli_query($con, $query);
+                while ($classroom_line = mysqli_fetch_array($result)) {
+                    $user_id_student = $classroom_line['user_id'];
+                    $query2 = "SELECT * FROM users WHERE user_id = '$user_id_student'";
+                    $result2 = mysqli_query($con, $query2);
+                    $line_name = mysqli_fetch_assoc($result2);
+                    $temp_name = $line_name['name'];
+                    echo " <div class='title-student'>
+                    <!-- Deck Title -->
+                    <span class='title'>$temp_name</span>
+                    <!-- To Review Green Red Blue-->
+                    <div class='to-review'>
+                        <span class='green'>169</span>
+                        <span class='red'>28</span>
+                        <span class='blue'>1638</span>
+                    </div>
+                </div>";
+                }
+                ?>
+
                 <!-- Sampe Sini (First)-->
             </ul>
         </div>

@@ -78,7 +78,6 @@ if (isset($_POST['hide'])) {
         //     </div>
         // </div>";
         exit;
-
     }
     ?>
 
@@ -97,7 +96,9 @@ if (isset($_POST['hide'])) {
                     $query = "SELECT * FROM classroom WHERE classroom_id = '$classroom'";
                     $classroomResult = mysqli_query($con, $query);
                     $rowClass = mysqli_fetch_array($classroomResult);
-                    echo "<li class='class-title' onclick='Cls()'>"; // ????
+                    $temp = $rowClass['classroom_id'];
+                    echo "<li class='class-title' onclick='goToClassroom(this)' data-id='$temp'>"; // ????
+                    $temp_classroom = $rowClass['classroom_id'];
                     // Colored Title
                     echo "<div class='title-to-review'>";
                     // Deck Title
@@ -108,83 +109,35 @@ if (isset($_POST['hide'])) {
                     // To Review Green Red Blue
                     echo
                     "<div class='to-review'>
-                            <span class='click'>Deck</span>
+                            <span class='click'>Click for More Information</span>
                         </div>
                         </div>";
 
-                    echo "<!-- Second Line -->";
-                    echo "<div class='subdeck'><ul>";
-
-                    // Deck title
-                    $secondQuery = "SELECT * FROM junction_classroom_user WHERE classroom_id = '$classroom' AND classroom_role_id = '3' ";
-                    $secondResult = mysqli_query($con, $secondQuery);
-
-                    while ($rowClassUser = mysqli_fetch_array($secondResult)) {
-                        echo "<li class='contain'>
-                                <div class='title-to-review-second'>";
-                        echo "<span class='title-second'>";
-                        $name = mysqli_real_escape_string($con, $rowClassUser['user_id']);
-                        $nameQuery = "SELECT * FROM users WHERE user_id = '$name'";
-                        $nameResult = mysqli_query($con, $nameQuery);
-                        $nameRow = mysqli_fetch_assoc($nameResult);
-                        echo $nameRow['name'];
-                        echo "</span>";
-
-                        // To Review Green Red Blue
-                        echo "
-                        <div class='to-review'>
-                                        <span class='green'>169</span>
-                                        <span class='red'>28</span>
-                                        <span class='blue'>1638</span>
-                                    </div>
-                                </div>
-                        ";
-
-                        // blom beressss
-                        echo "<ul>";
-                        echo "
-                        <li class='contain-third'>
-                    <div class='title-to-review-third'>
-                        <!-- Deck Title -->
-                        <a href='deck_progress.php' class='title-third'>Active Chinese 1.1</a>
-                        <!-- To Review Green Red Blue-->
-                        <div class='to-review'>
-                            <span class='green'>169</span>
-                            <span class='red'>28</span>
-                            <span class='blue'>1638</span>
-                        </div>
-                    </div>
-                    </li>
-                    </ul>
-                    </li>
-                        ";
-                    }
-                    
-                    echo "</ul>";
-                    echo "</div>";
                     echo "</li>";
                 }
                 ?>
 
                 <!-- Third Main -->
 
-                
-
-            <!-- </li> -->
-            <!-- Sampe Sini (Second)-->
 
 
+                <!-- </li> -->
+                <!-- Sampe Sini (Second)-->
 
-        <!-- Sampe Sini (First)-->
-        </ul>
+
+
+                <!-- Sampe Sini (First)-->
+            </ul>
+        </div>
     </div>
-    </div>
-
     <script>
-    function Cls() {
-        window.location.href = "classroom_information.php";
-    }
+        function goToClassroom(elem) {
+            const classroomId = elem.getAttribute("data-id");
+            window.location.href = `classroom_information.php?classroom_id=${classroomId}`;
+        }
     </script>
+
+
 </body>
 
 </html>

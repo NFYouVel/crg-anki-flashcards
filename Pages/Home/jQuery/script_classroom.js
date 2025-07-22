@@ -8,4 +8,11 @@ $(document).ready(function () {
         }
         $(this).find(".arrow").toggleClass("rotate");
     });
+    $(".click").on("click", function () {
+        $(".wrapper-add").css("display", "flex").hide().fadeIn()
+    });
+    $(".button-cancel").on("click", function () {
+        $(".wrapper-add").fadeOut();
+    });
+
 });

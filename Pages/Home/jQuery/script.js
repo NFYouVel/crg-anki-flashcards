@@ -1,4 +1,13 @@
 $(document).ready(function () {
+    $(".title-to-review").click(function () {
+        let box = $(".subdeck");
+        if (box.is(":visible")) {
+            box.slideUp(500);
+        } else {
+            box.css("display", "block").hide().slideDown(500);
+        }
+        
+    });
     $(".title-to-review-second").click(function () {
         $(this).next().children().slideToggle(400);
         let el = $(this);
@@ -31,9 +40,5 @@ $(document).ready(function () {
     });
     $(".button-update").click(function () {
         $(location).attr('href', 'setting.php');
-    });
-    $(".classroom-information-toggle").hover(function () {
-        $(this).next(".subdeck").stop().slideToggle(300); // biar gak patah kalau di spam klik
-        $(this).find(".arrow").toggleClass("rotate");
     });
 });
