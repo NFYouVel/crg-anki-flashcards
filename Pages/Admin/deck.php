@@ -475,7 +475,6 @@
                     const newFolder = `
                     <ul class = "maximized" style = "height: fit-content;">
                         <li>
-                            <span class="toggle"><img src="../../Assets//Icons/maximizeDeck.png" class="min"></span> 
                             <span class="label"><img src="../../Assets//Icons/deck.png" class="icon"> <input id = "input_newFolder" autofocus type = "text" placeholder = "New Folder"></span>
                         </li>
                     </ul>
@@ -518,14 +517,25 @@
                 //click rename
                 $("#rename").off("click").on("click", function () {
                     deckID = label.attr("id");
-                    $(label).html(`
-                        <img src='../../Assets//Icons/folder.png' class='icon' id='folder' style='vertical-align: middle;'>
-                        <form method='post' style='display: inline;'>
-                            <input type = 'hidden' name = 'deckID' value = '${deckID}'>
-                            <input id='renameDeck' name = 'renameDeck' type='text' style='font-size: 16px; vertical-align: middle; width: auto;'>
-                        </form>
-                    `);
+                    $.ajax({
+                        url: 'AJAX/getDeckName.php',
+                        type: 'POST',
+                        data: {
+                            deck_id: deckID
+                        },
+                        success: function(response) {
+                            var deckName = response.trim();
+                            $(label).html(`
+                                <img src='../../Assets/Icons/folder.png' class='icon' id='folder' style='vertical-align: middle;'>
+                                <form method='post' style='display: inline;'>
+                                    <input type='hidden' name='deckID' value='${deckID}'>
+                                    <input id='renameDeck' name='renameDeck' type='text' value='${deckName}' style='font-size: 16px; vertical-align: middle; width: auto;'>
+                                </form>
+                            `);
+                        },
+                    });
                 });
+
 
                 $("#renameDeck").on('keydown', function(e) {
                     if (e.key === 'Enter' || e.which === 13) {
@@ -578,6 +588,7 @@
 </head>
 <body>
     <?php
+        include "convertPinyin.php";
         include "Components/sidebar.php";
         include "../../SQL_Queries/connection.php";
         if(isset($_POST["renameDeck"])) {
@@ -623,7 +634,6 @@
                         else {
                             echo "
                             <li>
-                                <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
                                 <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name</span>
                             ";
                         }
@@ -719,7 +729,7 @@
                                     <td>$traditional</td>
                                     <td>$simplified</td>
                                     <td>$prio</td>
-                                    <td>$pinyin</td>
+                                    <td>" . convert($pinyin) . "</td>
                                     <td class = 'short'>$class</td>
                                     <td>$eng</td>
                                     <td>$indo</td>

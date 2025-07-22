@@ -77,6 +77,25 @@
         #invalid {
             background-color: red;
         }
+        select {
+            appearance: none;
+            width: 250px;
+            padding: 10px 16px;
+            border: 2px solid #e9a345;
+            border-radius: 12px;
+            background-color: white;
+            font-size: 18px;
+            color: #333;
+            cursor: pointer;
+        }
+        select:focus {
+            outline: none;
+            border-color: #ffa72a;
+            box-shadow: 0 0 5px #ffa72a;
+        }
+        select option[disabled] {
+            color: #999;
+        }
     </style>
     <script>
         //function ajax untuk upload user
@@ -99,6 +118,24 @@
             xmlhttp.open("GET", "AJAX/batch_user.php", true);
             xmlhttp.send();
         }
+
+        function previewModes(str) {
+            var xmlhttp;
+            if (window.XMLHttpRequest != null) {
+                xmlhttp = new XMLHttpRequest();
+            }
+            else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.getElementById("tables").innerHTML = xmlhttp.responseText;
+                }
+            }
+            xmlhttp.open("GET", "AJAX/userPreviewMode.php?mode=" + str, true);
+            xmlhttp.send();
+        }
     </script>
 </head>
 
@@ -109,6 +146,11 @@
     <div id="container">
         <div id="header">
             <h1>Import User (Preview)</h1>
+            <select id = "filter" onchange = 'previewModes(this.value)'>
+                <option value="preview">Preview (Default)</option>
+                <option value="valid">Valid Users</option>
+                <option value="invalid">Invalid Invalid</option>
+            </select>
             <div>
                 <a href="overview_user.php" id = "cancel" class="button">Cancel</a>
                 <!-- memanggil function ajax melalui tombol -->
@@ -134,6 +176,7 @@
                     if (isset($_FILES['excel_file'])) {
                         $id = 1;
                         //membangun var session untuk data valid dan invalid
+                        $allUsers = [];
                         $validUsers = [];
                         $invalidUsers = [];
                         $fileTmpPath = $_FILES['excel_file']['tmp_name'];
@@ -219,6 +262,12 @@
                                             "reason" => $reason
                                         ];
                                     }
+                                    $allUsers[$email] = [
+                                            "name" => $name, 
+                                            "email" => $email, 
+                                            "role" => $role, 
+                                            "set" => $set
+                                    ];
                                 }
                             } catch (Exception $e) {
                                 echo "<h1>Error loading file: " . $e->getMessage() . "</h1>";
@@ -230,55 +279,9 @@
                         echo "<h1>No file uploaded.</h1>";
                     }
                     
+                    $_SESSION["allUsers"] = $allUsers;
+                    $_SESSION["invalidUsers"] = $invalidUsers;
                     $_SESSION["validUsers"] = $validUsers;
-                ?>
-            </table>
-
-            <table>
-                <caption style = "background-color: green;">Valid Users</caption>
-                <tr>
-                    <th>ID</th>
-                    <th>Full Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Character Set</th>
-                </tr>
-                <?php
-                    $id = 1;
-                    foreach($validUsers as $key => $value) {
-                        echo "<tr>";
-                            echo "<td>" . $id++ . "</td>";
-                            echo "<td>" . $value["name"] . "</td>";
-                            echo "<td>" . $value["email"] . "</td>";
-                            echo "<td>" . $value["role"] . "</td>";
-                            echo "<td>" . $value["set"] . "</td>";
-                        echo "</tr>";
-                    }
-                ?>
-            </table>
-
-            <table>
-                <caption style = "background-color: red;">Invalid Users</caption>
-                <tr>
-                    <th>ID</th>
-                    <th>Full Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Character Set</th>
-                    <th>Reason</th>
-                </tr>
-                <?php
-                    $id = 1;
-                    foreach($invalidUsers as $key => $value) {
-                        echo "<tr>";
-                            echo "<td>" . $id++ . "</td>";
-                            echo "<td>" . $value["name"] . "</td>";
-                            echo "<td>" . $value["email"] . "</td>";
-                            echo "<td>" . $value["role"] . "</td>";
-                            echo "<td>" . $value["set"] . "</td>";
-                            echo "<td>" . $value["reason"] . "</td>";
-                        echo "</tr>";
-                    }
                 ?>
             </table>
         </div>

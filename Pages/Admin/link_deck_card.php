@@ -49,11 +49,10 @@
         th, td {
             border: 2px solid black;
             padding: 5px 10px;
+        }
+        #long {
             white-space: normal;
             word-break: break-word;
-        }
-        #short {
-            word-break: normal;
         }
         td {
             padding: 5px;
@@ -107,14 +106,29 @@
             justify-content: center;
             display: none;
         }
-        #tables {
-            display: flex;
-            gap: 12px;
-        }
         #menu {
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+        select {
+            appearance: none;
+            width: 250px;
+            padding: 10px 16px;
+            border: 2px solid #e9a345;
+            border-radius: 12px;
+            background-color: white;
+            font-size: 18px;
+            color: #333;
+            cursor: pointer;
+        }
+        select:focus {
+            outline: none;
+            border-color: #ffa72a;
+            box-shadow: 0 0 5px #ffa72a;
+        }
+        select option[disabled] {
+            color: #999;
         }
     </style>
     <script>
@@ -138,6 +152,24 @@
                 }
             }
             xmlhttp.open("GET", "AJAX/batch_junction_deck_card.php?deckID=<?php $deckID = $_GET["deckID"]; echo $deckID; ?>", true);
+            xmlhttp.send();
+        }
+
+        function previewModes(str) {
+            var xmlhttp;
+            if (window.XMLHttpRequest != null) {
+                xmlhttp = new XMLHttpRequest();
+            }
+            else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.getElementById("tables").innerHTML = xmlhttp.responseText;
+                }
+            }
+            xmlhttp.open("GET", "AJAX/deckCardPreviewMode.php?mode=" + str, true);
             xmlhttp.send();
         }
     </script>
@@ -175,6 +207,11 @@
                     echo $decks;
                     ?>
             </h1>
+            <select id = "filter" onchange = 'previewModes(this.value)'>
+                <option value="preview">Preview (Default)</option>
+                <option value="valid">Valid Users</option>
+                <option value="invalid">Invalid Invalid</option>
+            </select>
             <div id = "form">
                 <a href="deck.php" id = "cancel" class="button">Cancel</a>
                 <button class="button" id = "importButton" onclick = "uploadCards()">Save</button>
@@ -186,6 +223,13 @@
                 <tr>
                     <th>No</th>
                     <th>Card ID</th>
+                    <th>Traditional</th>
+                    <th>Simplified</th>
+                    <th>Prio</th>
+                    <th>Pinyin</th>
+                    <th>Word Class</th>
+                    <th>English</th>
+                    <th>Indo</th>
                 </tr>
                 <?php
                     $deckID = $_GET["deckID"];
@@ -207,6 +251,7 @@
                                 $validCards = [];
                                 $invalidCards = [];
                                 $count = 1;
+                                $id = 1;
                                 foreach ($sheet->getRowIterator() as $row) {
                                     $index = $row->getRowIndex();
                                     //skip index 1 karena itu header
@@ -214,13 +259,22 @@
                                         continue;
                                     }
                                     //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
-                                    // $deckID = $sheet->getCell("A$index")->getValue();
                                     $cardID = $sheet->getCell("B$index")->getValue();
+                                    $cardInfo = mysqli_query($con, "SELECT * FROM cards WHERE card_id = $cardID");
+                                    $cardInfo = mysqli_fetch_assoc($cardInfo);
 
-                                    echo "<tr>";
-                                        echo "<td>" . $count++ . "</td>";
-                                        echo "<td>$cardID</td>";
-                                    echo "</tr>";
+                                    echo "
+                                    <tr>
+                                        <td>" . $id++ . "</td>
+                                        <td>" . $cardInfo["card_id"] . "</td>
+                                        <td>" . $cardInfo["chinese_tc"] . "</td>
+                                        <td>" . $cardInfo["chinese_sc"] . "</td>
+                                        <td>" . $cardInfo["priority"] . "</td>
+                                        <td>" . $cardInfo["pinyin"] . "</td>
+                                        <td>" . $cardInfo["word_class"] . "</td>
+                                        <td class = 'long'>" . $cardInfo["meaning_eng"] . "</td>
+                                        <td class = 'long'>" . $cardInfo["meaning_ina"] . "</td>
+                                    </tr>";
 
                                     $reason = "";
                                     //check if card id exists
@@ -235,19 +289,40 @@
 
                                     //membangun session untuk semua kartu
                                     $allCards[$cardID] = [
-                                        "cardID" => $cardID
+                                        "cardID" => $cardID, 
+                                        "traditional" => $cardInfo["chinese_tc"], 
+                                        "simplified" => $cardInfo["chinese_sc"], 
+                                        "priority" => $cardInfo["priority"],
+                                        "pinyin" => $cardInfo["pinyin"],
+                                        "class" => $cardInfo["word_class"],
+                                        "english" => $cardInfo["meaning_eng"],
+                                        "indo" => $cardInfo["meaning_ina"]
                                     ];
                                     //logika valid / tidak valid
                                     if($reason == "") {
                                         //membantun session untuk kartu yang valid
                                         $validCards[$cardID] = [
-                                            "cardID" => $cardID
+                                            "cardID" => $cardID,
+                                            "traditional" => $cardInfo["chinese_tc"], 
+                                            "simplified" => $cardInfo["chinese_sc"], 
+                                            "priority" => $cardInfo["priority"],
+                                            "pinyin" => $cardInfo["pinyin"],
+                                            "class" => $cardInfo["word_class"],
+                                            "english" => $cardInfo["meaning_eng"],
+                                            "indo" => $cardInfo["meaning_ina"]
                                         ];
                                     }
                                     else {
                                         //membantun session untuk kartu yang tidak valid
                                         $invalidCards[$cardID] = [
                                             "cardID" => $cardID,
+                                            "traditional" => $cardInfo["chinese_tc"], 
+                                            "simplified" => $cardInfo["chinese_sc"], 
+                                            "priority" => $cardInfo["priority"],
+                                            "pinyin" => $cardInfo["pinyin"],
+                                            "class" => $cardInfo["word_class"],
+                                            "english" => $cardInfo["meaning_eng"],
+                                            "indo" => $cardInfo["meaning_ina"],
                                             "reason" => $reason
                                         ];
                                     }
@@ -263,47 +338,6 @@
                         $_SESSION["validCards"] = $validCards;
                         $_SESSION["invalidCards"] = $invalidCards;
                     } 
-                ?>
-            </table>
-            <table>
-                <caption style = "background-color: green; color: white;">Valid Cards</caption>
-                <tr>
-                    <th>No</th>
-                    <th>Card ID</th>
-                </tr>
-                <?php
-                    $count = 1;
-                    foreach($_SESSION["validCards"] as $card) {
-                        $cardID = $card["cardID"];
-                        echo "
-                        <tr>
-                            <td>" . $count++ . "</td>
-                            <td>$cardID</td>
-                        </tr>";
-                    }
-                ?>
-            </table>
-            <table>
-                <caption style = "background-color: red; color: white;">Invalid Cards</caption>
-                <tr>
-                    <th>No</th>
-                    <th>Card ID</th>
-                    <th>Reason</th>
-                </tr>
-                <?php
-                    $count = 1;
-                    $aval = false;
-                    foreach($_SESSION["invalidCards"] as $card) {
-                        $aval = false;
-                        $cardID = $card["cardID"];
-                        $reason = $card["reason"];
-                        echo "
-                        <tr>
-                            <td>" . $count++ . "</td>
-                            <td>$cardID</td>
-                            <td>$reason</td>
-                        </tr>";
-                    }
                 ?>
             </table>
         </div>

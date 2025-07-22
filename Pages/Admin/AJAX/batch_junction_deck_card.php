@@ -66,38 +66,63 @@
     <tr>
         <th>No</th>
         <th>Card ID</th>
+        <th>Traditional</th>
+        <th>Simplified</th>
+        <th>Prio</th>
+        <th>Pinyin</th>
+        <th>Word Class</th>
+        <th>English</th>
+        <th>Indo</th>
     </tr>
 
     <?php
-        $count = 1;
-        $cards = mysqli_query($con, "SELECT card_id FROM junction_deck_card WHERE deck_id = '$deckID'");
+        $id = 1;
+        $cards = mysqli_query($con, "SELECT card.* FROM junction_deck_card AS junction JOIN cards AS card ON junction.card_id = card.card_id WHERE junction.deck_id = '$deckID'");
         while ($card = mysqli_fetch_array($cards)) {
-            echo "<tr>";
-            echo "<td>" . $count++ . "</td>";
-            echo "<td>" . $card["card_id"] . "</td>";
-            echo "</tr>";
+            echo "
+            <tr>
+                <td>" . $id++ . "</td>
+                <td>" . $card["card_id"] . "</td>
+                <td>" . $card["chinese_tc"] . "</td>
+                <td>" . $card["chinese_sc"] . "</td>
+                <td>" . $card["priority"] . "</td>
+                <td>" . $card["pinyin"] . "</td>
+                <td>" . $card["word_class"] . "</td>
+                <td class = 'long'>" . $card["meaning_eng"] . "</td>
+                <td class = 'long'>" . $card["meaning_ina"] . "</td>
+            </tr>";
         }
     ?>
 </table>
 <table>
-    <caption style = "background-color: red; color: white;">Invalid Cards</caption>
+    <caption style = "background-color: red;">Invalid Users</caption>
     <tr>
         <th>No</th>
         <th>Card ID</th>
+        <th>Traditional</th>
+        <th>Simplified</th>
+        <th>Prio</th>
+        <th>Pinyin</th>
+        <th>Word Class</th>
+        <th>English</th>
+        <th>Indo</th>
         <th>Reason</th>
     </tr>
     <?php
-        $count = 1;
-        $aval = false;
-        foreach($_SESSION["invalidCards"] as $card) {
-            $aval = false;
-            $cardID = $card["cardID"];
-            $reason = $card["reason"];
+        $id = 1;
+        foreach($_SESSION["invalidCards"] as $key => $value) {
             echo "
             <tr>
-                <td>" . $count++ . "</td>
-                <td>$cardID</td>
-                <td>$reason</td>
+                <td>" . $id++ . "</td>
+                <td>" . $value["cardID"] . "</td>
+                <td>" . $value["traditional"] . "</td>
+                <td>" . $value["simplified"] . "</td>
+                <td>" . $value["priority"] . "</td>
+                <td>" . $value["pinyin"] . "</td>
+                <td>" . $value["class"] . "</td>
+                <td class = 'long'>" . $value["english"] . "</td>
+                <td class = 'long'>" . $value["indo"] . "</td>
+                <td class = 'long'>" . $value["reason"] . "</td>
             </tr>";
         }
         unset($_SESSION["allCards"]);
