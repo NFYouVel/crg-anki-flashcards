@@ -22,5 +22,14 @@ $(document).ready(function () {
             box.css("display", "flex").hide().slideDown(500);
         }
     });
+});
+$(document).ready(function () {
+    $(document).on("click", ".expand", function () {
+        var $arrow = $(this);
+        var $parentDeck = $arrow.closest(".deck");
+        var $childDeck = $parentDeck.children(".deck");
 
+        $childDeck.toggleClass("expanded");
+        $arrow.toggleClass("rotated");
+    });
 });

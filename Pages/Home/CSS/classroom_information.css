@@ -186,3 +186,65 @@ tr td:nth-of-type(2) {
     color: white;
     border-right: 1px solid var(--border-color);
 }
+
+.explanation {
+    width: 100%;
+    font-size: 24px;
+    max-height: 50vh;
+}
+.deck {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    box-sizing: border-box;
+    padding-block: 8px;
+    height: 75px;
+}
+.labelWrapper {
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid grey;
+    width: 100%;
+}
+.addDeck {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 30px;
+    cursor: pointer;
+    background-color: #fca500;
+    color: white;
+    border-radius: 5px;
+}
+.added {
+    filter: grayscale(100%);
+}
+.deck .deck {
+    display: none;
+}
+.expand {
+    cursor: pointer;
+    display: inline-block;
+    transition: transform 0.3s ease;
+    color: #fca500;
+}
+.deck .deck.expanded {
+    display: flex;
+}
+.rotated {
+    transform: rotate(90deg);
+}
+.explanationWrapper {
+    width: 100%;
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}

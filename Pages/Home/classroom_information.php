@@ -43,6 +43,56 @@ $classroom_name = mysqli_fetch_array($result_classroom);
     <link rel="stylesheet" href="../../Pages/Home/CSS/classroom_information.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../Home/jQuery/script_classroom.js"></script>
+    <script>
+        function searchDeck(str) {
+            var xmlhttp;
+            if (window.XMLHttpRequest != null) {
+                xmlhttp = new XMLHttpRequest();
+            } else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
+                }
+            }
+            xmlhttp.open("GET", "jQuery/ajax_search_deck.php?deckName=" + str + "&classroomID=<?php echo $classroom_id; ?>", true);
+            xmlhttp.send();
+        }
+        function addDeck(str) {
+            var xmlhttp;
+            if (window.XMLHttpRequest != null) {
+                xmlhttp = new XMLHttpRequest();
+            } else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
+                }
+            }
+            xmlhttp.open("GET", "jQuery/ajax_addDeckClassroom.php?deckID=" + str + "&classroomID=<?php echo $classroom_id; ?>", true);
+            xmlhttp.send();
+        }
+        function removeDeck(str) {
+            var xmlhttp;
+            if (window.XMLHttpRequest != null) {
+                xmlhttp = new XMLHttpRequest();
+            } else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
+                }
+            }
+            xmlhttp.open("GET", "jQuery/ajax_removeDeckClassroom.php?deckID=" + str + "&classroomID=<?php echo $classroom_id; ?>", true);
+            xmlhttp.send();
+        }
+    </script>
 </head>
 
 <body>
@@ -84,192 +134,65 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                 <input type="text" onkeyup = "searchDeck(this.value)" placeholder="Search deck" name="search" class="search-bar">
                 <div class="icon-add">🔍</div>
             </div><hr>
-
-            <style>
-                .explanation {
-                    width: 100%;
-                    font-size: 24px;
-                    max-height: 50vh;
-                }
-                .deck {
-                    width: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                }
-                .label {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    width: 90%;
-                    box-sizing: border-box;
-                    padding-block: 8px;
-                    height: 75px;
-                }
-                .labelWrapper {
-                    display: flex;
-                    justify-content: center;
-                    border-bottom: 1px solid grey;
-                    width: 100%;
-                }
-                .addDeck {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    width: 50px;
-                    height: 30px;
-                    cursor: pointer;
-                    background-color: #fca500;
-                    color: white;
-                    border-radius: 5px;
-                }
-                .added {
-                    filter: grayscale(100%);
-                }
-                .deck .deck {
-                    display: none;
-                }
-                .expand {
-                    cursor: pointer;
-                    display: inline-block;
-                    transition: transform 0.3s ease;
-                    color: #fca500;
-                }
-                .deck .deck.expanded {
-                    display: flex;
-                }
-                .rotated {
-                    transform: rotate(90deg);
-                }
-                .explanationWrapper {
-                    width: 100%;
-                    overflow: auto;
-                    scrollbar-width: none;
-                    -ms-overflow-style: none;
-                }
-            </style>
-
-            <script>
-                function searchDeck(str) {
-                    var xmlhttp;
-                    if (window.XMLHttpRequest != null) {
-                        xmlhttp = new XMLHttpRequest();
-                    } else {
-                        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-                    }
-
-                    xmlhttp.onreadystatechange = function () {
-                        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                            document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
-                        }
-                    }
-                    xmlhttp.open("GET", "jQuery/ajax_search_deck.php?deckName=" + str + "&classroomID=<?php echo $classroom_id; ?>", true);
-                    xmlhttp.send();
-                }
-                function addDeck(str) {
-                    var xmlhttp;
-                    if (window.XMLHttpRequest != null) {
-                        xmlhttp = new XMLHttpRequest();
-                    } else {
-                        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-                    }
-
-                    xmlhttp.onreadystatechange = function () {
-                        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                            document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
-                        }
-                    }
-                    xmlhttp.open("GET", "jQuery/ajax_addDeckClassroom.php?deckID=" + str + "&classroomID=<?php echo $classroom_id; ?>", true);
-                    xmlhttp.send();
-                }
-                function removeDeck(str) {
-                    var xmlhttp;
-                    if (window.XMLHttpRequest != null) {
-                        xmlhttp = new XMLHttpRequest();
-                    } else {
-                        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-                    }
-
-                    xmlhttp.onreadystatechange = function () {
-                        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                            document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
-                        }
-                    }
-                    xmlhttp.open("GET", "jQuery/ajax_removeDeckClassroom.php?deckID=" + str + "&classroomID=<?php echo $classroom_id; ?>", true);
-                    xmlhttp.send();
-                }
-                $(document).ready(function () {
-                    $(document).on("click", ".expand", function () {
-                        var $arrow = $(this);
-                        var $parentDeck = $arrow.closest(".deck");
-                        var $childDeck = $parentDeck.children(".deck");
-
-                        $childDeck.toggleClass("expanded");
-                        $arrow.toggleClass("rotated");
-                    });
-                });
-                </script>
-
-
             <div class='explanation'>
                 <div class="explanationWrapper">
                     <?php
                         function getDecks($parentID) {
-                            global $classroom_id;
-                            global $con;
-                            if ($parentID == "root") {
-                                $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
-                            } else {
-                                $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE deck_id = '$parentID'");
-                            }
-                            if (mysqli_num_rows($getDecks) > 0) {
-                                while ($deck = mysqli_fetch_assoc($getDecks)) {
-                                    $deckID = $deck["deck_id"];
-                                    $name = $deck["name"];
-                                    $isLeaf = $deck["is_leaf"];
+        global $classroom_id;
+        global $con;
+        if ($parentID == "root") {
+            $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
+        } else {
+            $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE deck_id = '$parentID'");
+        }
+        if (mysqli_num_rows($getDecks) > 0) {
+            while ($deck = mysqli_fetch_assoc($getDecks)) {
+                $deckID = $deck["deck_id"];
+                $name = $deck["name"];
+                $isLeaf = $deck["is_leaf"];
 
-                                    if ($isLeaf == 0) {
-                                        echo "<div class = 'deck'>";
-                                            echo "<div class = 'labelWrapper'>";
-                                                echo "<div class = 'label'>";
-                                                    echo "<div class = 'deckTitle'>";
-                                                        echo "<span class = 'expand'>▶</span>";
-                                                        echo "<span class = 'deckName'>$name</span>";
-                                                    echo "</div>";
-                                                    if(mysqli_num_rows(mysqli_query($con, "SELECT 1 FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroom_id'")) > 0) {
-                                                        echo "<span onclick=\"removeDeck('$deckID')\" class = 'addDeck added'>+</span>";
-                                                    }
-                                                    else {
-                                                        echo "<span onclick=\"addDeck('$deckID')\" class='addDeck'>+</span>";
-                                                    }
-                                                echo "</div>";
-                                            echo "</div>";
-                                            $getChildren = mysqli_query($con, "SELECT deck_id FROM decks WHERE parent_deck_id = '$deckID' ORDER BY name ASC");
-                                            while($children = mysqli_fetch_assoc($getChildren)) {
-                                                getDecks($children["deck_id"]);
-                                            }
-                                        echo "</div>";
-                                    } else {
-                                        echo "<div class = 'deck'>";
-                                            echo "<div class = 'labelWrapper'>";
-                                                echo "<div class = 'label'>";
-                                                    echo "<div class = 'deckTitle'>";
-                                                        echo "<span style = 'opacity: 0;' class = 'expand'>▶</span>";
-                                                        echo "<span class = 'deckName'>$name</span>";
-                                                    echo "</div>";
-                                                    if(mysqli_num_rows(mysqli_query($con, "SELECT classroom_id FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroom_id'")) > 0) {
-                                                        echo "<span onclick=\"removeDeck('$deckID')\" class = 'addDeck added'>+</span>";
-                                                    }
-                                                    else {
-                                                        echo "<span onclick=\"addDeck('$deckID')\" class='addDeck'>+</span>";
-                                                    }
-                                                echo "</div>";
-                                            echo "</div>";
-                                        echo "</div>";
-                                    }
+                if ($isLeaf == 0) {
+                    echo "<div class = 'deck'>";
+                        echo "<div class = 'labelWrapper'>";
+                            echo "<div class = 'label'>";
+                                echo "<div class = 'deckTitle'>";
+                                    echo "<span class = 'expand'>▶</span>";
+                                    echo "<span class = 'deckName'>$name</span>";
+                                echo "</div>";
+                                if(mysqli_num_rows(mysqli_query($con, "SELECT 1 FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroom_id'")) > 0) {
+                                    echo "<span onclick=\"removeDeck('$deckID')\" class = 'addDeck added'>+</span>";
                                 }
-                            }
+                                else {
+                                    echo "<span onclick=\"addDeck('$deckID')\" class='addDeck'>+</span>";
+                                }
+                            echo "</div>";
+                        echo "</div>";
+                        $getChildren = mysqli_query($con, "SELECT deck_id FROM decks WHERE parent_deck_id = '$deckID' ORDER BY name ASC");
+                        while($children = mysqli_fetch_assoc($getChildren)) {
+                            getDecks($children["deck_id"]);
                         }
+                    echo "</div>";
+                } else {
+                    echo "<div class = 'deck'>";
+                        echo "<div class = 'labelWrapper'>";
+                            echo "<div class = 'label'>";
+                                echo "<div class = 'deckTitle'>";
+                                    echo "<span style = 'opacity: 0;' class = 'expand'>▶</span>";
+                                    echo "<span class = 'deckName'>$name</span>";
+                                echo "</div>";
+                                if(mysqli_num_rows(mysqli_query($con, "SELECT classroom_id FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroom_id'")) > 0) {
+                                    echo "<span onclick=\"removeDeck('$deckID')\" class = 'addDeck added'>+</span>";
+                                }
+                                else {
+                                    echo "<span onclick=\"addDeck('$deckID')\" class='addDeck'>+</span>";
+                                }
+                            echo "</div>";
+                        echo "</div>";
+                    echo "</div>";
+                }
+            }
+        }
+    }
                         getDecks("root");
                     ?>
                 </div>

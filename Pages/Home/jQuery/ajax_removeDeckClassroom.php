@@ -47,10 +47,8 @@
         }
     }
 
-
     $deckID = $_GET["deckID"];
     deleteDeck($deckID);
-
     function getDecks($parentID) {
         global $classroomID;
         global $con;
