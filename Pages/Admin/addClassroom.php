@@ -1,3 +1,18 @@
+<?php
+    include "Components/sidebar.php";
+    include "../../SQL_Queries/connection.php";
+    if(isset($_POST["name"])) {
+        $userID = $_COOKIE["user_id"];
+        $name = $_POST["name"];
+        $desc = $_POST["desc"] ?? "";
+        mysqli_query($con, "INSERT INTO classroom (name, description, created_by) VALUES ('$name', '$desc', '$userID')");
+
+        $classroomID = mysqli_query($con, "SELECT classroom_id FROM classroom WHERE name = '$name'");
+        $classroomID = mysqli_fetch_array($classroomID);
+        $classroomID = $classroomID["classroom_id"];
+        header("Location: assignClassroom.php?classroomID=$classroomID");
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,21 +86,6 @@
     </style>
 </head>
 <body>
-    <?php
-        include "Components/sidebar.php";
-        include "../../SQL_Queries/connection.php";
-        if(isset($_POST["name"])) {
-            $userID = $_COOKIE["user_id"];
-            $name = $_POST["name"];
-            $desc = $_POST["desc"] ?? "";
-            mysqli_query($con, "INSERT INTO classroom (name, description, created_by) VALUES ('$name', '$desc', '$userID')");
-
-            $classroomID = mysqli_query($con, "SELECT classroom_id FROM classroom WHERE name = '$name'");
-            $classroomID = mysqli_fetch_array($classroomID);
-            $classroomID = $classroomID["classroom_id"];
-            header("Location: assignClassroom.php?classroomID=$classroomID");
-        }
-    ?>
     <form method = "post" id = "container">
         <div id="heading">
             <h1>Create Classroom</h1>

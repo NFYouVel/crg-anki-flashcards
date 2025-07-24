@@ -79,6 +79,25 @@
             gap: 8px;
         }
     </style>
+    <script>
+        function searchClassroom(str) {
+            var xmlhttp;
+            if (window.XMLHttpRequest != null) {
+                xmlhttp = new XMLHttpRequest();
+            }
+            else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.getElementById("tables").innerHTML = xmlhttp.responseText;
+                }
+            }
+            xmlhttp.open("GET", "AJAX/search_classroom.php?search=" + str, true);
+            xmlhttp.send();
+        }
+    </script>
 </head>
 <body>
     <?php
@@ -89,12 +108,12 @@
         <div id="heading">
             <h1>Classroom</h1>
             <div id="action">
-                <input type="text" placeholder = "&#128269;Search" onkeyup = "">
+                <input type="text" placeholder = "&#128269;Search" onkeyup = "searchClassroom(this.value)">
                 <a class = 'button' href = 'addClassroom.php'><span>Add</span></a>
             </div>
         </div>
 
-        <table>
+        <table id = "tables">
             <tr>
                 <th>Classroom Name</th>
                 <th>Teachers Count</th>

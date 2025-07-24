@@ -11,6 +11,7 @@
             <th>Email</th>
             <th>Role</th>
             <th>Character Set</th>
+            <th>Remarks</th>
         </tr>
         <?php
             $id = 1;
@@ -21,6 +22,7 @@
                     echo "<td>" . $value["email"] . "</td>";
                     echo "<td>" . $value["role"] . "</td>";
                     echo "<td>" . $value["set"] . "</td>";
+                    echo "<td>" . $value["remarks"] . "</td>";
                 echo "</tr>";
             }
         ?>
@@ -34,6 +36,7 @@
             <th>Email</th>
             <th>Role</th>
             <th>Character Set</th>
+            <th>Remarks</th>
         </tr>
         <?php
             $id = 1;
@@ -44,6 +47,7 @@
                     echo "<td>" . $value["email"] . "</td>";
                     echo "<td>" . $value["role"] . "</td>";
                     echo "<td>" . $value["set"] . "</td>";
+                    echo "<td>" . $value["remarks"] . "</td>";
                 echo "</tr>";
             }
         ?>
@@ -57,6 +61,7 @@
             <th>Email</th>
             <th>Role</th>
             <th>Character Set</th>
+            <th>Remarks</th>
             <th>Reason</th>
         </tr>
         <?php
@@ -68,6 +73,7 @@
                     echo "<td>" . $value["email"] . "</td>";
                     echo "<td>" . $value["role"] . "</td>";
                     echo "<td>" . $value["set"] . "</td>";
+                    echo "<td>" . $value["remarks"] . "</td>";
                     echo "<td>" . $value["reason"] . "</td>";
                 echo "</tr>";
             }

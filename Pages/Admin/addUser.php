@@ -88,10 +88,11 @@
             $password = password_hash($_POST["password"], PASSWORD_BCRYPT);
             $role = (int)$_POST["role"];
             $set = $_POST["set"];
+            $remarks = $_POST["remarks"];
             //cek apakah sudah ada user dengan email tersebut
             if(mysqli_num_rows(mysqli_query($con, "SELECT email FROM users WHERE email = '$email'")) == 0) {
-                if(mysqli_query($con, "INSERT INTO users (name, email, password_hash, role, character_set) VALUES
-                ('$name', '$email', '$password', $role, '$set')")) {
+                if(mysqli_query($con, "INSERT INTO users (name, email, password_hash, role, character_set, remarks) VALUES
+                ('$name', '$email', '$password', $role, '$set', '$remarks')")) {
                     echo "<script>alert('Akun berhasil ditambahkan')</script>";
                 }
                 else {
@@ -126,6 +127,10 @@
                 <tr>
                     <td><h1>Password</h1></td>
                     <td><input type="password" name = "password" value = "123456" placeholder = "Password" required></td>
+                </tr>
+                <tr>
+                    <td><h1>Remarks</h1></td>
+                    <td><input type="text" name = "remarks" placeholder = "Remarks" required></td>
                 </tr>
                 <tr>
                     <td><h1>User Role</h1></td>

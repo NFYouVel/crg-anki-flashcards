@@ -19,6 +19,8 @@
         echo "Tabel User Berhasil Dibuat";
     }
     else {
-        echo "Tabel User Gagal Dibuat";
+        if(mysqli_query($con, "ALTER TABLE users ADD COLUMN remarks TEXT DEFAULT NULL")) {
+            echo "column remarks ditambahkan";
+        }
     }
 ?>

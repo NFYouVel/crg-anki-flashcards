@@ -188,10 +188,11 @@
                 <th>Deleted At</th>
                 <th>Reset PW</th>
                 <th>Character Set</th>
+                <th>Remarks</th>
                 <th>Treatment</th>
             </tr>
             <?php
-                $getUsers = mysqli_query($con, "SELECT * FROM users");
+                $getUsers = mysqli_query($con, "SELECT * FROM users ORDER BY remarks ASC");
                 $count = 1;
                 while($user = mysqli_fetch_array($getUsers)) {
                     $id = $user["user_id"];
@@ -207,6 +208,7 @@
                     $lastReview = $user["last_login"];
                     $deleted = $user["deleted_at"];
                     $resetPW = $user["force_password_reset"];
+                    $remarks = $user["remarks"];
                     if($resetPW == 1) {
                         $resetPW = "YES";
                     }
@@ -227,9 +229,11 @@
                         echo "<td>$deleted</td>";
                         echo "<td>$resetPW</td>";
                         echo "<td>$set</td>";
+                        echo "<td>$remarks</td>";
                         echo "<td>
-                            <a href = 'editUser.php?id=$id'>Edit</a>
-                            <a href = 'deleteUser.php?id=$id'>Delete</a>
+                            <a href = 'editUser.php?id=$id'>Edit</a><br>
+                            <a href = 'deleteUser.php?id=$id'>Delete</a><br>
+                            <a href = 'deckPool.php?id=$id'>Decks</a>
                         </td>";
                     echo "</tr>";
                 }

@@ -166,6 +166,7 @@
                     <th>Email</th>
                     <th>Role</th>
                     <th>Character Set</th>
+                    <th>Remarks</th>
                 </tr>
                 <?php
                     include "../../SQL_Queries/connection.php";
@@ -207,12 +208,14 @@
                                     if($set == "") {
                                         $set = "simplified";
                                     }
+                                    $remarks = $sheet->getCell("E$index")->getValue();
                                     echo "<tr>";
                                         echo "<td>" . $id++ . "</td>";
                                         echo "<td>$name</td>";
                                         echo "<td>$email</td>";
                                         echo "<td>$role</td>";
                                         echo "<td>$set</td>";
+                                        echo "<td>$remarks</td>";
                                     echo "</tr>";
 
 
@@ -249,7 +252,8 @@
                                             "name" => $name, 
                                             "email" => $email, 
                                             "role" => $role, 
-                                            "set" => $set
+                                            "set" => $set,
+                                            "remarks" => $remarks
                                         ];
                                     }
                                     else {
@@ -259,6 +263,7 @@
                                             "email" => $email, 
                                             "role" => $role, 
                                             "set" => $set,
+                                            "remarks" => $remarks,
                                             "reason" => $reason
                                         ];
                                     }
@@ -266,7 +271,8 @@
                                             "name" => $name, 
                                             "email" => $email, 
                                             "role" => $role, 
-                                            "set" => $set
+                                            "set" => $set,
+                                            "remarks" => $remarks
                                     ];
                                 }
                             } catch (Exception $e) {

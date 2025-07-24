@@ -6,6 +6,7 @@
         <th>Email</th>
         <th>Role</th>
         <th>Character Set</th>
+        <th>Remarks</th>
     </tr>
     <?php
         session_start();
@@ -14,7 +15,7 @@
         $validUsers = $_SESSION["validUsers"];
         $id = 1;
         //membangun query insert
-        $query = "INSERT INTO users (name, email, password_hash, role, character_set) VALUES ";
+        $query = "INSERT INTO users (name, email, password_hash, role, character_set, remarks) VALUES ";
         foreach($validUsers as $key => $value) {
             $name = $value["name"];
             $email = $value["email"];
@@ -24,8 +25,9 @@
             $roleID = mysqli_fetch_array($roleID);
             $roleID = (int)$roleID["role_id"];
             $set = $value["set"];
+            $remarks = $value["remarks"];
 
-            $query .= "('$name', '$email', '$password', $roleID, '$set'), ";
+            $query .= "('$name', '$email', '$password', $roleID, '$set', '$remarks'), ";
 
             echo "<tr>";
                 echo "<td>" . $id++ . "</td>";
@@ -33,6 +35,7 @@
                 echo "<td>" . $email . "</td>";
                 echo "<td>" . $role . "</td>";
                 echo "<td>" . $set . "</td>";
+                echo "<td>" . $remarks . "</td>";
             echo "</tr>";
         }
 

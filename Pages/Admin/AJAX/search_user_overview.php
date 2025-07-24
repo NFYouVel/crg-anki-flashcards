@@ -5,21 +5,21 @@
 
     //jika search bar kosong, makan semua user ditampilkan
     if ($search == "" || $search == "filterRoles" || $search == "filterStatus") {
-        $getUsers = mysqli_query($con, "SELECT * FROM users");
+        $getUsers = mysqli_query($con, "SELECT * FROM users ORDER BY remarks ASC");
     } 
     //filter berdasarkan role
     else if(str_contains($search, "filterRoles")) {
         $search = substr($search, 11);
-        $getUsers = mysqli_query($con, "SELECT * FROM users WHERE role = $search");
+        $getUsers = mysqli_query($con, "SELECT * FROM users WHERE role = $search ORDER BY remarks ASC");
     }
     //filter berdasarkan status
     else if(str_contains($search, "filterStatus")) {
         $search = substr($search, 12);
-        $getUsers = mysqli_query($con, "SELECT * FROM users WHERE user_status = '$search'");
+        $getUsers = mysqli_query($con, "SELECT * FROM users WHERE user_status = '$search' ORDER BY remarks ASC");
     }
-    //filter berdasarkan nama / email
+    //filter berdasarkan nama / email / remarks
     else {
-        $getUsers = mysqli_query($con, "SELECT * FROM users WHERE name LIKE '%$search%' OR email LIKE '%$search%'");
+        $getUsers = mysqli_query($con, "SELECT * FROM users WHERE name LIKE '%$search%' OR email LIKE '%$search%' OR remarks LIKE '%$search%' ORDER BY remarks ASC");
     }
 
     //jika hasil search tidak ada hasilnya, maka keluarkan pesan tidak ketemu
@@ -40,6 +40,7 @@
         echo "<th>Deleted At</th>";
         echo "<th>Reset PW</th>";
         echo "<th>Character Set</th>";
+        echo "<th>Remarks</th>";
         echo "<th>Treatment</th>";
         echo "</tr>";
     }
@@ -57,6 +58,7 @@
         $lastReview = $user["last_login"];
         $deleted = $user["deleted_at"];
         $resetPW = $user["force_password_reset"];
+        $remarks = $user["remarks"];
         if ($resetPW == 1) {
             $resetPW = "YES";
         } else {
@@ -76,6 +78,7 @@
         echo "<td>$deleted</td>";
         echo "<td>$resetPW</td>";
         echo "<td>$set</td>";
+        echo "<td>$remarks</td>";
         echo "<td>
                 <a href = 'editUser.php?id=$id'>Edit</a>
                 <a href = 'deleteUser.php?id=$id'>Delete</a>
