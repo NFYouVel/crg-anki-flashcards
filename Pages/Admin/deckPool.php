@@ -598,8 +598,45 @@
             $deckID = $_POST["deckID"];
             mysqli_query($con, "UPDATE decks SET name = '$name' WHERE deck_id = '$deckID'");
         }
+        if(isset($_GET["id"])) {
+            $userID = $_GET["id"];
+        }
+        else {
+            $userID = mysqli_query($con, "SELECT user_id FROM users WHERE role = 2 LIMIT 1");
+            $userID = mysqli_fetch_assoc($userID);
+            $userID = $userID["user_id"];
+        }
+        $userInfo = mysqli_query($con, "SELECT name, role, email FROM users WHERE user_id = '$userID'");
+        $userInfo = mysqli_fetch_assoc($userInfo);
+
+        $ownedDecks = [];
+
+        function getDeckAncestor($deckID) {
+            global $con, $userID, $ownedDecks;
+
+            if ($deckID === "root") {
+                $getDecks = mysqli_query($con, "SELECT deck_id FROM junction_deck_user WHERE user_id = '$userID'");
+                while ($deck = mysqli_fetch_assoc($getDecks)) {
+                    getDeckAncestor($deck["deck_id"]);
+                }
+            } 
+            else {
+                if (!in_array($deckID, $ownedDecks)) {
+                    $ownedDecks[] = $deckID;
+                }
+                $result = mysqli_query($con, "SELECT parent_deck_id FROM decks WHERE deck_id = '$deckID'");
+                if ($row = mysqli_fetch_assoc($result)) {
+                    $parent = $row["parent_deck_id"];
+                    if ($parent !== null) {
+                        getDeckAncestor($parent);
+                    }
+                }
+            }
+        }
+        getDeckAncestor("root");
+
         function getDecks($parentID) {
-            global $con;
+            global $userID, $con, $ownedDecks;
             if($parentID == "root") {
                 $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
             }
@@ -607,7 +644,7 @@
                 $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
             }
             if(mysqli_num_rows($getDecks) > 0) {
-                if($parentID == "root") {
+                if($parentID == "root" || in_array($parentID, $ownedDecks)) {
                     echo "<ul class = 'maximized' style = 'height: fit-content;'>";
                 }
                 else {
@@ -616,32 +653,63 @@
                     while($deck = mysqli_fetch_assoc($getDecks)) {
                         $deckID = $deck["deck_id"];
                         $name = $deck["name"];
+                        if(mysqli_num_rows(mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE user_id = '$userID' AND deck_id = '$deckID'")) > 0) {
+                            $owned = true;
+                        }
+                        else {
+                            $owned = false;
+                        }
 
                         if($deck["is_leaf"] == 0) {
                             if(mysqli_num_rows(mysqli_query($con, "SELECT is_leaf FROM decks WHERE parent_deck_id = '$deckID' AND is_leaf = 1")) > 0) {
+                                if($owned) {
+                                    echo "
+                                    <li>
+                                        <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                        <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name ✅</span>
+                                    ";
+                                }
+                                else {
+                                    echo "
+                                    <li>
+                                        <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                        <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name ❌</span>
+                                    ";
+                                }
+                            }
+                            else {
+                                if($owned) {
+                                    echo "
+                                    <li>
+                                        <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span> 
+                                        <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_folder'> $name ✅</span>
+                                    ";
+                                }
+                                else {
+                                    echo "
+                                    <li>
+                                        <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                        <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_folder'> $name ❌</span>
+                                    ";
+                                }
+                            }
+                        }
+                        else {
+                            if($owned) {
                                 echo "
                                 <li>
-                                    <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
-                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name</span>
+                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name ✅</span>
                                 ";
                             }
                             else {
                                 echo "
                                 <li>
-                                    <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
-                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_folder'> $name</span>
+                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name ❌</span>
                                 ";
                             }
                         }
-                        else {
-                            echo "
-                            <li>
-                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name</span>
-                            ";
-                        }
                             getDecks($deckID);
-                        echo"</li>
-                        ";  
+                        echo"</li>";  
                     }
                 echo "</ul>";
             }
@@ -779,14 +847,41 @@
                 #main {
                     height: 85vh;
                 }
+                select {
+                    appearance: none;
+                    display: inline-block;
+                    width: 50%;
+                    padding: 10px 16px;
+                    border: 2px solid #e9a345;
+                    border-radius: 12px;
+                    background-color: white;
+                    font-size: 18px;
+                    color: #333;
+                    cursor: pointer;
+                }
+                select:focus {
+                    outline: none;
+                    border-color: #ffa72a;
+                    box-shadow: 0 0 5px #ffa72a;
+                }
+                select option[disabled] {
+                    color: #999;
+                }
             </style>
             <div id="details">
                 <div id = "information">
                     <div id="header">
                         <h2><?php
-                            $userID = $_GET["id"];
-                            $userInfo = mysqli_query($con, "SELECT name, role, email FROM users WHERE user_id = '$userID'");
-                            $userInfo = mysqli_fetch_assoc($userInfo);
+                            // if(isset($_GET["id"])) {
+                            //     $userID = $_GET["id"];
+                            // }
+                            // else {
+                            //     $userID = mysqli_query($con, "SELECT user_id FROM users WHERE role = 2 LIMIT 1");
+                            //     $userID = mysqli_fetch_assoc($userID);
+                            //     $userID = $userID["user_id"];
+                            // }
+                            // $userInfo = mysqli_query($con, "SELECT name, role, email FROM users WHERE user_id = '$userID'");
+                            // $userInfo = mysqli_fetch_assoc($userInfo);
                             if($userInfo["role"] == 1) {
                                 echo "Admin";
                             } else if($userInfo["role"] == 2) {
@@ -800,7 +895,28 @@
                         <table id = "infoTable">
                             <tr>
                                 <td style = "width: 15%;">Name</td>
-                                <td>: <span style = "display: inline-block; padding: 4px; width: 95%; height: 100%; background-color: #e7e6e6; color: black;"><?php echo $userInfo["name"]; ?></span></td>
+                                <td>
+                                    <form method = "get">
+                                        : <select name="id" onchange = "this.form.submit()">
+                                            <?php
+                                                $getUsers = mysqli_query($con, "SELECT users.user_id, users.name , role.role_name
+                                                                                FROM users AS users JOIN user_role AS role
+                                                                                ON users.role = role.role_id ORDER BY role.role_id DESC");
+                                                while($user = mysqli_fetch_assoc($getUsers)) {
+                                                    $user_id = $user["user_id"];
+                                                    $name = $user["name"];
+                                                    $role = $user["role_name"];
+                                                    if($user_id == $userID) {
+                                                        echo "<option value = '$user_id' selected>$name ($role)</option>";
+                                                    }
+                                                    else {
+                                                        echo "<option value = '$user_id'>$name ($role)</option>";
+                                                    }
+                                                }
+                                            ?>
+                                        </select>
+                                    </form>
+                                </td>
                             </tr>
                             <tr>
                                 <td style = "width: 15%;">Email</td>
