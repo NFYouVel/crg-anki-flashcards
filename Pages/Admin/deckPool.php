@@ -867,6 +867,9 @@
                 select option[disabled] {
                     color: #999;
                 }
+                #tree li {
+                    /* border: 1px solid red; */
+                }
             </style>
             <div id="details">
                 <div id = "information">

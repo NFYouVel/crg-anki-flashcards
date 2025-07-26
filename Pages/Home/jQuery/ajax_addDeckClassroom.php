@@ -1,6 +1,51 @@
 <?php
     include "../../../SQL_Queries/connection.php";
     $classroomID = $_GET["classroomID"];
+    function addParentClassroom($deckID) {
+        global $con, $classroomID;
+        $parentID = mysqli_query($con, "SELECT parent_deck_id FROM decks WHERE deck_id = '$deckID'");
+        $parentID = mysqli_fetch_assoc($parentID);
+        $parentID = $parentID ? $parentID["parent_deck_id"] : null;
+
+        $countChild = mysqli_query($con, "SELECT COUNT(*) AS total FROM decks WHERE parent_deck_id = '$parentID'");
+        $countChild = mysqli_fetch_assoc($countChild);
+        $countChild = $countChild["total"];
+
+        $checkChildren = mysqli_query($con, "SELECT COUNT(*) AS total
+                                            FROM junction_deck_classroom AS deck_classroom
+                                            JOIN decks AS deck ON deck_classroom.deck_id = deck.deck_id
+                                            WHERE deck_classroom.classroom_id = '$classroomID'
+                                            AND deck.parent_deck_id = '$parentID'");
+        $checkChildren = mysqli_fetch_assoc($checkChildren);
+        $checkChildren = $checkChildren["total"];
+
+        if($parentID && $countChild == $checkChildren) {
+            mysqli_query($con, "INSERT INTO junction_deck_classroom (deck_id, classroom_id) VALUES ('$parentID', '$classroomID')");
+            addParentClassroom($parentID);
+        }
+    }
+    function addParentUser($deckID, $studentID) {
+        global $con;
+        $parentID = mysqli_query($con, "SELECT parent_deck_id FROM decks WHERE deck_id = '$deckID'");
+        $parentID = mysqli_fetch_assoc($parentID);
+        $parentID = $parentID ? $parentID["parent_deck_id"] : null;
+
+        $countChild = mysqli_query($con, "SELECT COUNT(*) AS total FROM decks WHERE parent_deck_id = '$parentID'");
+        $countChild = mysqli_fetch_assoc($countChild);
+        $countChild = $countChild["total"];
+        $checkChildren = mysqli_query($con, "SELECT COUNT(*) AS total
+                                            FROM junction_deck_user AS deck_user
+                                            JOIN decks AS deck ON deck_user.deck_id = deck.deck_id
+                                            WHERE deck_user.user_id = '$studentID'
+                                            AND deck.parent_deck_id = '$parentID'");
+        $checkChildren = mysqli_fetch_assoc($checkChildren);
+        $checkChildren = $checkChildren["total"];
+
+        if($parentID && $countChild == $checkChildren) {
+            mysqli_query($con, "INSERT INTO junction_deck_user (deck_id, user_id) VALUES ('$parentID', '$studentID')");
+            addParentUser($parentID, $studentID);
+        }
+    }
     function addDeck($parentID) {
         global $con;
         global $classroomID;
@@ -14,6 +59,9 @@
                 if (mysqli_num_rows($exists) == 0) {
                     mysqli_query($con, "INSERT INTO junction_deck_classroom (deck_id, classroom_id) VALUES ('$deckID', '$classroomID')");
 
+                    //new feature (check if all child decks of the parent deck has been added)
+                    addParentClassroom($deckID);
+
                     $getStudents = mysqli_query($con, "SELECT user_id, classroom_role_id FROM junction_classroom_user WHERE classroom_id = '$classroomID'");
                     while($students = mysqli_fetch_assoc($getStudents)) {
                         $studentID = $students["user_id"];
@@ -21,6 +69,8 @@
                         $check = mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$studentID'");
                         if (mysqli_num_rows($check) == 0 && $role == 3) {
                             mysqli_query($con, "INSERT INTO junction_deck_user (deck_id, user_id) VALUES ('$deckID', '$studentID')");
+
+                            addParentUser($deckID, $studentID);
 
                             $getCards = mysqli_query($con, "SELECT card_id FROM junction_deck_card WHERE deck_id = '$deckID'");
                             $query = "INSERT INTO card_progress (user_id, card_id) VALUES ";

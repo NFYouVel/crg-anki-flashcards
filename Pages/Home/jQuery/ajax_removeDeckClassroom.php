@@ -1,7 +1,30 @@
 <?php
     include "../../../SQL_Queries/connection.php";
     $classroomID = $_GET["classroomID"];
+    function deleteParentsClassroom($deckID) {
+        global $classroomID, $con;
+        $parentID = mysqli_query($con, "SELECT parent_deck_id FROM decks WHERE deck_id = '$deckID'");
+        $parentID = mysqli_fetch_assoc($parentID);
+        $parentID = $parentID["parent_deck_id"];
 
+        mysqli_query($con, "DELETE FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroomID'");
+
+        if($parentID !== null) {
+            deleteParentsClassroom($parentID);
+        }
+    }
+    function deleteParentsUser($deckID, $userID) {
+        global $con;
+        $parentID = mysqli_query($con, "SELECT parent_deck_id FROM decks WHERE deck_id = '$deckID'");
+        $parentID = mysqli_fetch_assoc($parentID);
+        $parentID = $parentID["parent_deck_id"];
+
+        mysqli_query($con, "DELETE FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$userID'");
+
+        if($parentID !== null) {
+            deleteParentsUser($parentID, $userID);
+        }
+    }
     function deleteDeck($parentID) {
         global $con;
         global $classroomID;
@@ -15,7 +38,8 @@
                 // Delete from junction_deck_classroom if exists
                 $exists = mysqli_query($con, "SELECT 1 FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroomID'");
                 if (mysqli_num_rows($exists) > 0) {
-                    mysqli_query($con, "DELETE FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroomID'");
+                    deleteParentsClassroom($deckID);
+                    // mysqli_query($con, "DELETE FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroomID'");
 
                     $getStudents = mysqli_query($con, "SELECT user_id, classroom_role_id FROM junction_classroom_user WHERE classroom_id = '$classroomID'");
                     while ($students = mysqli_fetch_assoc($getStudents)) {
@@ -25,9 +49,9 @@
                         $check = mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$studentID'");
                         if (mysqli_num_rows($check) > 0 && $role == 3) {
                             // Delete from junction_deck_user
-                            mysqli_query($con, "DELETE FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$studentID'");
+                            deleteParentsUser($deckID, $studentID);
+                            // mysqli_query($con, "DELETE FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$studentID'");
 
-                            // Instead of deleting card_progress, set is_assigned = 0 using JOIN
                             mysqli_query($con, "
                                 UPDATE card_progress cp
                                 JOIN junction_deck_card jdc ON cp.card_id = jdc.card_id
