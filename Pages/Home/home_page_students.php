@@ -40,7 +40,7 @@ if (isset($_POST['hide'])) {
     <div class="right-bar">
         <div class="account-info">
             <span class="username"><?php echo $line['name'] ?></span>
-            <span class="as" style="cursor: pointer;" onclick="Mode()"><?php echo $role ?> Mode</span>
+            <span class="as" style="cursor: pointer;" onclick="Mode()">Student</span>
         </div>
         <script>
             function Mode() {
@@ -94,23 +94,23 @@ if (isset($_POST['hide'])) {
                                 while ($row = mysqli_fetch_assoc($getDeckIDs)) {
                                     $ownedDecks[] = $row['deck_id'];
                                 }           
-                                // Ambil semua deck yang punya parent tertentu
+
                                 if ($parentID === null) {
                                     $getDecks = mysqli_query($con, "SELECT * FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
                                 } else {
                                     $getDecks = mysqli_query($con, "SELECT * FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
                                 }
                                 
-                                // Loop semua deck yang sesuai
+
                                 while ($deck = mysqli_fetch_assoc($getDecks)) {
-                                    // Cek: user punya deck ini nggak?
 
                                     // echo "Deck saat ini: " . $deck['deck_id'] . "<br>";
                                     if (in_array($deck['deck_id'], $ownedDecks)) {
-                                        echo "<!-- Debug: nemu deck: " . $deck['name'] . " -->";
+                                        $temp_deck_id = $deck['deck_id'];
+                                        echo "<!-- Debug: nemu deck: " . $deck['deck_id'] . " -->";
                                         echo "<li class='contain'>";
                                         echo "<div class='title-to-review-second'>";
-                                        echo "<span class='title-second'>" . htmlspecialchars($deck['name']) . "</span>";
+                                        echo "<span class='title-second' onclick='goToFlashcard(this)' data-id='$temp_deck_id'>" . htmlspecialchars($deck['name']) . "</span>";
                                         echo "<div class='to-review'>
                                                 <span class='green'>169</span>
                                                 <span class='red'>28</span>
@@ -132,7 +132,7 @@ if (isset($_POST['hide'])) {
                                     
                                 }
                             }
-                            
+
                         ?>
                     </div>
                 </li>
@@ -141,6 +141,13 @@ if (isset($_POST['hide'])) {
         </div>
     </div>
 
+
+    <script>
+        function goToFlashcard(elem) {
+            const deckId = elem.getAttribute("data-id");
+            window.location.href = `flashcard.php?deck_id=${deckId}`;
+        }
+    </script>
 </body>
 
 </html>
