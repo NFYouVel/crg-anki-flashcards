@@ -359,12 +359,6 @@
         $(document).ready(function () {
             //remove right click menu
             $("body").click(function () {
-                // $(".menu").css({
-                //     "pointer-events": "auto",
-                //     cursor: "pointer",
-                //     opacity: 1
-                // });
-
                 $("#deckMenu").css({
                     display: "none"
                 });
@@ -429,13 +423,23 @@
                         "display": "none"
                     })
                     $("#addFolder").css({
+                        "pointer-events": "none",
+                        opacity: 0.3
+                    });
+                }
+                else if (type == "empty") {
+                    $("#updateDeck").css({
+                        "display": "none"
+                    })
+                    $("#addFolder").css({
                         "pointer-events": "auto",
                         cursor: "pointer",
                         opacity: 1
                     });
-                    $("#addFolder").css({
-                        "pointer-events": "none",
-                        opacity: 0.3
+                    $("#addDeck").css({
+                        "pointer-events": "auto",
+                        cursor: "pointer",
+                        opacity: 1
                     });
                 }
                 $("#deckMenu").css({
@@ -621,6 +625,13 @@
                                 <li>
                                     <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
                                     <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name</span>
+                                ";
+                            }
+                            else if(mysqli_num_rows(mysqli_query($con, "SELECT is_leaf FROM decks WHERE parent_deck_id = '$deckID'")) == 0 ) {
+                                echo "
+                                <li>
+                                    <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'empty'> $name</span>
                                 ";
                             }
                             else {

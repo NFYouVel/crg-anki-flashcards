@@ -87,8 +87,7 @@ if (isset($_POST['hide'])) {
                         <?php showDecks($con, $user_id); ?>
 
                         <?php 
-                            function showDecks($con, $user_id, $parentID = null)
-                            {
+                            function showDecks($con, $user_id, $parentID = null) {
                                 $getDeckIDs = mysqli_query($con, "SELECT deck_id FROM junction_deck_user WHERE user_id = '$user_id'");
                                 $ownedDecks = [];
                                 while ($row = mysqli_fetch_assoc($getDeckIDs)) {

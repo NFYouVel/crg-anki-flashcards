@@ -7,6 +7,7 @@
         $parentID = mysqli_fetch_assoc($parentID);
         $parentID = $parentID ? $parentID["parent_deck_id"] : null;
 
+        //ngitung parent deck ini punya berapa anak
         $countChild = mysqli_query($con, "SELECT COUNT(*) AS total FROM decks WHERE parent_deck_id = '$parentID'");
         $countChild = mysqli_fetch_assoc($countChild);
         $countChild = $countChild["total"];
@@ -20,7 +21,11 @@
         $checkChildren = $checkChildren["total"];
 
         if($parentID && $countChild == $checkChildren) {
-            mysqli_query($con, "INSERT INTO junction_deck_classroom (deck_id, classroom_id) VALUES ('$parentID', '$classroomID')");
+            // Only insert if not already present
+            $exists = mysqli_query($con, "SELECT 1 FROM junction_deck_classroom WHERE deck_id = '$parentID' AND classroom_id = '$classroomID'");
+            if (mysqli_num_rows($exists) == 0) {
+                mysqli_query($con, "INSERT INTO junction_deck_classroom (deck_id, classroom_id) VALUES ('$parentID', '$classroomID')");
+            }
             addParentClassroom($parentID);
         }
     }
@@ -42,7 +47,11 @@
         $checkChildren = $checkChildren["total"];
 
         if($parentID && $countChild == $checkChildren) {
-            mysqli_query($con, "INSERT INTO junction_deck_user (deck_id, user_id) VALUES ('$parentID', '$studentID')");
+            // Only insert if not already present
+            $exists = mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE deck_id = '$parentID' AND user_id = '$studentID'");
+            if (mysqli_num_rows($exists) == 0) {
+                mysqli_query($con, "INSERT INTO junction_deck_user (deck_id, user_id) VALUES ('$parentID', '$studentID')");
+            }
             addParentUser($parentID, $studentID);
         }
     }
@@ -55,47 +64,48 @@
                 $deckID = $deck["deck_id"];
                 $isLeaf = $deck["is_leaf"];
 
+                // Only insert if not already present
                 $exists = mysqli_query($con, "SELECT 1 FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroomID'");
                 if (mysqli_num_rows($exists) == 0) {
                     mysqli_query($con, "INSERT INTO junction_deck_classroom (deck_id, classroom_id) VALUES ('$deckID', '$classroomID')");
+                }
 
-                    //new feature (check if all child decks of the parent deck has been added)
-                    addParentClassroom($deckID);
+                //new feature (check if all child decks of the parent deck has been added)
+                addParentClassroom($deckID);
 
-                    $getStudents = mysqli_query($con, "SELECT user_id, classroom_role_id FROM junction_classroom_user WHERE classroom_id = '$classroomID'");
-                    while($students = mysqli_fetch_assoc($getStudents)) {
-                        $studentID = $students["user_id"];
-                        $role = $students["classroom_role_id"];
-                        $check = mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$studentID'");
-                        if (mysqli_num_rows($check) == 0 && $role == 3) {
-                            mysqli_query($con, "INSERT INTO junction_deck_user (deck_id, user_id) VALUES ('$deckID', '$studentID')");
+                $getStudents = mysqli_query($con, "SELECT user_id, classroom_role_id FROM junction_classroom_user WHERE classroom_id = '$classroomID'");
+                while($students = mysqli_fetch_assoc($getStudents)) {
+                    $studentID = $students["user_id"];
+                    $role = $students["classroom_role_id"];
+                    $check = mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$studentID'");
+                    if (mysqli_num_rows($check) == 0 && $role == 3) {
+                        mysqli_query($con, "INSERT INTO junction_deck_user (deck_id, user_id) VALUES ('$deckID', '$studentID')");
 
-                            addParentUser($deckID, $studentID);
+                        addParentUser($deckID, $studentID);
 
-                            $getCards = mysqli_query($con, "SELECT card_id FROM junction_deck_card WHERE deck_id = '$deckID'");
-                            $query = "INSERT INTO card_progress (user_id, card_id) VALUES ";
-                            $count = 1;
-                            while($card = mysqli_fetch_assoc($getCards)) {
-                                $cardID = $card["card_id"];
-                                if($count == 35) {
-                                    $query = substr($query, 0, -2);
-                                    mysqli_query($con, $query);
-                                    $query = "INSERT INTO card_progress (user_id, card_id) VALUES ";
-                                    $count = 1;
-                                }
-                                $exists = mysqli_query($con, "SELECT 1 FROM card_progress WHERE user_id = '$studentID' AND card_id = '$cardID'");
-                                if (mysqli_num_rows($exists) == 0) {
-                                    $query .= "('$studentID', $cardID), ";
-                                    $count++;
-                                }
-                                else {
-                                    mysqli_query($con, "UPDATE card_progress SET is_assigned = 1 WHERE user_id = '$studentID' AND card_id = $cardID AND is_assigned = 0");
-                                }
-                            }
-                            if ($count > 1) {
+                        $getCards = mysqli_query($con, "SELECT card_id FROM junction_deck_card WHERE deck_id = '$deckID'");
+                        $query = "INSERT INTO card_progress (user_id, card_id) VALUES ";
+                        $count = 1;
+                        while($card = mysqli_fetch_assoc($getCards)) {
+                            $cardID = $card["card_id"];
+                            if($count == 35) {
                                 $query = substr($query, 0, -2);
                                 mysqli_query($con, $query);
+                                $query = "INSERT INTO card_progress (user_id, card_id) VALUES ";
+                                $count = 1;
                             }
+                            $exists = mysqli_query($con, "SELECT 1 FROM card_progress WHERE user_id = '$studentID' AND card_id = '$cardID'");
+                            if (mysqli_num_rows($exists) == 0) {
+                                $query .= "('$studentID', $cardID), ";
+                                $count++;
+                            }
+                            else {
+                                mysqli_query($con, "UPDATE card_progress SET is_assigned = 1 WHERE user_id = '$studentID' AND card_id = $cardID AND is_assigned = 0");
+                            }
+                        }
+                        if ($count > 1) {
+                            $query = substr($query, 0, -2);
+                            mysqli_query($con, $query);
                         }
                     }
                 }
