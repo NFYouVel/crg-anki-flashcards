@@ -84,53 +84,108 @@ if (isset($_POST['hide'])) {
 
 
                     <div class="subdeck">
-                        <?php showDecks($con, $user_id); ?>
-
                         <?php 
-                            function showDecks($con, $user_id, $parentID = null) {
-                                $getDeckIDs = mysqli_query($con, "SELECT deck_id FROM junction_deck_user WHERE user_id = '$user_id'");
-                                $ownedDecks = [];
-                                while ($row = mysqli_fetch_assoc($getDeckIDs)) {
-                                    $ownedDecks[] = $row['deck_id'];
-                                }           
-
-                                if ($parentID === null) {
-                                    $getDecks = mysqli_query($con, "SELECT * FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
-                                } else {
-                                    $getDecks = mysqli_query($con, "SELECT * FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
+                            $rootDecks = [];
+                            function getRoot($parentID = null) {
+                                global $con, $user_id, $rootDecks;
+                                if ($parentID == null) {
+                                    $getDecks = mysqli_query($con, "SELECT deck.deck_id, deck.parent_deck_id
+                                                                    FROM junction_deck_user AS deck_user
+                                                                    JOIN decks AS deck 
+                                                                    ON deck_user.deck_id = deck.deck_id
+                                                                    WHERE deck_user.user_id = '$user_id'");
+                                } 
+                                else {
+                                    $getDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks WHERE deck_id = '$parentID'");
                                 }
-                                
-
                                 while ($deck = mysqli_fetch_assoc($getDecks)) {
-
-                                    // echo "Deck saat ini: " . $deck['deck_id'] . "<br>";
-                                    if (in_array($deck['deck_id'], $ownedDecks)) {
-                                        $temp_deck_id = $deck['deck_id'];
-                                        echo "<!-- Debug: nemu deck: " . $deck['deck_id'] . " -->";
-                                        echo "<li class='contain'>";
-                                        echo "<div class='title-to-review-second'>";
-                                        echo "<span class='title-second' onclick='goToFlashcard(this)' data-id='$temp_deck_id'>" . htmlspecialchars($deck['name']) . "</span>";
-                                        echo "<div class='to-review'>
-                                                <span class='green'>169</span>
-                                                <span class='red'>28</span>
-                                                <span class='blue'>1638</span>
-                                              </div>";
-                                        echo "</div>";
-                                        echo "<div class='line'></div>";
-                            
-                                        // Recursive call buat subdeck (kalau is_leaf = 0)
-                                        if ($deck['is_leaf'] == 0) {
-                                            echo "<ul>"; // start subdeck
-                                            showDecks($con, $user_id, $deck['deck_id']);
-                                            echo "</ul>"; // end subdeck
-                                        }
-                            
-                                        echo "</li>";
-                                        
+                                    if (!in_array($deck["deck_id"], $rootDecks)) {
+                                        $rootDecks[] = $deck["deck_id"];
                                     }
-                                    
+                                    if ($deck["parent_deck_id"] !== null) {
+                                        getRoot($deck["parent_deck_id"]);
+                                    } 
                                 }
                             }
+                            getRoot();
+                            
+                            function showDecks($parentID = null) {
+                                global $con, $user_id, $rootDecks;
+                                if($parentID == null) {
+                                    $getDecks = mysqli_query($con, "SELECT name, deck_id FROM decks WHERE parent_deck_id IS NULL");
+                                }
+                                else {
+                                    $getDecks = mysqli_query($con, "SELECT name, deck_id FROM decks WHERE parent_deck_id = '$parentID'");
+                                }
+                                while($deck = mysqli_fetch_assoc($getDecks)) {
+                                    $deckID = $deck["deck_id"];
+                                    if(in_array($deckID, $rootDecks)) {
+                                        echo "<li class='contain'>";
+                                            echo "<div class='title-to-review-second'>";
+                                            echo "<span class='title-second' onclick=\"window.location.href='flashcard.php?deck_id=$deckID'\">" . htmlspecialchars($deck['name']) . "</span>";
+                                                echo "<div class='to-review'>
+                                                        <span class='green'>169</span>
+                                                        <span class='red'>28</span>
+                                                        <span class='blue'>1638</span>
+                                                    </div>";
+                                            echo "</div>";
+                                            echo "<div class='line'></div>";
+                                            
+                                            echo "<ul>";
+                                                showDecks($deckID);
+                                            echo "</ul>";
+
+                                        echo "</li>";
+                                    }
+                                }
+                            }
+
+                            showDecks();
+                            // function showDecks($parentID = null) {
+                            //     global $con, $user_id;
+                            //     $getDeckIDs = mysqli_query($con, "SELECT deck_id FROM junction_deck_user WHERE user_id = '$user_id'");
+                            //     $ownedDecks = [];
+                            //     while ($row = mysqli_fetch_assoc($getDeckIDs)) {
+                            //         $ownedDecks[] = $row['deck_id'];
+                            //     }           
+
+                            //     if ($parentID === null) {
+                            //         $getDecks = mysqli_query($con, "SELECT * FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
+                            //     } else {
+                            //         $getDecks = mysqli_query($con, "SELECT * FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
+                            //     }
+                                
+
+                            //     while ($deck = mysqli_fetch_assoc($getDecks)) {
+
+                            //         // echo "Deck saat ini: " . $deck['deck_id'] . "<br>";
+                            //         if (in_array($deck['deck_id'], $ownedDecks)) {
+                            //             $temp_deck_id = $deck['deck_id'];
+                            //             echo "<!-- Debug: nemu deck: " . $deck['deck_id'] . " -->";
+                            //             echo "<li class='contain'>";
+                            //             echo "<div class='title-to-review-second'>";
+                            //             echo "<span class='title-second' onclick='goToFlashcard(this)' data-id='$temp_deck_id'>" . htmlspecialchars($deck['name']) . "</span>";
+                            //             echo "<div class='to-review'>
+                            //                     <span class='green'>169</span>
+                            //                     <span class='red'>28</span>
+                            //                     <span class='blue'>1638</span>
+                            //                   </div>";
+                            //             echo "</div>";
+                            //             echo "<div class='line'></div>";
+                            
+                            //             // Recursive call buat subdeck (kalau is_leaf = 0)
+                            //             if ($deck['is_leaf'] == 0) {
+                            //                 echo "<ul>"; // start subdeck
+                            //                 showDecks($deck['deck_id']);
+                            //                 echo "</ul>"; // end subdeck
+                            //             }
+                            
+                            //             echo "</li>";
+                                        
+                            //         }
+                                    
+                            //     }
+                            // }
 
                         ?>
                     </div>
@@ -139,14 +194,6 @@ if (isset($_POST['hide'])) {
             </ul>
         </div>
     </div>
-
-
-    <script>
-        function goToFlashcard(elem) {
-            const deckId = elem.getAttribute("data-id");
-            window.location.href = `flashcard.php?deck_id=${deckId}`;
-        }
-    </script>
 </body>
 
 </html>

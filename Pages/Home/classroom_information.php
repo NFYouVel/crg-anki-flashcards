@@ -160,11 +160,13 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                                                         echo "<span class = 'expand'>▶</span>";
                                                         echo "<span class = 'deckName'>$name</span>";
                                                     echo "</div>";
-                                                    if(mysqli_num_rows(mysqli_query($con, "SELECT 1 FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroom_id'")) > 0) {
+                                                    if(mysqli_num_rows(mysqli_query($con, "SELECT 1 FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroom_id' AND temp_deleted = 0")) > 0) {
                                                         echo "<span onclick=\"removeDeck('$deckID')\" class = 'addDeck added'>+</span>";
+                                                        // echo "<input type = 'checkbox' id = '$deckID' checked><label class = 'addDeck' for = '$deckID'>+</label>";
                                                     }
                                                     else {
                                                         echo "<span onclick=\"addDeck('$deckID')\" class='addDeck'>+</span>";
+                                                        // echo "<input type = 'checkbox' id = '$deckID'><label class = 'addDeck' for = '$deckID'>+</label>";
                                                     }
                                                 echo "</div>";
                                             echo "</div>";
@@ -181,11 +183,13 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                                                         echo "<span style = 'opacity: 0;' class = 'expand'>▶</span>";
                                                         echo "<span class = 'deckName'>$name</span>";
                                                     echo "</div>";
-                                                    if(mysqli_num_rows(mysqli_query($con, "SELECT classroom_id FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroom_id'")) > 0) {
+                                                    if(mysqli_num_rows(mysqli_query($con, "SELECT classroom_id FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroom_id' AND temp_deleted = 0")) > 0) {
                                                         echo "<span onclick=\"removeDeck('$deckID')\" class = 'addDeck added'>+</span>";
+                                                        // echo "<input type = 'checkbox' id = '$deckID' checked><label class = 'addDeck' for = '$deckID'>+</label>";
                                                     }
                                                     else {
                                                         echo "<span onclick=\"addDeck('$deckID')\" class='addDeck'>+</span>";
+                                                        // echo "<input type = 'checkbox' id = '$deckID'><label class = 'addDeck' for = '$deckID'>+</label>";
                                                     }
                                                 echo "</div>";
                                             echo "</div>";

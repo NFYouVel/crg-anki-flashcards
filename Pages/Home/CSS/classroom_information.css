@@ -227,6 +227,12 @@ tr td:nth-of-type(2) {
 .added {
     filter: grayscale(100%);
 }
+input[type="checkbox"]:checked + .addDeck {
+    filter: grayscale(100%);
+}
+input[type="checkbox"] {
+    display: none;
+}
 .deck .deck {
     display: none;
 }
