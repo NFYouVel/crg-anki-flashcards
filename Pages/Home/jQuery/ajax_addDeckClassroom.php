@@ -26,9 +26,6 @@
             if (mysqli_num_rows($exists) == 0) {
                 mysqli_query($con, "INSERT INTO junction_deck_classroom (deck_id, classroom_id) VALUES ('$parentID', '$classroomID')");
             }
-            else {
-                mysqli_query($con, "UPDATE junction_deck_classroom SET temp_deleted = 0 WHERE deck_id = '$parentID' AND classroom_id = '$classroomID'");
-            }
             addParentClassroom($parentID);
         }
     }
@@ -54,9 +51,6 @@
             $exists = mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE deck_id = '$parentID' AND user_id = '$studentID'");
             if (mysqli_num_rows($exists) == 0) {
                 mysqli_query($con, "INSERT INTO junction_deck_user (deck_id, user_id) VALUES ('$parentID', '$studentID')");
-            }
-            else {
-                mysqli_query($con, "UPDATE junction_deck_user SET temp_deleted = 0 WHERE deck_id = '$parentID' AND user_id = '$studentID'");
             }
             addParentUser($parentID, $studentID);
         }

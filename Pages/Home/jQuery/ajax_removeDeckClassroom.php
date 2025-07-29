@@ -7,7 +7,7 @@
         $parentID = mysqli_fetch_assoc($parentID);
         $parentID = $parentID["parent_deck_id"];
 
-        mysqli_query($con, "UPDATE junction_deck_classroom SET temp_deleted = 1 WHERE deck_id = '$deckID' AND classroom_id = '$classroomID'");
+        mysqli_query($con, "DELETE FROM junction_deck_classroom WHERE deck_id = '$deckID' AND classroom_id = '$classroomID'");
 
         if($parentID !== null) {
             deleteParentsClassroom($parentID);
@@ -19,7 +19,7 @@
         $parentID = mysqli_fetch_assoc($parentID);
         $parentID = $parentID["parent_deck_id"];
 
-        mysqli_query($con, "UPDATE junction_deck_user SET temp_deleted = 1 WHERE deck_id = '$deckID' AND user_id = '$userID'");
+        mysqli_query($con, "DELETE FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$userID'");
 
         if($parentID !== null) {
             deleteParentsUser($parentID, $userID);
