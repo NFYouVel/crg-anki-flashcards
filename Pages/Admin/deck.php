@@ -755,7 +755,7 @@
     </div>
 </body>
 <style>
-    #deck {
+    #deck, #deckList {
         color: #ffa72a;
     }
 </style>

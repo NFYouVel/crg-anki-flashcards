@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deck Pool</title>
+    <title>Assigned Decks</title>
     <link rel="icon" href="../../Logo/circle.png">
     <script src="../../library/jquery.js"></script>
     <style>
@@ -246,6 +246,28 @@
         }
         #updateDeck {
             display: none;
+        }
+
+        .tree-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 4px;
+            gap: 6px;
+        }
+
+        .tree-item .label {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .deck-checkbox {
+            margin-left: auto;
+            width: 25px;
+            height: 25px;
+            border: none;
         }
     </style>
 <script>
@@ -589,6 +611,11 @@
 
 </head>
 <body>
+    <style>
+        .label {
+            margin-right: 30px;
+        }
+    </style>
     <?php
         include "convertPinyin.php";
         include "Components/sidebar.php";
@@ -637,83 +664,50 @@
 
         function getDecks($parentID) {
             global $userID, $con, $ownedDecks;
-            if($parentID == "root") {
+
+            if ($parentID == "root") {
                 $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
-            }
-            else {
+            } else {
                 $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
             }
-            if(mysqli_num_rows($getDecks) > 0) {
-                if($parentID == "root" || in_array($parentID, $ownedDecks)) {
-                    echo "<ul class = 'maximized' style = 'height: fit-content;'>";
-                }
-                else {
-                    echo "<ul>";
-                }
-                    while($deck = mysqli_fetch_assoc($getDecks)) {
-                        $deckID = $deck["deck_id"];
-                        $name = $deck["name"];
-                        if(mysqli_num_rows(mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE user_id = '$userID' AND deck_id = '$deckID'")) > 0) {
-                            $owned = true;
-                        }
-                        else {
-                            $owned = false;
-                        }
 
-                        if($deck["is_leaf"] == 0) {
-                            if(mysqli_num_rows(mysqli_query($con, "SELECT is_leaf FROM decks WHERE parent_deck_id = '$deckID' AND is_leaf = 1")) > 0) {
-                                if($owned) {
-                                    echo "
-                                    <li>
-                                        <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
-                                        <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name ✅</span>
-                                    ";
-                                }
-                                else {
-                                    echo "
-                                    <li>
-                                        <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
-                                        <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name ❌</span>
-                                    ";
-                                }
-                            }
-                            else {
-                                if($owned) {
-                                    echo "
-                                    <li>
-                                        <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span> 
-                                        <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_folder'> $name ✅</span>
-                                    ";
-                                }
-                                else {
-                                    echo "
-                                    <li>
-                                        <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
-                                        <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_folder'> $name ❌</span>
-                                    ";
-                                }
-                            }
-                        }
-                        else {
-                            if($owned) {
-                                echo "
-                                <li>
-                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name ✅</span>
-                                ";
-                            }
-                            else {
-                                echo "
-                                <li>
-                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name ❌</span>
-                                ";
-                            }
-                        }
-                            getDecks($deckID);
-                        echo"</li>";  
+            if (mysqli_num_rows($getDecks) > 0) {
+                echo ($parentID == "root" || in_array($parentID, $ownedDecks)) ? "<ul class='maximized' style='height: fit-content;'>" : "<ul>";
+
+                while ($deck = mysqli_fetch_assoc($getDecks)) {
+                    $deckID = $deck["deck_id"];
+                    $name = htmlspecialchars($deck["name"]);
+                    $owned = mysqli_num_rows(mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE user_id = '$userID' AND deck_id = '$deckID'")) > 0;
+
+                    echo "<li>";
+
+                    echo "<div class='tree-item'>";
+
+                    if ($deck["is_leaf"] == 0) {
+                        $hasLeaf = mysqli_num_rows(mysqli_query($con, "SELECT 1 FROM decks WHERE parent_deck_id = '$deckID' AND is_leaf = 1")) > 0;
+                        $iconID = $hasLeaf ? 'folder_deck' : 'folder_folder';
+                        $imgSrc = '../../Assets//Icons/folder.png';
+
+                        echo "<span class='toggle'><img src='../../Assets//Icons/maximizeDeck.png' class='min'></span>";
+                        echo "<span class='label' id='$deckID'><img src='$imgSrc' class='icon' id='$iconID'> $name</span>";
+                    } else {
+                        echo "<span class='label' id='$deckID'><img src='../../Assets//Icons/deck.png' class='icon' id='deck'> $name</span>";
                     }
+
+                    $checked = $owned ? "checked" : "";
+                    echo "<input type='checkbox' class='deck-checkbox' name='deck_ids[]' value='$deckID' $checked>";
+
+                    echo "</div>";
+
+                    getDecks($deckID);
+
+                    echo "</li>";
+                }
+
                 echo "</ul>";
             }
         }
+
 
         function getOwnedDecks($parentID, $userID) {
             global $con;
@@ -966,7 +960,7 @@
     </div>
 </body>
 <style>
-    #deck, #deckPool {
+    #deck, #deckAssigned {
         color: #ffa72a;
     }
 </style>

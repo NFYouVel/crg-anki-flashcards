@@ -105,9 +105,9 @@
         <li>
             <a id="deck" href="deck.php">Deck</a>
             <ul>
-                <li><a id="deck" href="deck.php">Deck List</a></li>
+                <li><a id="deckList" href="deck.php">Deck List</a></li>
                 <li><a id="deckPool" href="deckPool.php">Deck Pool</a></li>
-                <li><a id="report" href="assignedDeck.php">Assigned Deck</a></li>
+                <li><a id="deckAssigned" href="deckAssigned.php">Assigned Deck</a></li>
             </ul>
         </li>
     </nav>
