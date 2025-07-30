@@ -1,0 +1,12 @@
+.line {
+    position: absolute;
+    right: 6px; 
+    left: -1px;  
+}
+li.contain {
+    position: relative;
+}
+.title-to-review{
+    margin-top: 10px;
+    padding: 10px 10px;
+}

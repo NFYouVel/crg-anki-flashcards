@@ -60,6 +60,5 @@ if ($status == "forgot" && $stage == 0) {
 }
 
 mysqli_query($con, $send_query);
-// header("Location: flashcard.php?deck_id = ".$_SESSION['deck_id']);
-header("Location: flashcard.php");
+header("Location: flashcard.php?deck_id=".$_SESSION['deck_id'])
 ?>

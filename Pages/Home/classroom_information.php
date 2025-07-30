@@ -107,7 +107,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
         </div>
         <script>
             function Mode() {
-                window.location.href = "home_page_students.php";
+                window.location.href = "home_page_teacher_student.php";
             }
         </script>
 
@@ -310,7 +310,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                     $result2 = mysqli_query($con, $query2);
                     $line_name = mysqli_fetch_assoc($result2);
                     $temp_name = $line_name['name'];
-                    echo " <div class='title-student'>
+                    echo " <div class='title-student' onclick='ClickToDP(this)' data-id='$user_id_student'>
                     <!-- Deck Title -->
                     <span class='title'>$temp_name</span>
                     <!-- To Review Green Red Blue-->
@@ -328,6 +328,12 @@ $classroom_name = mysqli_fetch_array($result_classroom);
         </div>
     </div>
 
+    <script>
+        function ClickToDP(element) {
+            const id = element.dataset.id;
+            window.location.href = "student_progress_overview.php?user_id=" + id + "&pg=ov";
+        }
+    </script>
 </body>
 
 </html>

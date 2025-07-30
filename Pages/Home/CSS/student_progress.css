@@ -1,0 +1,101 @@
+/* Title */
+.title-sp {
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(227, 227, 227);
+    padding: 4px 20px;
+    font-size: 16px;
+}
+.title-sp span:nth-child(1) {
+    font-weight: bold;
+}
+
+
+/* Menu */
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+.wrapper-menu {
+    display: flex;
+    justify-content: center;
+    background-color: rgb(222, 241, 255);
+    height: 100%;
+}
+.container-menu {
+    display: flex;
+    /* justify-content: center; */
+    padding: 10px 0;
+    border-inline: 0.5px solid black;
+    padding: 6px 6px;
+    flex-direction: column;
+    background-color: white;
+    height: 100%;
+}
+.nav-menu {
+    display: flex;
+    flex-direction: row;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #2f6ba1;
+}
+.nav-menu > span {
+    margin-left: 30px;
+    font-size: 18px;
+    color: #2f6ba1;
+    /* background-color: #deebf7; */
+    border-radius: 6px;
+    padding: 2px 9px;
+    cursor: pointer;
+    /* border: 2px solid #9cb4cb; */
+}
+.container-menu span:nth-child(1) {
+    margin-left: 0;
+}
+
+.container-student-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0;
+}
+.container-student-progress span {
+    font-size: 24px;
+    font-weight: bold;
+    color: rgb(50, 50, 50);
+}
+
+table {
+    margin: 0;
+    margin-left: 30px;
+    margin-top: 0px;
+}
+td {
+    font-size: 14px;
+    border: none;
+}
+h3 {
+    margin-top: 8px;
+}
+.review {
+    margin-top: 6px;
+}
+.graph-sp {
+    display: flex;
+    height: 150px;
+    width: 100%;
+    max-width: 600px;
+    background-color: rgb(148, 148, 148);
+    margin: 0 auto;
+    border: 1px solid black;
+    padding: 4px;
+}
+
+.table-sp-information {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding-bottom: 10px;
+    height: 40%;
+}
