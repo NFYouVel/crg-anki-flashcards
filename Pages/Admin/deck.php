@@ -758,5 +758,8 @@
     #deck, #deckList {
         color: #ffa72a;
     }
+    #deck + ul {
+        display: block;
+    }
 </style>
 </html>

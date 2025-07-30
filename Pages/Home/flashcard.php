@@ -1,4 +1,24 @@
 <?php
+function getLeafDecks($parentID, $leafDecks = []) {
+    global $con;
+    $deck = mysqli_fetch_assoc(mysqli_query($con, "SELECT deck_id, is_leaf FROM decks WHERE deck_id = '$parentID'"));
+    if($deck["is_leaf"] == 1) {
+        $leafDecks[] = $deck["deck_id"];
+        return $leafDecks;
+    }
+    $getDecks = mysqli_query($con, "SELECT deck_id, is_leaf FROM decks WHERE parent_deck_id = '$parentID'");
+    
+    while ($deck = mysqli_fetch_assoc($getDecks)) {
+        if ($deck["is_leaf"] == 1) {
+            $deckID = $deck["deck_id"];
+            $leafDecks[] = "'$deckID'";
+        } 
+        else {
+            $leafDecks = getLeafDecks($deck["deck_id"], $leafDecks);
+        }
+    }
+    return $leafDecks;
+}
 // User ID
 session_start();
 include "../../SQL_Queries/connection.php";
@@ -21,17 +41,22 @@ include "../Admin/convertPinyin.php";
 // Deck ID
 if (!isset($_GET['deck_id'])) {
     $deckID = $_SESSION['temp_deck_id'];
+    $leafDecks = $_SESSION["leafDecks"];
 } else {
     $deckID = $_GET['deck_id'];
+    $leafDecks = implode(", ", getLeafDecks($_GET["deck_id"]));
+    $_SESSION["leafDecks"] = $leafDecks;
 }
 $_SESSION['temp_deck_id'] = $deckID;
 
 // Blue Green Red Count
 include_once "repetition_flashcard.php";
+include "../../SQL_Queries/connection.php";
 $counts = mysqli_fetch_assoc($query_flashcard_rbg_count);
 $blue = $counts['blue'];
 $green = $counts['green'];
 $red = $counts['red'];
+
 
 // Algorithm Flashcard
 if ($green !== 0) {
@@ -44,7 +69,7 @@ if ($green !== 0) {
         ON jdc.deck_id = jdu.deck_id
     JOIN card_progress AS cp
         ON cp.user_id = jdu.user_id AND cp.card_id = card.card_id
-    WHERE jdc.deck_id = '$deckID' AND jdu.user_id = '$user_id' AND cp.review_due <= NOW() LIMIT 1
+    WHERE jdc.deck_id IN ($leafDecks) AND jdu.user_id = '$user_id' AND cp.review_due <= NOW() LIMIT 1
     ");
 } else {
     $query_flashcard_algorithm = mysqli_query($con, "
@@ -56,7 +81,7 @@ if ($green !== 0) {
         ON jdc.deck_id = jdu.deck_id
     JOIN card_progress AS cp
         ON cp.user_id = jdu.user_id AND cp.card_id = card.card_id
-    WHERE jdc.deck_id = '$deckID' AND jdu.user_id = '$user_id' AND cp.total_review = 0 LIMIT 1
+    WHERE jdc.deck_id IN ($leafDecks) AND jdu.user_id = '$user_id' AND cp.total_review = 0 LIMIT 1
     ");
 }
 

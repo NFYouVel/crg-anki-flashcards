@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assigned Decks</title>
+    <title>Deck Pool</title>
     <link rel="icon" href="../../Logo/circle.png">
     <script src="../../library/jquery.js"></script>
     <style>
@@ -247,28 +247,6 @@
         #updateDeck {
             display: none;
         }
-
-        .tree-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 2px 4px;
-            gap: 6px;
-        }
-
-        .tree-item .label {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .deck-checkbox {
-            margin-left: auto;
-            width: 25px;
-            height: 25px;
-            border: none;
-        }
     </style>
 <script>
     loadDOM();
@@ -298,6 +276,42 @@
             }
         }
         xmlhttp.open("GET", "AJAX/getDeckDetails.php?deckID=" + deckID, true);
+        xmlhttp.send();
+    }
+
+    function addDeck(e) {
+        deckID = e.siblings(".label").attr("id");
+        var xmlhttp;
+        if (window.XMLHttpRequest != null) {
+            xmlhttp = new XMLHttpRequest();
+        } else {
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                document.getElementsByClassName("deckList")[0].innerHTML = xmlhttp.responseText;
+            }
+        }
+        xmlhttp.open("GET", "AJAX/addDeckStudent.php?deckID=" + deckID + "&userID=<?php echo $_GET["id"] ?>", true);
+        xmlhttp.send();
+    }
+
+    function removeDeck(e) {
+        deckID = e.siblings(".label").attr("id");
+        var xmlhttp;
+        if (window.XMLHttpRequest != null) {
+            xmlhttp = new XMLHttpRequest();
+        } else {
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                document.getElementsByClassName("deckList")[0].innerHTML = xmlhttp.responseText;
+            }
+        }
+        xmlhttp.open("GET", "AJAX/removeDeckStudent.php?deckID=" + deckID + "&userID=<?php echo $_GET["id"] ?>", true);
         xmlhttp.send();
     }
 
@@ -612,8 +626,18 @@
 </head>
 <body>
     <style>
-        .label {
-            margin-right: 30px;
+        .action {
+            font-size: 22px;
+            padding: 0;
+            background-color: transparent;
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
     </style>
     <?php
@@ -664,50 +688,84 @@
 
         function getDecks($parentID) {
             global $userID, $con, $ownedDecks;
-
-            if ($parentID == "root") {
+            if($parentID == "root") {
                 $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
-            } else {
+            }
+            else {
                 $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
             }
-
-            if (mysqli_num_rows($getDecks) > 0) {
-                echo ($parentID == "root" || in_array($parentID, $ownedDecks)) ? "<ul class='maximized' style='height: fit-content;'>" : "<ul>";
-
-                while ($deck = mysqli_fetch_assoc($getDecks)) {
-                    $deckID = $deck["deck_id"];
-                    $name = htmlspecialchars($deck["name"]);
-                    $owned = mysqli_num_rows(mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE user_id = '$userID' AND deck_id = '$deckID'")) > 0;
-
-                    echo "<li>";
-
-                    echo "<div class='tree-item'>";
-
-                    if ($deck["is_leaf"] == 0) {
-                        $hasLeaf = mysqli_num_rows(mysqli_query($con, "SELECT 1 FROM decks WHERE parent_deck_id = '$deckID' AND is_leaf = 1")) > 0;
-                        $iconID = $hasLeaf ? 'folder_deck' : 'folder_folder';
-                        $imgSrc = '../../Assets//Icons/folder.png';
-
-                        echo "<span class='toggle'><img src='../../Assets//Icons/maximizeDeck.png' class='min'></span>";
-                        echo "<span class='label' id='$deckID'><img src='$imgSrc' class='icon' id='$iconID'> $name</span>";
-                    } else {
-                        echo "<span class='label' id='$deckID'><img src='../../Assets//Icons/deck.png' class='icon' id='deck'> $name</span>";
-                    }
-
-                    $checked = $owned ? "checked" : "";
-                    echo "<input type='checkbox' class='deck-checkbox' name='deck_ids[]' value='$deckID' $checked>";
-
-                    echo "</div>";
-
-                    getDecks($deckID);
-
-                    echo "</li>";
+            if(mysqli_num_rows($getDecks) > 0) {
+                if($parentID == "root" || in_array($parentID, $ownedDecks)) {
+                    echo "<ul class = 'maximized' style = 'height: fit-content;'>";
                 }
+                else {
+                    echo "<ul>";
+                }
+                    while($deck = mysqli_fetch_assoc($getDecks)) {
+                        $deckID = $deck["deck_id"];
+                        $name = $deck["name"];
+                        $owned = (mysqli_num_rows(mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE user_id = '$userID' AND deck_id = '$deckID'")) > 0) ? true : false;
 
+                        if($deck["is_leaf"] == 0) {
+                            if(mysqli_num_rows(mysqli_query($con, "SELECT is_leaf FROM decks WHERE parent_deck_id = '$deckID' AND is_leaf = 1")) > 0) {
+                                if($owned) {
+                                    echo "
+                                    <li>
+                                        <span class = 'toggle'><img src = '../../Assets//Icons/minimizeDeck.png' class = 'min'></span>
+                                        <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name </span>
+                                        <button class = 'action' onclick = 'removeDeck($(this))'>✅</button>
+                                    ";
+                                }
+                                else {
+                                    echo "
+                                    <li>
+                                        <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                        <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name </span>
+                                        <button class = 'action' onclick = 'addDeck($(this))'>❌</button>
+                                    ";
+                                }
+                            }
+                            else {
+                                if($owned) {
+                                    echo "
+                                    <li>
+                                        <span class = 'toggle'><img src = '../../Assets//Icons/minimizeDeck.png' class = 'min'></span> 
+                                        <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_folder'> $name </span>
+                                        <button class = 'action' onclick = 'removeDeck($(this))'>✅</button>
+                                    ";
+                                }
+                                else {
+                                    echo "
+                                    <li>
+                                        <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                        <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_folder'> $name </span>
+                                        <button class = 'action' onclick = 'addDeck($(this))'>❌</button>
+                                    ";
+                                }
+                            }
+                        }
+                        else {
+                            if($owned) {
+                                echo "
+                                <li>
+                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name </span>
+                                    <button class = 'action' onclick = 'removeDeck($(this))'>✅</button>
+                                ";
+                            }
+                            else {
+                                echo "
+                                <li>
+                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name </span>
+                                    <button class = 'action' onclick = 'addDeck($(this))'>❌</button>
+                                ";
+                            }
+                        }
+                            getDecks($deckID);
+                        echo"</li>";  
+                    }
                 echo "</ul>";
             }
         }
-
 
         function getOwnedDecks($parentID, $userID) {
             global $con;
@@ -789,7 +847,7 @@
                 <h2>Deck List</h2>
                 <div class="content">
                     <div id="wrapper">
-                        <ul id="tree">
+                        <ul class = "deckList" id="tree">
                             <li>
                                 <span class="toggle"><img src="../../Assets//Icons/minimizeDeck.png" class = "min"></span> 
                                 <span class="label selectedDeck" id = "masterDeck"><img src="../../Assets//Icons/folder.png" class = "icon"> Master Deck Folder</span>
@@ -866,16 +924,6 @@
                 <div id = "information">
                     <div id="header">
                         <h2><?php
-                            // if(isset($_GET["id"])) {
-                            //     $userID = $_GET["id"];
-                            // }
-                            // else {
-                            //     $userID = mysqli_query($con, "SELECT user_id FROM users WHERE role = 2 LIMIT 1");
-                            //     $userID = mysqli_fetch_assoc($userID);
-                            //     $userID = $userID["user_id"];
-                            // }
-                            // $userInfo = mysqli_query($con, "SELECT name, role, email FROM users WHERE user_id = '$userID'");
-                            // $userInfo = mysqli_fetch_assoc($userInfo);
                             if($userInfo["role"] == 1) {
                                 echo "Admin";
                             } else if($userInfo["role"] == 2) {
@@ -895,7 +943,7 @@
                                             <?php
                                                 $getUsers = mysqli_query($con, "SELECT users.user_id, users.name , role.role_name
                                                                                 FROM users AS users JOIN user_role AS role
-                                                                                ON users.role = role.role_id ORDER BY role.role_id DESC");
+                                                                                ON users.role = role.role_id WHERE role.role_id = 3");
                                                 while($user = mysqli_fetch_assoc($getUsers)) {
                                                     $user_id = $user["user_id"];
                                                     $name = $user["name"];
@@ -960,8 +1008,11 @@
     </div>
 </body>
 <style>
-    #deck, #deckAssigned {
+    #deck, #deckPool {
         color: #ffa72a;
+    }
+    #deck + ul {
+        display: block;
     }
 </style>
 </html>
