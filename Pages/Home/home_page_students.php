@@ -73,7 +73,7 @@ if (isset($_POST['hide'])) {
                     <!-- Colored Title -->
                     <div class="title-to-review">
                         <!-- Deck Title -->
-                        <span class="title">Main Deck</span>
+                        <span class="title" onclick= "window.location.href='flashcard.php?deck_id=main'">Main Deck</span>
                         <!-- To Review Green Red Blue-->
                         <div class="to-review">
                             <span class="green">169</span>
