@@ -1,3 +1,14 @@
+<?php
+    include "../../SQL_Queries/connection.php";
+    if(isset($_GET["id"])) {
+        $userID = $_GET["id"];
+    }
+    else {
+        $userID = mysqli_query($con, "SELECT user_id FROM users WHERE role = 2 LIMIT 1");
+        $userID = mysqli_fetch_assoc($userID);
+        $userID = $userID["user_id"];
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -293,7 +304,7 @@
                 document.getElementsByClassName("deckList")[0].innerHTML = xmlhttp.responseText;
             }
         }
-        xmlhttp.open("GET", "AJAX/addDeckStudent.php?deckID=" + deckID + "&userID=<?php echo $_GET["id"] ?>", true);
+        xmlhttp.open("GET", "AJAX/addDeckStudent.php?deckID=" + deckID + "&userID=<?php echo $userID; ?>", true);
         xmlhttp.send();
     }
 
@@ -311,7 +322,7 @@
                 document.getElementsByClassName("deckList")[0].innerHTML = xmlhttp.responseText;
             }
         }
-        xmlhttp.open("GET", "AJAX/removeDeckStudent.php?deckID=" + deckID + "&userID=<?php echo $_GET["id"] ?>", true);
+        xmlhttp.open("GET", "AJAX/removeDeckStudent.php?deckID=" + deckID + "&userID=<?php echo $userID; ?>", true);
         xmlhttp.send();
     }
 
@@ -643,19 +654,10 @@
     <?php
         include "convertPinyin.php";
         include "Components/sidebar.php";
-        include "../../SQL_Queries/connection.php";
         if(isset($_POST["renameDeck"])) {
             $name = $_POST["renameDeck"];
             $deckID = $_POST["deckID"];
             mysqli_query($con, "UPDATE decks SET name = '$name' WHERE deck_id = '$deckID'");
-        }
-        if(isset($_GET["id"])) {
-            $userID = $_GET["id"];
-        }
-        else {
-            $userID = mysqli_query($con, "SELECT user_id FROM users WHERE role = 2 LIMIT 1");
-            $userID = mysqli_fetch_assoc($userID);
-            $userID = $userID["user_id"];
         }
         $userInfo = mysqli_query($con, "SELECT name, role, email FROM users WHERE user_id = '$userID'");
         $userInfo = mysqli_fetch_assoc($userInfo);
@@ -1008,7 +1010,7 @@
     </div>
 </body>
 <style>
-    #deck, #deckPool {
+    #deck, #deckAssigned {
         color: #ffa72a;
     }
     #deck + ul {

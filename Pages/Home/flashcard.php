@@ -1,27 +1,7 @@
 <?php
-function getLeafDecks($parentID, $leafDecks = []) {
-    global $con;
-    $deck = mysqli_fetch_assoc(mysqli_query($con, "SELECT deck_id, is_leaf FROM decks WHERE deck_id = '$parentID'"));
-    if($deck["is_leaf"] == 1) {
-        $leafDecks[] = $deck["deck_id"];
-        return $leafDecks;
-    }
-    $getDecks = mysqli_query($con, "SELECT deck_id, is_leaf FROM decks WHERE parent_deck_id = '$parentID'");
-    
-    while ($deck = mysqli_fetch_assoc($getDecks)) {
-        if ($deck["is_leaf"] == 1) {
-            $deckID = $deck["deck_id"];
-            $leafDecks[] = "'$deckID'";
-        } 
-        else {
-            $leafDecks = getLeafDecks($deck["deck_id"], $leafDecks);
-        }
-    }
-    return $leafDecks;
-}
+include "../../SQL_Queries/connection.php";
 // User ID
 session_start();
-include "../../SQL_Queries/connection.php";
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = $_COOKIE['user_id'];
 }
@@ -41,17 +21,17 @@ include "../Admin/convertPinyin.php";
 // Deck ID
 if (!isset($_GET['deck_id'])) {
     $deckID = $_SESSION['temp_deck_id'];
-    $leafDecks = $_SESSION["leafDecks"];
-} else {
+} 
+else {
     $deckID = $_GET['deck_id'];
-    $leafDecks = implode(", ", getLeafDecks($_GET["deck_id"]));
-    $_SESSION["leafDecks"] = $leafDecks;
 }
+
 $_SESSION['temp_deck_id'] = $deckID;
 
 // Blue Green Red Count
 include_once "repetition_flashcard.php";
 include "../../SQL_Queries/connection.php";
+
 $counts = mysqli_fetch_assoc($query_flashcard_rbg_count);
 $blue = $counts['blue'];
 $green = $counts['green'];
@@ -61,27 +41,61 @@ $red = $counts['red'];
 // Algorithm Flashcard
 if ($green !== 0) {
     $query_flashcard_algorithm = mysqli_query($con, "
-    SELECT card.*, cp.*
-    FROM cards AS card
-    JOIN junction_deck_card AS jdc
-        ON card.card_id = jdc.card_id
-    JOIN junction_deck_user AS jdu
-        ON jdc.deck_id = jdu.deck_id
-    JOIN card_progress AS cp
-        ON cp.user_id = jdu.user_id AND cp.card_id = card.card_id
-    WHERE jdc.deck_id IN ($leafDecks) AND jdu.user_id = '$user_id' AND cp.review_due <= NOW() LIMIT 1
+    WITH RECURSIVE child_decks AS (
+        SELECT deck_id, is_leaf
+        FROM decks WHERE deck_id = '$deckID'
+
+        UNION ALL
+
+        SELECT d.deck_id, d.is_leaf
+        FROM decks AS d 
+        JOIN child_decks AS cd 
+        ON d.parent_deck_id = cd.deck_id
+    ),
+
+    leaf_decks AS (
+        SELECT deck_id FROM child_decks WHERE is_leaf = 1
+    ),
+
+    flashcard AS (
+        SELECT c.pinyin, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due
+        FROM junction_deck_user AS du
+        JOIN junction_deck_card AS dc ON du.deck_id = dc.deck_id
+        JOIN cards AS c ON c.card_id = dc.card_id
+        JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
+        WHERE du.deck_id IN (SELECT deck_id FROM leaf_decks) AND du.user_id = '$user_id'
+    )
+
+    SELECT * FROM flashcard WHERE review_due <= NOW() LIMIT 1
     ");
 } else {
     $query_flashcard_algorithm = mysqli_query($con, "
-    SELECT card.*, cp.*
-    FROM cards AS card
-    JOIN junction_deck_card AS jdc
-        ON card.card_id = jdc.card_id
-    JOIN junction_deck_user AS jdu
-        ON jdc.deck_id = jdu.deck_id
-    JOIN card_progress AS cp
-        ON cp.user_id = jdu.user_id AND cp.card_id = card.card_id
-    WHERE jdc.deck_id IN ($leafDecks) AND jdu.user_id = '$user_id' AND cp.total_review = 0 LIMIT 1
+    WITH RECURSIVE child_decks AS (
+        SELECT deck_id, is_leaf
+        FROM decks WHERE deck_id = '$deckID'
+
+        UNION ALL
+
+        SELECT d.deck_id, d.is_leaf
+        FROM decks AS d 
+        JOIN child_decks AS cd 
+        ON d.parent_deck_id = cd.deck_id
+    ),
+
+    leaf_decks AS (
+        SELECT deck_id FROM child_decks WHERE is_leaf = 1
+    ),
+
+    flashcard AS (
+        SELECT c.pinyin, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review
+        FROM junction_deck_user AS du
+        JOIN junction_deck_card AS dc ON du.deck_id = dc.deck_id
+        JOIN cards AS c ON c.card_id = dc.card_id
+        JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
+        WHERE du.deck_id IN (SELECT deck_id FROM leaf_decks) AND du.user_id = '$user_id'
+    )
+
+    SELECT * FROM flashcard WHERE total_review = 0 LIMIT 1
     ");
 }
 

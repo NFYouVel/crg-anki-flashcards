@@ -222,15 +222,10 @@ tr td:nth-of-type(2) {
     background-color: #fca500;
     color: white;
     border-radius: 5px;
+    filter: grayscale(100%);
 }
 .added {
-    filter: grayscale(100%);
-}
-input[type="checkbox"]:checked + .addDeck {
-    filter: grayscale(100%);
-}
-input[type="checkbox"] {
-    display: none;
+    filter: grayscale(0%);
 }
 .deck .deck {
     display: none;
