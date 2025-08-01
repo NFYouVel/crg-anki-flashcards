@@ -64,11 +64,9 @@ if ($green !== 0) {
             JOIN child_decks AS cd 
             ON d.parent_deck_id = cd.deck_id
         ),
-
         leaf_decks AS (
             SELECT deck_id FROM child_decks WHERE is_leaf = 1
         ),
-
         flashcard AS (
             SELECT c.pinyin, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due
             FROM junction_deck_user AS du
@@ -77,7 +75,6 @@ if ($green !== 0) {
             JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
             WHERE du.deck_id IN (SELECT deck_id FROM leaf_decks) AND du.user_id = '$user_id'
         )
-
         SELECT * FROM flashcard WHERE review_due <= NOW() LIMIT 1
         ");
     }
@@ -99,7 +96,7 @@ else {
         WITH RECURSIVE child_decks AS (
             SELECT deck_id, is_leaf
             FROM decks WHERE deck_id = '$deckID'
-    
+
             UNION ALL
     
             SELECT d.deck_id, d.is_leaf
@@ -107,11 +104,9 @@ else {
             JOIN child_decks AS cd 
             ON d.parent_deck_id = cd.deck_id
         ),
-    
         leaf_decks AS (
             SELECT deck_id FROM child_decks WHERE is_leaf = 1
         ),
-    
         flashcard AS (
             SELECT c.pinyin, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review
             FROM junction_deck_user AS du
@@ -120,7 +115,6 @@ else {
             JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
             WHERE du.deck_id IN (SELECT deck_id FROM leaf_decks) AND du.user_id = '$user_id'
         )
-    
         SELECT * FROM flashcard WHERE total_review = 0 LIMIT 1
         ");
     }
