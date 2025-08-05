@@ -35,18 +35,22 @@ $student_name = $line_student['name'];
     <title>Welcome <?php echo $line['name'] ?></title>
     <link rel="icon" href="../../Logo/circle.png">
     <link rel="stylesheet" href="../../Pages/Home/CSS/home_page.css">
-    <link rel="stylesheet" href="../../Pages/Home/CSS/student_progress.css">
+    <link rel="stylesheet" href="../../Pages/Home/CSS/student_progress.css?v=1337">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../Home/jQuery/script.js"></script>
     <style>
         .nav-menu span:nth-child(3) {
-            margin-left: 30px;
             font-size: 18px;
             color: #2f6ba1;
             background-color: #deebf7;
             border-radius: 6px;
-            padding: 2px 9px;
             border: 2px solid #9cb4cb;
+        }
+        html,
+        body {
+            overflow-y: scroll !important;
+            overflow-x: hidden !important;
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>

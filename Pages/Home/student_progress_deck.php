@@ -35,19 +35,23 @@ $student_name = $line_student['name'];
     <title>Welcome <?php echo $line['name'] ?></title>
     <link rel="icon" href="../../Logo/circle.png">
     <link rel="stylesheet" href="../../Pages/Home/CSS/home_page.css">
-    <link rel="stylesheet" href="../../Pages/Home/CSS/student_progress.css">
+    <link rel="stylesheet" href="../../Pages/Home/CSS/student_progress.css?v=1337">
     <link rel="stylesheet" href="../../Pages/Home/CSS/deck.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../Home/jQuery/script.js"></script>
     <style>
         .nav-menu span:nth-child(2) {
-            margin-left: 30px;
             font-size: 18px;
             color: #2f6ba1;
             background-color: #deebf7;
             border-radius: 6px;
-            padding: 2px 9px;
             border: 2px solid #9cb4cb;
+        }
+        html,
+        body {
+            overflow-y: scroll !important;
+            overflow-x: hidden !important;
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
@@ -109,7 +113,7 @@ $student_name = $line_student['name'];
                         <!-- Active Chinese Senin Kamis 20.30-->
                         <li class="class-title">
                             <!-- Colored Title -->
-                            <div class="title-to-review">
+                            <div class="title-to-review" onclick= "window.location.href='deck_progress.php?deck_id=main'">
                                 <!-- Deck Title -->
                                 <span class="title">Main Deck</span>
                                 <!-- To Review Green Red Blue-->
@@ -158,7 +162,7 @@ $student_name = $line_student['name'];
                                         if (in_array($deckID, $rootDecks)) {
                                             echo "<li class='contain'>";
                                             echo "<div class='title-to-review-second'>";
-                                            echo "<span class='title-second' onclick=\"window.location.href='flashcard.php?deck_id=$deckID'\">" . htmlspecialchars($deck['name']) . "</span>";
+                                            echo "<span class='title-second' onclick=\"window.location.href='deck_progress.php?deck_id=$deckID'\">" . htmlspecialchars($deck['name']) . "</span>";
                                             echo "<div class='to-review'>
                                                         <span class='green'>169</span>
                                                         <span class='red'>28</span>

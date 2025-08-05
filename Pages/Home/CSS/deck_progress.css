@@ -2,7 +2,9 @@
     display: flex;
     flex-direction: column;
 }
-
+.title-to-review {
+    cursor: default;
+}
 .title {
     font-size: 23px;
 }
@@ -17,16 +19,18 @@
 
 .title-user {
     display: flex;
-    background-color: var(--deck-title);
+    background-color: rgb(227, 227, 227);
     padding: 11px 0;
     justify-content: space-between;
     align-items: center;
     border-bottom: var(--border-size) solid var(--border-color);
 }
 
-.click {
+#click {
     font-size: 16px;
     cursor: pointer;
+    color: blue;
+    font-weight: bold;
 }
 
 .wrapper-delete {
@@ -49,6 +53,33 @@
 }
 
 .title-delete {
+    background-color: #143d59;
+    width: 100%;
+    text-align: center;
+    color: white;
+    padding: 20px 0;
+    font-size: 20px;
+}
+.wrapper-reset {
+    width: 100%;
+    justify-content: center;
+    display: none;
+}
+
+.reset {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    position: absolute;
+    background: white;
+    z-index: 1;
+    top: 27%;
+}
+
+.title-reset {
     background-color: #143d59;
     width: 100%;
     text-align: center;
@@ -91,14 +122,127 @@
     border-right: 1px solid var(--border-color);
 }
 
+.title-sp {
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(227, 227, 227);
+    padding: 4px 20px;
+    font-size: 16px;
+}
+
+.title-sp span:nth-child(1) {
+    font-weight: bold;
+}
+
+.status-group {
+    display: flex;
+    gap: 1rem;
+    font-family: sans-serif;
+    align-items: center;
+    justify-content: center;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 0.5rem;
+}
+
+.status input {
+    display: none;
+}
+
+.dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    position: relative;
+}
+
+.status input:checked+.dot::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+.wrapper-deck-progress {
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px;
+    justify-content: center;
+    align-items: center;
+}
+.container-deck-progress {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+}
+table {
+    margin: 10px;
+}
+.pagination {
+    margin-bottom: 30px;
+}
+.pagination a {
+    padding: 5px 10px;
+    background: #eee;
+    color: #333;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.pagination a:hover {
+    background: #ddd;
+}
+.wrapper-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.6); /* semi-transparan putih */
+    backdrop-filter: blur(4px); /* efek blur */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    display: none; /* hidden by default */
+}
+#loading {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+}
+#loading .spinner {
+    width: 50px;
+    height: 50px;
+    border: 6px solid #ccc;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 @media screen and (max-width: 768px) {
     .delete {
         width: 88%;
     }
+
     table {
         margin-right: 17px;
         margin-top: 30px;
     }
+
     th {
         font-size: 20px;
     }

@@ -26,8 +26,16 @@ $(document).ready(function () {
         }
     });
 
-    $(".click").click(function () {
+    $(".click-delete").click(function () {
         let box = $(".wrapper-delete");
+        if (box.is(":visible")) {
+            box.fadeOut(150);
+        } else {
+            box.css("display", "flex").hide().fadeIn(150);
+        }
+    });
+    $(".click-reset").click(function () {
+        let box = $(".wrapper-reset");
         if (box.is(":visible")) {
             box.fadeOut(150);
         } else {
@@ -36,6 +44,10 @@ $(document).ready(function () {
     });
     $(".button-cancel").click(function () {
         let box = $(".wrapper-delete");
+        box.fadeOut(150);
+    });
+    $(".button-cancel").click(function () {
+        let box = $(".wrapper-reset");
         box.fadeOut(150);
     });
     $(".button-update").click(function () {
