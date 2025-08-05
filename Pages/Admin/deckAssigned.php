@@ -4,7 +4,7 @@
         $userID = $_GET["id"];
     }
     else {
-        $userID = mysqli_query($con, "SELECT user_id FROM users WHERE role = 2 LIMIT 1");
+        $userID = mysqli_query($con, "SELECT user_id FROM users WHERE role = 3 LIMIT 1");
         $userID = mysqli_fetch_assoc($userID);
         $userID = $userID["user_id"];
     }
@@ -14,7 +14,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deck Pool</title>
+    <title>Assigned Decks</title>
     <link rel="icon" href="../../Logo/circle.png">
     <script src="../../library/jquery.js"></script>
     <style>
@@ -273,6 +273,24 @@
         return expanded;
     }
 
+    function searchName(str) {
+        var xmlhttp;
+        console.log(str)
+        if (window.XMLHttpRequest != null) {
+            xmlhttp = new XMLHttpRequest();
+        } else {
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                document.getElementById("suggestions").innerHTML = xmlhttp.responseText;
+            }
+        }
+        xmlhttp.open("GET", "AJAX/search_name_deck.php?name=" + str, true);
+        xmlhttp.send();
+    }
+
     function getDeckDetails(deckID) {
         var xmlhttp;
         if (window.XMLHttpRequest != null) {
@@ -301,7 +319,9 @@
 
         xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                document.getElementsByClassName("deckList")[0].innerHTML = xmlhttp.responseText;
+                // document.getElementsByClassName("deckList")[0].innerHTML = xmlhttp.responseText;
+                // loadDOM();
+                location.reload();
             }
         }
         xmlhttp.open("GET", "AJAX/addDeckStudent.php?deckID=" + deckID + "&userID=<?php echo $userID; ?>", true);
@@ -319,7 +339,9 @@
 
         xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                document.getElementsByClassName("deckList")[0].innerHTML = xmlhttp.responseText;
+                // document.getElementsByClassName("deckList")[0].innerHTML = xmlhttp.responseText;
+                // loadDOM();
+                location.reload();
             }
         }
         xmlhttp.open("GET", "AJAX/removeDeckStudent.php?deckID=" + deckID + "&userID=<?php echo $userID; ?>", true);
@@ -409,12 +431,6 @@
         $(document).ready(function () {
             //remove right click menu
             $("body").click(function () {
-                // $(".menu").css({
-                //     "pointer-events": "auto",
-                //     cursor: "pointer",
-                //     opacity: 1
-                // });
-
                 $("#deckMenu").css({
                     display: "none"
                 });
@@ -769,52 +785,84 @@
             }
         }
 
-        function getOwnedDecks($parentID, $userID) {
-            global $con;
-            if($parentID == "root") {
-                $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
+        $rootDecks = [];
+        function getRoot($parentID = null) {
+            global $con, $userID, $rootDecks;
+            if ($parentID == null) {
+                $getDecks = mysqli_query($con, "SELECT deck.deck_id, deck.parent_deck_id
+                                                FROM junction_deck_user AS deck_user
+                                                JOIN decks AS deck 
+                                                ON deck_user.deck_id = deck.deck_id
+                                                WHERE deck_user.user_id = '$userID'");
+            } 
+            else {
+                $getDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks WHERE deck_id = '$parentID'");
+            }
+            while ($deck = mysqli_fetch_assoc($getDecks)) {
+                if (!in_array($deck["deck_id"], $rootDecks)) {
+                    $rootDecks[] = $deck["deck_id"];
+                }
+                if ($deck["parent_deck_id"] !== null) {
+                    getRoot($deck["parent_deck_id"]);
+                } 
+            }
+        }
+        getRoot();
+        
+        function showDecks($parentID = null) {
+            global $con, $userID, $rootDecks;
+            $first = false;
+            if($parentID == null) {
+                $getDecks = mysqli_query($con, "SELECT name, deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL");
+                $first = true;
             }
             else {
-                $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
+                $getDecks = mysqli_query($con, "SELECT name, deck_id, is_leaf FROM decks WHERE parent_deck_id = '$parentID'");
             }
-            if(mysqli_num_rows($getDecks) > 0) {
-                if($parentID == "root") {
-                    echo "<ul class = 'maximized' style = 'height: fit-content;'>";
-                }
-                else {
-                    echo "<ul>";
-                }
-                    while($deck = mysqli_fetch_assoc($getDecks)) {
-                        $deckID = $deck["deck_id"];
-                        $name = $deck["name"];
-
-                        if($deck["is_leaf"] == 0) {
-                            if(mysqli_num_rows(mysqli_query($con, "SELECT is_leaf FROM decks WHERE parent_deck_id = '$deckID' AND is_leaf = 1")) > 0) {
-                                echo "
-                                <li>
-                                    <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
-                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name</span>
-                                ";
-                            }
-                            else {
-                                echo "
-                                <li>
-                                    <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
-                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_folder'> $name</span>
-                                ";
-                            }
+            while($deck = mysqli_fetch_assoc($getDecks)) {
+                $deckID = $deck["deck_id"];
+                if(in_array($deckID, $rootDecks)) {
+                    $deckID = $deck["deck_id"];
+                    $name = $deck["name"];
+                    if(!$first) {
+                        echo "<ul>";
+                    }
+                    if($deck["is_leaf"] == 0) {
+                        if(mysqli_num_rows(mysqli_query($con, "SELECT is_leaf FROM decks WHERE parent_deck_id = '$deckID' AND is_leaf = 1")) > 0) {
+                            echo "
+                            <li>
+                                <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name</span>
+                            ";
+                        }
+                        else if(mysqli_num_rows(mysqli_query($con, "SELECT is_leaf FROM decks WHERE parent_deck_id = '$deckID'")) == 0 ) {
+                            echo "
+                            <li>
+                                <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'empty'> $name</span>
+                            ";
                         }
                         else {
                             echo "
                             <li>
-                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name</span>
+                                <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_folder'> $name</span>
                             ";
                         }
-                            getDecks($deckID);
-                        echo"</li>
-                        ";  
                     }
-                echo "</ul>";
+                    else {
+                        echo "
+                        <li>
+                            <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name</span>
+                        ";
+                    }
+                        showDecks($deckID);
+                    echo"</li>
+                    ";
+                    if(!$first) {
+                        echo "</ul>";
+                    }
+                }
             }
         }
     ?>
@@ -842,11 +890,11 @@
             </div>
         </div>
         <div id="header">
-            <h1 style = "margin-top: 0;">Deck Overview</h1>
+            <h1 style = "margin-top: 0;">Assigned Deck (for Student)</h1>
         </div>
         <div id="main">
             <div id="list">
-                <h2>Deck List</h2>
+                <h2>Server Deck List</h2>
                 <div class="content">
                     <div id="wrapper">
                         <ul class = "deckList" id="tree">
@@ -901,39 +949,84 @@
                 #main {
                     height: 85vh;
                 }
-                select {
+                #searchName {
                     appearance: none;
                     display: inline-block;
-                    width: 50%;
+                    width: 100%;
                     padding: 10px 16px;
                     border: 2px solid #e9a345;
-                    border-radius: 12px;
                     background-color: white;
                     font-size: 18px;
                     color: #333;
+                    box-sizing: border-box;
+                }
+                #searchName:focus {
+                    outline: none;
+                }
+
+                #suggestions {
+                    display: none;
+                    flex-direction: column;
+                    background-color: white;
+                    max-height: 130px;
+                    position: absolute;
+                    width: 100%;
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                }
+                #suggestions a {
+                    color: black;
+                    padding-left: 8px;
+                    padding-block: 4px;
                     cursor: pointer;
                 }
-                select:focus {
-                    outline: none;
-                    border-color: #ffa72a;
-                    box-shadow: 0 0 5px #ffa72a;
-                }
-                select option[disabled] {
-                    color: #999;
+                #suggestions a:hover {
+                    color: white;
+                    background-color: #1967d2;
+                    width: 100%;
                 }
             </style>
+            <script>
+                $(document).ready(function () {
+                    $("#searchName").click(function (e) {
+                        e.stopPropagation();
+                        $("#suggestions").css({
+                            display: "flex"
+                        });
+                    });
+
+                    $("#suggestions").click(function (e) {
+                        e.stopPropagation();
+                    });
+
+                    $("body").click(function () {
+                        $("#suggestions").css({
+                            display: "none"
+                        });
+                    });
+                });
+                function getNameSuggestions(str) {
+                    var xmlhttp;
+                    if (window.XMLHttpRequest != null) {
+                        xmlhttp = new XMLHttpRequest();
+                    } else {
+                        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                    }
+                    
+                    xmlhttp.onreadystatechange = function () {
+                        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                            console.log(str)
+                            document.getElementById("suggestions").innerHTML = xmlhttp.responseText;
+                        }
+                    }
+                    xmlhttp.open("GET", "AJAX/search_name_deck.php?type=student&name=" + str + "&userID=<?php echo $userID; ?>", true);
+                    xmlhttp.send();
+                }
+            </script>
             <div id="details">
                 <div id = "information">
                     <div id="header">
-                        <h2><?php
-                            if($userInfo["role"] == 1) {
-                                echo "Admin";
-                            } else if($userInfo["role"] == 2) {
-                                echo "Teacher Information";
-                            } else if($userInfo["role"] == 3) {
-                                echo "Student Information";
-                            }
-                        ?></h2>
+                        <h2>Student Information</h2>
                     </div>
                     <div id="info">
                         <table id = "infoTable">
@@ -941,24 +1034,23 @@
                                 <td style = "width: 15%;">Name</td>
                                 <td>
                                     <form method = "get">
-                                        : <select name="id" onchange = "this.form.submit()">
-                                            <?php
-                                                $getUsers = mysqli_query($con, "SELECT users.user_id, users.name , role.role_name
-                                                                                FROM users AS users JOIN user_role AS role
-                                                                                ON users.role = role.role_id WHERE role.role_id = 3");
-                                                while($user = mysqli_fetch_assoc($getUsers)) {
-                                                    $user_id = $user["user_id"];
-                                                    $name = $user["name"];
-                                                    $role = $user["role_name"];
-                                                    if($user_id == $userID) {
-                                                        echo "<option value = '$user_id' selected>$name ($role)</option>";
+                                        <div style = "width: 50%; position: relative;">
+                                            <input type="text" id = "searchName" onkeyup = "getNameSuggestions(this.value)" onclick = "this.select();" autocomplete="off" value = "<?php echo $userInfo["name"]; ?>">
+                                            <div id="suggestions">
+                                                <?php
+                                                    $getNames = mysqli_query($con, "SELECT name, user_id FROM users WHERE role = 3");
+                                                    while($studentNames = mysqli_fetch_assoc($getNames)) {
+                                                        $name = $studentNames["name"];
+                                                        $tempID = $studentNames["user_id"];
+                                                        if($tempID == $userID) {
+                                                            continue;
+                                                        }
+                                                        $dir = "deckAssigned.php?id=$tempID";
+                                                        echo "<a onclick=\"window.location.href='$dir'\">$name</a>";
                                                     }
-                                                    else {
-                                                        echo "<option value = '$user_id'>$name ($role)</option>";
-                                                    }
-                                                }
-                                            ?>
-                                        </select>
+                                                ?>
+                                            </div>
+                                        </div>
                                     </form>
                                 </td>
                             </tr>
@@ -997,9 +1089,11 @@
                                         $role = $role["role_name"];
                                         echo "($role) " . $userInfo["name"];
                                     ?></span>
+                                    <ul style = 'height: fit-content;' class = 'maximized' id = "refresh">
                                     <?php
-                                        getDecks("root");
+                                        showDecks();
                                     ?>
+                                    </ul>
                                 </li>
                             </ul>
                         </div>

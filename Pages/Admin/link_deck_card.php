@@ -178,6 +178,112 @@
     <?php
         include "Components/sidebar.php";
         include "../../SQL_Queries/connection.php";
+        $deckID = $_GET["deckID"];
+        require '../../Composer_Excel/vendor/autoload.php';
+        use PhpOffice\PhpSpreadsheet\IOFactory;
+        //jika page ke refresh, tidak perlu nge read ulang file, tapi mengambil dari session yang dibuat sebelum ke refresh
+        if (isset($_FILES['excel_file'])) {
+            $fileTmpPath = $_FILES['excel_file']['tmp_name'];
+            $fileName = $_FILES['excel_file']['name'];
+            $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+    
+            $allowedExtensions = ['xls', 'xlsx'];
+    
+            if (in_array($fileExtension, $allowedExtensions)) {
+                try {
+                    $spreadsheet = IOFactory::load($fileTmpPath);
+                    $sheet = $spreadsheet->getSheet(3);
+                    $allCards = [];
+                    $validCards = [];
+                    $invalidCards = [];
+                    $count = 1;
+                    $id = 1;
+                    foreach ($sheet->getRowIterator() as $row) {
+                        $index = $row->getRowIndex();
+                        //skip index 1 karena itu header
+                        if($index == 1) {
+                            continue;
+                        }
+                        //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
+                        $cardID = $sheet->getCell("B$index")->getValue();
+                        $cardInfo = mysqli_query($con, "SELECT * FROM cards WHERE card_id = $cardID");
+                        $cardInfo = mysqli_fetch_assoc($cardInfo);
+    
+                        // echo "
+                        // <tr>
+                        //     <td>" . $id++ . "</td>
+                        //     <td>" . $cardInfo["card_id"] . "</td>
+                        //     <td>" . $cardInfo["chinese_tc"] . "</td>
+                        //     <td>" . $cardInfo["chinese_sc"] . "</td>
+                        //     <td>" . $cardInfo["priority"] . "</td>
+                        //     <td>" . $cardInfo["pinyin"] . "</td>
+                        //     <td>" . $cardInfo["word_class"] . "</td>
+                        //     <td class = 'long'>" . $cardInfo["meaning_eng"] . "</td>
+                        //     <td class = 'long'>" . $cardInfo["meaning_ina"] . "</td>
+                        // </tr>";
+    
+                        $reason = "";
+                        //check if card id exists
+                        if(mysqli_num_rows(mysqli_query($con, "SELECT card_id FROM cards WHERE card_id = $cardID")) == 0) {
+                            $reason .= "<p id = 'invalid'>Card ID Not Found</p>";
+                        }
+    
+                        //check if deck id exists
+                        if(mysqli_num_rows(mysqli_query($con, "SELECT deck_id FROM decks WHERE deck_id = '$deckID'")) == 0) {
+                            $reason .= "<p id = 'invalid'>Deck ID Not Found</p>";
+                        }
+    
+                        //membangun session untuk semua kartu
+                        $allCards[$cardID] = [
+                            "cardID" => $cardID, 
+                            "traditional" => $cardInfo["chinese_tc"], 
+                            "simplified" => $cardInfo["chinese_sc"], 
+                            "priority" => $cardInfo["priority"],
+                            "pinyin" => $cardInfo["pinyin"],
+                            "class" => $cardInfo["word_class"],
+                            "english" => $cardInfo["meaning_eng"],
+                            "indo" => $cardInfo["meaning_ina"]
+                        ];
+                        //logika valid / tidak valid
+                        if($reason == "") {
+                            //membantun session untuk kartu yang valid
+                            $validCards[$cardID] = [
+                                "cardID" => $cardID,
+                                "traditional" => $cardInfo["chinese_tc"], 
+                                "simplified" => $cardInfo["chinese_sc"], 
+                                "priority" => $cardInfo["priority"],
+                                "pinyin" => $cardInfo["pinyin"],
+                                "class" => $cardInfo["word_class"],
+                                "english" => $cardInfo["meaning_eng"],
+                                "indo" => $cardInfo["meaning_ina"]
+                            ];
+                        }
+                        else {
+                            //membantun session untuk kartu yang tidak valid
+                            $invalidCards[$cardID] = [
+                                "cardID" => $cardID,
+                                "traditional" => $cardInfo["chinese_tc"], 
+                                "simplified" => $cardInfo["chinese_sc"], 
+                                "priority" => $cardInfo["priority"],
+                                "pinyin" => $cardInfo["pinyin"],
+                                "class" => $cardInfo["word_class"],
+                                "english" => $cardInfo["meaning_eng"],
+                                "indo" => $cardInfo["meaning_ina"],
+                                "reason" => $reason
+                            ];
+                        }
+                    }
+                } catch (Exception $e) {
+                    echo "<h1>Error loading file: " . $e->getMessage() . "</h1>";
+                }
+            } else {
+                echo "<h1>Invalid file type. Only .xls and .xlsx files are allowed.</h1>";
+            }
+            //membuat session   
+            $_SESSION["allCards"] = $allCards;
+            $_SESSION["validCards"] = $validCards;
+            $_SESSION["invalidCards"] = $invalidCards;
+        } 
     ?>
     <div id="loadingScreen">
         <img src="Components/loading.gif" alt="">
@@ -217,6 +323,11 @@
                 <button class="button" id = "importButton" onclick = "uploadCards()">Save</button>
             </div>
         </div>
+        <h1 style = "display: flex; justify-content: space-evenly;">
+            <span>Total Cards: <?php echo count($_SESSION["allCards"]); ?></span>
+            <span>Valid Cards: <?php echo count($_SESSION["validCards"]); ?></span>
+            <span>Invalid Cards: <?php echo count($_SESSION["invalidCards"]); ?></span>
+        </h1>
         <div id="tables">
             <table>
                 <caption style = "background-color: white; color: black;">Preview</caption>
@@ -232,112 +343,26 @@
                     <th>Indo</th>
                 </tr>
                 <?php
-                    $deckID = $_GET["deckID"];
-                    require '../../Composer_Excel/vendor/autoload.php';
-                    use PhpOffice\PhpSpreadsheet\IOFactory;
-                    //jika page ke refresh, tidak perlu nge read ulang file, tapi mengambil dari session yang dibuat sebelum ke refresh
-                    if (isset($_FILES['excel_file'])) {
-                        $fileTmpPath = $_FILES['excel_file']['tmp_name'];
-                        $fileName = $_FILES['excel_file']['name'];
-                        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-                        $allowedExtensions = ['xls', 'xlsx'];
-
-                        if (in_array($fileExtension, $allowedExtensions)) {
-                            try {
-                                $spreadsheet = IOFactory::load($fileTmpPath);
-                                $sheet = $spreadsheet->getSheet(3);
-                                $allCards = [];
-                                $validCards = [];
-                                $invalidCards = [];
-                                $count = 1;
-                                $id = 1;
-                                foreach ($sheet->getRowIterator() as $row) {
-                                    $index = $row->getRowIndex();
-                                    //skip index 1 karena itu header
-                                    if($index == 1) {
-                                        continue;
-                                    }
-                                    //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
-                                    $cardID = $sheet->getCell("B$index")->getValue();
-                                    $cardInfo = mysqli_query($con, "SELECT * FROM cards WHERE card_id = $cardID");
-                                    $cardInfo = mysqli_fetch_assoc($cardInfo);
-
-                                    echo "
-                                    <tr>
-                                        <td>" . $id++ . "</td>
-                                        <td>" . $cardInfo["card_id"] . "</td>
-                                        <td>" . $cardInfo["chinese_tc"] . "</td>
-                                        <td>" . $cardInfo["chinese_sc"] . "</td>
-                                        <td>" . $cardInfo["priority"] . "</td>
-                                        <td>" . $cardInfo["pinyin"] . "</td>
-                                        <td>" . $cardInfo["word_class"] . "</td>
-                                        <td class = 'long'>" . $cardInfo["meaning_eng"] . "</td>
-                                        <td class = 'long'>" . $cardInfo["meaning_ina"] . "</td>
-                                    </tr>";
-
-                                    $reason = "";
-                                    //check if card id exists
-                                    if(mysqli_num_rows(mysqli_query($con, "SELECT card_id FROM cards WHERE card_id = $cardID")) == 0) {
-                                        $reason .= "<p id = 'invalid'>Card ID Not Found</p>";
-                                    }
-
-                                    //check if deck id exists
-                                    if(mysqli_num_rows(mysqli_query($con, "SELECT deck_id FROM decks WHERE deck_id = '$deckID'")) == 0) {
-                                        $reason .= "<p id = 'invalid'>Deck ID Not Found</p>";
-                                    }
-
-                                    //membangun session untuk semua kartu
-                                    $allCards[$cardID] = [
-                                        "cardID" => $cardID, 
-                                        "traditional" => $cardInfo["chinese_tc"], 
-                                        "simplified" => $cardInfo["chinese_sc"], 
-                                        "priority" => $cardInfo["priority"],
-                                        "pinyin" => $cardInfo["pinyin"],
-                                        "class" => $cardInfo["word_class"],
-                                        "english" => $cardInfo["meaning_eng"],
-                                        "indo" => $cardInfo["meaning_ina"]
-                                    ];
-                                    //logika valid / tidak valid
-                                    if($reason == "") {
-                                        //membantun session untuk kartu yang valid
-                                        $validCards[$cardID] = [
-                                            "cardID" => $cardID,
-                                            "traditional" => $cardInfo["chinese_tc"], 
-                                            "simplified" => $cardInfo["chinese_sc"], 
-                                            "priority" => $cardInfo["priority"],
-                                            "pinyin" => $cardInfo["pinyin"],
-                                            "class" => $cardInfo["word_class"],
-                                            "english" => $cardInfo["meaning_eng"],
-                                            "indo" => $cardInfo["meaning_ina"]
-                                        ];
-                                    }
-                                    else {
-                                        //membantun session untuk kartu yang tidak valid
-                                        $invalidCards[$cardID] = [
-                                            "cardID" => $cardID,
-                                            "traditional" => $cardInfo["chinese_tc"], 
-                                            "simplified" => $cardInfo["chinese_sc"], 
-                                            "priority" => $cardInfo["priority"],
-                                            "pinyin" => $cardInfo["pinyin"],
-                                            "class" => $cardInfo["word_class"],
-                                            "english" => $cardInfo["meaning_eng"],
-                                            "indo" => $cardInfo["meaning_ina"],
-                                            "reason" => $reason
-                                        ];
-                                    }
-                                }
-                            } catch (Exception $e) {
-                                echo "<h1>Error loading file: " . $e->getMessage() . "</h1>";
-                            }
-                        } else {
-                            echo "<h1>Invalid file type. Only .xls and .xlsx files are allowed.</h1>";
+                    $id = 1;
+                    foreach($_SESSION["allCards"] as $key => $value) {
+                        if(isset($_SESSION["validCards"][$key])) {
+                            echo "<tr style = 'background-color: green;'>";
                         }
-                        //membuat session   
-                        $_SESSION["allCards"] = $allCards;
-                        $_SESSION["validCards"] = $validCards;
-                        $_SESSION["invalidCards"] = $invalidCards;
-                    } 
+                        else if(isset($_SESSION["invalidCards"][$key])) {
+                            echo "<tr style = 'background-color: red;'>";
+                        }
+                        echo "
+                            <td>" . $id++ . "</td>
+                            <td>" . $value["cardID"] . "</td>
+                            <td>" . $value["traditional"] . "</td>
+                            <td>" . $value["simplified"] . "</td>
+                            <td>" . $value["priority"] . "</td>
+                            <td>" . $value["pinyin"] . "</td>
+                            <td>" . $value["class"] . "</td>
+                            <td class = 'long'>" . $value["english"] . "</td>
+                            <td class = 'long'>" . $value["indo"] . "</td>
+                        </tr>";
+                    }
                 ?>
             </table>
         </div>

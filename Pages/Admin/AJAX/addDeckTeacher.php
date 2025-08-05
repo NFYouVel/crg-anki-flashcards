@@ -1,52 +1,82 @@
 <?php
     include "../../../SQL_Queries/connection.php";
     $userID = $_GET["userID"];
-
-    function deleteParentsUser($deckID) {
-        global $con, $userID;
+    function addParentUser($deckID, $studentID) {
+        global $con;
         $parentID = mysqli_query($con, "SELECT parent_deck_id FROM decks WHERE deck_id = '$deckID'");
         $parentID = mysqli_fetch_assoc($parentID);
-        $parentID = $parentID["parent_deck_id"];
+        $parentID = $parentID ? $parentID["parent_deck_id"] : null;
 
-        mysqli_query($con, "DELETE FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$userID'");
+        $countChild = mysqli_query($con, "SELECT COUNT(*) AS total FROM decks WHERE parent_deck_id = '$parentID'");
+        $countChild = mysqli_fetch_assoc($countChild);
+        $countChild = $countChild["total"];
+        $checkChildren = mysqli_query($con, "SELECT COUNT(*) AS total
+                                            FROM junction_deck_user AS deck_user
+                                            JOIN decks AS deck ON deck_user.deck_id = deck.deck_id
+                                            WHERE deck_user.user_id = '$studentID'
+                                            AND deck.parent_deck_id = '$parentID'");
+        $checkChildren = mysqli_fetch_assoc($checkChildren);
+        $checkChildren = $checkChildren["total"];
 
-        if($parentID !== null) {
-            deleteParentsUser($parentID);
+        if($parentID !== null && $countChild == $checkChildren) {
+            // Only insert if not already present
+            $exists = mysqli_query($con, "SELECT 1 FROM deck_pool WHERE deck_id = '$parentID' AND user_id = '$studentID'");
+            if (mysqli_num_rows($exists) == 0) {
+                mysqli_query($con, "INSERT INTO deck_pool (deck_id, user_id) VALUES ('$parentID', '$studentID')");
+            }
+            addParentUser($parentID, $studentID);
         }
     }
-    function deleteDeck($parentID) {
+    function addDeck($parentID) {
         global $con, $userID;
         $getDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id, is_leaf FROM decks WHERE deck_id = '$parentID'");
         if (mysqli_num_rows($getDecks) > 0) {
-            if ($deck = mysqli_fetch_assoc($getDecks)) {
+            if($deck = mysqli_fetch_assoc($getDecks)) {
                 $deckID = $deck["deck_id"];
                 $isLeaf = $deck["is_leaf"];
 
-                $check = mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$userID'");
-                if (mysqli_num_rows($check) > 0) {
-                    // Delete from junction_deck_user
-                    deleteParentsUser($deckID);
-                    // mysqli_query($con, "DELETE FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$studentID'");
+                $check = mysqli_query($con, "SELECT 1 FROM deck_pool WHERE deck_id = '$deckID' AND user_id = '$userID'");
+                if (mysqli_num_rows($check) == 0) {
+                    mysqli_query($con, "INSERT INTO deck_pool (deck_id, user_id) VALUES ('$deckID', '$userID')");
 
-                    mysqli_query($con, "
-                        UPDATE card_progress cp
-                        JOIN junction_deck_card jdc ON cp.card_id = jdc.card_id
-                        SET cp.is_assigned = 0
-                        WHERE jdc.deck_id = '$deckID' AND cp.user_id = '$userID'
-                    ");
+                    addParentUser($deckID, $userID);
+
+                    $getCards = mysqli_query($con, "SELECT card_id FROM junction_deck_card WHERE deck_id = '$deckID'");
+                    $query = "INSERT INTO card_progress (user_id, card_id) VALUES ";
+                    $count = 1;
+                    while($card = mysqli_fetch_assoc($getCards)) {
+                        $cardID = $card["card_id"];
+                        if($count == 35) {
+                            $query = substr($query, 0, -2);
+                            mysqli_query($con, $query);
+                            $query = "INSERT INTO card_progress (user_id, card_id) VALUES ";
+                            $count = 1;
+                        }
+                        $exists = mysqli_query($con, "SELECT 1 FROM card_progress WHERE user_id = '$userID' AND card_id = '$cardID'");
+                        if (mysqli_num_rows($exists) == 0) {
+                            $query .= "('$userID', $cardID), ";
+                            $count++;
+                        }
+                        else {
+                            mysqli_query($con, "UPDATE card_progress SET is_assigned = 1 WHERE user_id = '$userID' AND card_id = $cardID AND is_assigned = 0");
+                        }
+                    }
+                    if ($count > 1 && substr_count($query, "(") > 0) {
+                        $query = substr($query, 0, -2);
+                        mysqli_query($con, $query);
+                    }
                 }
 
-                // Recursively delete children
                 $getChildren = mysqli_query($con, "SELECT deck_id FROM decks WHERE parent_deck_id = '$deckID' ORDER BY name ASC");
-                while ($children = mysqli_fetch_assoc($getChildren)) {
-                    deleteDeck($children["deck_id"]);
+                while($children = mysqli_fetch_assoc($getChildren)) {
+                    addDeck($children["deck_id"]);
                 }
             }
         }
     }
-
     $deckID = $_GET["deckID"];
-    deleteDeck($deckID);
+    addDeck($deckID);
+
     // $ownedDecks = [];
 
     // function getDeckAncestor($deckID) {

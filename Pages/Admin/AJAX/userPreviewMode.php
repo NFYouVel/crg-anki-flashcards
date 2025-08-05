@@ -16,7 +16,12 @@
         <?php
             $id = 1;
             foreach($_SESSION["allUsers"] as $key => $value) {
-                echo "<tr>";
+                if(isset($_SESSION["validUsers"][$key])) {
+                    echo "<tr style = 'background-color: green;'>";
+                }
+                else if(isset($_SESSION["invalidUsers"][$key])) {
+                    echo "<tr style = 'background-color: red;'>";
+                }
                     echo "<td>" . $id++ . "</td>";
                     echo "<td>" . $value["name"] . "</td>";
                     echo "<td>" . $value["email"] . "</td>";

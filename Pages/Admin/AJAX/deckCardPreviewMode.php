@@ -19,8 +19,13 @@
         <?php
             $id = 1;
             foreach($_SESSION["allCards"] as $key => $value) {
+                if(isset($_SESSION["validCards"][$key])) {
+                    echo "<tr style = 'background-color: green;'>";
+                }
+                else if(isset($_SESSION["invalidCards"][$key])) {
+                    echo "<tr style = 'background-color: red;'>";
+                }
                 echo "
-                <tr>
                     <td>" . $id++ . "</td>
                     <td>" . $value["cardID"] . "</td>
                     <td>" . $value["traditional"] . "</td>

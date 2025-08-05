@@ -8,9 +8,9 @@
             assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ")) {
-        echo "Tabel classroom berhasil dibuat";
+        echo "Tabel junction_deck_user berhasil dibuat";
     }
     else {
-        echo "Tabel classroom gagal dibuat";
+        echo "Tabel junction_deck_user gagal dibuat";
     }
 ?>

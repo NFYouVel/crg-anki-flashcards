@@ -162,7 +162,7 @@
         .selectedDeck {
             background-color: #595959;
         }
-        #confirmation, #assignDeckMenu {
+        #confirmation {
             position: absolute;
             left: 50%;
             top: 50%;
@@ -179,10 +179,10 @@
             align-items: center;
             text-align: center;
         }
-        #confirmation h1, #assignDeckMenu h1 {
+        #confirmation h1 {
             margin: 0;
         }
-        #confirmation div, #assignDeckMenu div {
+        #confirmation div {
             display: flex;
             justify-content: space-evenly;
             width: 100%;
@@ -571,20 +571,6 @@
                 $("#updateDeck").attr("href", "updateDeck.php?deckID=" + deckID);
                 getDeckDetails(deckID);
             });
-
-            $("#assignDeck").off("click").on("click", function () {
-                $("#assignDeckMenu").css({
-                    display: "flex"
-                });
-                $("#cancelAssign").off("click").on("click", function () {
-                    $("#assignDeckMenu").css({
-                        display: "none"
-                    });
-                });
-
-                $("#assignUser").attr("href", "assignDeckUser.php?deckID=" + deckID);
-                $("#assignClassroom").attr("href", "assignDeckClassroom.php?deckID=" + deckID);
-            });
         });
     };
 </script>
@@ -671,14 +657,6 @@
                 <button class = "button" id = "confirmDelete">Confirm</button>
             </div>
         </div>
-        <div id="assignDeckMenu">
-            <h1>Which of these would you want to assign the deck to?</h1>
-            <div>
-                <button class = "button" id = "cancelAssign">Cancel</button>
-                <a href="" id = "assignClassroom" class="button">Classroom</a>
-                <a href="" id = "assignUser" class="button">Users</a>
-            </div>
-        </div>
         <div id="header">
             <h1 style = "margin-top: 0;">Deck Overview</h1>
         </div>
@@ -704,7 +682,6 @@
                     <h2>Deck Details</h2>
                     
                     <div style = 'display: flex; gap: 16px; height: 50%;'>
-                        <a id = "assignDeck" class="button" style = "padding: 12px; width: auto; font-size: 24px; height: auto;">Assign Deck</a>
                         <a href="" id = "updateDeck" class="button" style = "padding: 12px; width: auto; font-size: 24px; height: auto;">Update Deck</a>
                     </div>
                 </div>

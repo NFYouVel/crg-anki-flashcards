@@ -57,7 +57,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                     document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
                 }
             }
-            xmlhttp.open("GET", "jQuery/ajax_search_deck.php?deckName=" + str + "&classroomID=<?php echo $classroom_id; ?>", true);
+            xmlhttp.open("GET", "jQuery/ajax_search_deck.php?deckName=" + str + "&classroomID=<?php echo $classroom_id; ?>&teacherID=<?php echo $user_id; ?>", true);
             xmlhttp.send();
         }
         function addDeck(str) {
@@ -73,7 +73,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                     document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
                 }
             }
-            xmlhttp.open("GET", "jQuery/ajax_addDeckClassroom.php?deckID=" + str + "&classroomID=<?php echo $classroom_id; ?>", true);
+            xmlhttp.open("GET", "jQuery/ajax_addDeckClassroom.php?deckID=" + str + "&classroomID=<?php echo $classroom_id; ?>&teacherID=<?php echo $user_id; ?>", true);
             xmlhttp.send();
         }
         function removeDeck(str) {
@@ -89,7 +89,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                     document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
                 }
             }
-            xmlhttp.open("GET", "jQuery/ajax_removeDeckClassroom.php?deckID=" + str + "&classroomID=<?php echo $classroom_id; ?>", true);
+            xmlhttp.open("GET", "jQuery/ajax_removeDeckClassroom.php?deckID=" + str + "&classroomID=<?php echo $classroom_id; ?>&teacherID=<?php echo $user_id; ?>", true);
             xmlhttp.send();
         }
         
@@ -138,17 +138,41 @@ $classroom_name = mysqli_fetch_array($result_classroom);
             <div class='explanation'>
                 <div class="explanationWrapper">
                     <?php
-                        function getDecks($parentID) {
-                            global $classroom_id;
-                            global $con;
-                            if ($parentID == "root") {
-                                $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
-                            } else {
-                                $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE deck_id = '$parentID'");
+                        $rootDecks = [];
+                        function getRoot($parentID = null) {
+                            global $con, $user_id, $rootDecks;
+                            if ($parentID == null) {
+                                $getDecks = mysqli_query($con, "SELECT deck.deck_id, deck.parent_deck_id
+                                                                FROM deck_pool AS deck_user
+                                                                JOIN decks AS deck 
+                                                                ON deck_user.deck_id = deck.deck_id
+                                                                WHERE deck_user.user_id = '$user_id'");
+                            } 
+                            else {
+                                $getDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks WHERE deck_id = '$parentID'");
                             }
-                            if (mysqli_num_rows($getDecks) > 0) {
-                                while ($deck = mysqli_fetch_assoc($getDecks)) {
-                                    $deckID = $deck["deck_id"];
+                            while ($deck = mysqli_fetch_assoc($getDecks)) {
+                                if (!in_array($deck["deck_id"], $rootDecks)) {
+                                    $rootDecks[] = $deck["deck_id"];
+                                }
+                                if ($deck["parent_deck_id"] !== null) {
+                                    getRoot($deck["parent_deck_id"]);
+                                } 
+                            }
+                        }
+                        getRoot();
+                        
+                        function showDecks($parentID = null) {
+                            global $con, $user_id, $rootDecks, $classroom_id;
+                            if($parentID == null) {
+                                $getDecks = mysqli_query($con, "SELECT name, deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL");
+                            }
+                            else {
+                                $getDecks = mysqli_query($con, "SELECT name, deck_id, is_leaf FROM decks WHERE parent_deck_id = '$parentID'");
+                            }
+                            while($deck = mysqli_fetch_assoc($getDecks)) {
+                                $deckID = $deck["deck_id"];
+                                if(in_array($deckID, $rootDecks)) {
                                     $name = $deck["name"];
                                     $isLeaf = $deck["is_leaf"];
 
@@ -168,10 +192,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                                                     }
                                                 echo "</div>";
                                             echo "</div>";
-                                            $getChildren = mysqli_query($con, "SELECT deck_id FROM decks WHERE parent_deck_id = '$deckID' ORDER BY name ASC");
-                                            while($children = mysqli_fetch_assoc($getChildren)) {
-                                                getDecks($children["deck_id"]);
-                                            }
+                                            showDecks($deckID);
                                         echo "</div>";
                                     } else {
                                         echo "<div class = 'deck'>";
@@ -194,7 +215,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                                 }
                             }
                         }
-                        getDecks("root");
+                        showDecks();
                     ?>
                 </div>
             </div>

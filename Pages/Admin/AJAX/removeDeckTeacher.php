@@ -8,7 +8,7 @@
         $parentID = mysqli_fetch_assoc($parentID);
         $parentID = $parentID["parent_deck_id"];
 
-        mysqli_query($con, "DELETE FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$userID'");
+        mysqli_query($con, "DELETE FROM deck_pool WHERE deck_id = '$deckID' AND user_id = '$userID'");
 
         if($parentID !== null) {
             deleteParentsUser($parentID);
@@ -22,7 +22,7 @@
                 $deckID = $deck["deck_id"];
                 $isLeaf = $deck["is_leaf"];
 
-                $check = mysqli_query($con, "SELECT 1 FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$userID'");
+                $check = mysqli_query($con, "SELECT 1 FROM deck_pool WHERE deck_id = '$deckID' AND user_id = '$userID'");
                 if (mysqli_num_rows($check) > 0) {
                     // Delete from junction_deck_user
                     deleteParentsUser($deckID);

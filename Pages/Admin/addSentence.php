@@ -148,11 +148,117 @@
             xmlhttp.open("GET", "AJAX/batch_sentences.php", true);
             xmlhttp.send();
         }
-    </script>
+        </script>
 </head>
 <body>
     <?php
         include "Components/sidebar.php";
+        include "../../SQL_Queries/connection.php";
+        require '../../Composer_Excel/vendor/autoload.php';
+        use PhpOffice\PhpSpreadsheet\IOFactory;
+        //jika page ke refresh, tidak perlu nge read ulang file, tapi mengambil dari session yang dibuat sebelum ke refresh
+        if (isset($_FILES['sentence'])) {
+            $invalidID = 1;
+            $fileTmpPath = $_FILES['sentence']['tmp_name'];
+            $fileName = $_FILES['sentence']['name'];
+            $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+        
+            $allowedExtensions = ['xls', 'xlsx'];
+        
+            if (in_array($fileExtension, $allowedExtensions)) {
+                try {
+                    $spreadsheet = IOFactory::load($fileTmpPath);
+                    $sheet = $spreadsheet->getSheet(1);
+                    $allSentences = [];
+                    $validSentences = [];
+                    $invalidSentences = [];
+                    foreach ($sheet->getRowIterator() as $row) {
+                        $index = $row->getRowIndex();
+                        //skip index 1 karena itu header
+                        if($index == 1) {
+                            continue;
+                        }
+                        //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
+                        $sentenceCode = $sheet->getCell("A$index")->getValue();
+                        $traditional = $sheet->getCell("B$index")->getValue();
+                        $simplified = $sheet->getCell("C$index")->getValue();
+                        $pinyin = $sheet->getCell("D$index")->getValue();
+                        $english = $sheet->getCell("E$index")->getValue();
+                        $indo = $sheet->getCell("F$index")->getValue();
+        
+                        // echo "<tr>";
+                        //     echo "<td id = 'short'>$sentenceCode</td>";
+                        //     echo "<td>$traditional</td>";
+                        //     echo "<td>$simplified</td>";
+                        //     echo "<td>$pinyin</td>";
+                        //     echo "<td>$english</td>";
+                        //     echo "<td>$indo</td>";
+                        // echo "</tr>";
+        
+                        $reason = "";
+                        //check for empty sentence code
+                        if($sentenceCode == "") {
+                            $sentenceCode = "#invalidID_" . $invalidID++;
+                            $reason .= "<p id = 'invalid'>Sentence code is empty</p>";
+                        }
+        
+                        //check for duplicates in uploaded excel
+                        if(isset($validSentences[$sentenceCode])) {
+                            $reason .= "<p id = 'invalid'>Duplicate sentence code</p>";
+                        }
+        
+                        //membangun session untuk semua kartu
+                        $allSentences[$sentenceCode] = [
+                            "sentenceCode" => $sentenceCode, 
+                            "traditional" => $traditional, 
+                            "simplified" => $simplified, 
+                            "pinyin" => $pinyin,
+                            "english" => $english,
+                            "indo" => $indo,
+                        ];
+                        //logika valid / tidak valid
+                        if($reason == "") {
+                            //membantun session untuk kartu yang valid
+                            $validSentences[$sentenceCode] = [
+                                "sentenceCode" => $sentenceCode, 
+                                "traditional" => $traditional, 
+                                "simplified" => $simplified, 
+                                "pinyin" => $pinyin,
+                                "english" => $english,
+                                "indo" => $indo,
+                            ];
+                        }
+                        else {
+                            //membantun session untuk kartu yang tidak valid
+                            $invalidSentences[$sentenceCode] = [
+                                "sentenceCode" => $sentenceCode, 
+                                "traditional" => $traditional, 
+                                "simplified" => $simplified, 
+                                "pinyin" => $pinyin,
+                                "english" => $english,
+                                "indo" => $indo,
+                                "reason" => $reason
+                            ];
+                        }
+                    }
+                } catch (Exception $e) {
+                    echo "<h1>Error loading file: " . $e->getMessage() . "</h1>";
+                }
+            } else {
+                echo "<h1>Invalid file type. Only .xls and .xlsx files are allowed.</h1>";
+            }
+            //membuat session   
+            $_SESSION["allSentences"] = $allSentences;
+            $_SESSION["validSentences"] = $validSentences;
+            $_SESSION["invalidSentences"] = $invalidSentences;
+        
+            date_default_timezone_set("Asia/Jakarta");
+            $date = date("ymd_Hi");
+            $fileExtension = pathinfo($_FILES['sentence']['name'], PATHINFO_EXTENSION);
+            $fileName = "CRG_backup_sentence_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
+            $_SESSION["filePath"] = $fileName;
+            move_uploaded_file($_FILES['sentence']['tmp_name'], "../../Backup/sentence/temp/" . $fileName);
+        } 
     ?>
     <div id="loadingScreen">
         <img src="Components/loading.gif" alt="">
@@ -171,6 +277,11 @@
                 <button class="button" id = "importButton" onclick = "uploadSentences()">Confirm</button>
             </div>
         </div>
+        <h1 style = "display: flex; justify-content: space-evenly;">
+            <span>Total Sentences: <?php echo count($_SESSION["allSentences"]); ?></span>
+            <span>Valid Sentences: <?php echo count($_SESSION["validSentences"]); ?></span>
+            <span>Invalid Sentences: <?php echo count($_SESSION["invalidSentences"]); ?></span>
+        </h1>
         <div id="tables">
             <table>
                 <caption style = "background-color: white; color: black;">Preview</caption>
@@ -183,112 +294,27 @@
                     <th>Indo</th>
                 </tr>
                 <?php
-                    include "../../SQL_Queries/connection.php";
-                    require '../../Composer_Excel/vendor/autoload.php';
-                    use PhpOffice\PhpSpreadsheet\IOFactory;
-                    //jika page ke refresh, tidak perlu nge read ulang file, tapi mengambil dari session yang dibuat sebelum ke refresh
-                    if (isset($_FILES['sentence'])) {
-                        $invalidID = 1;
-                        $fileTmpPath = $_FILES['sentence']['tmp_name'];
-                        $fileName = $_FILES['sentence']['name'];
-                        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-                        $allowedExtensions = ['xls', 'xlsx'];
-
-                        if (in_array($fileExtension, $allowedExtensions)) {
-                            try {
-                                $spreadsheet = IOFactory::load($fileTmpPath);
-                                $sheet = $spreadsheet->getSheet(1);
-                                $allSentences = [];
-                                $validSentences = [];
-                                $invalidSentences = [];
-                                foreach ($sheet->getRowIterator() as $row) {
-                                    $index = $row->getRowIndex();
-                                    //skip index 1 karena itu header
-                                    if($index == 1) {
-                                        continue;
-                                    }
-                                    //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
-                                    $sentenceCode = $sheet->getCell("A$index")->getValue();
-                                    $traditional = $sheet->getCell("B$index")->getValue();
-                                    $simplified = $sheet->getCell("C$index")->getValue();
-                                    $pinyin = $sheet->getCell("D$index")->getValue();
-                                    $english = $sheet->getCell("E$index")->getValue();
-                                    $indo = $sheet->getCell("F$index")->getValue();
-
-                                    echo "<tr>";
-                                        echo "<td id = 'short'>$sentenceCode</td>";
-                                        echo "<td>$traditional</td>";
-                                        echo "<td>$simplified</td>";
-                                        echo "<td>$pinyin</td>";
-                                        echo "<td>$english</td>";
-                                        echo "<td>$indo</td>";
-                                    echo "</tr>";
-
-                                    $reason = "";
-                                    //check for empty sentence code
-                                    if($sentenceCode == "") {
-                                        $sentenceCode = "#invalidID_" . $invalidID++;
-                                        $reason .= "<p id = 'invalid'>Sentence code is empty</p>";
-                                    }
-
-                                    //check for duplicates in uploaded excel
-                                    if(isset($validSentences[$sentenceCode])) {
-                                        $reason .= "<p id = 'invalid'>Duplicate sentence code</p>";
-                                    }
-
-                                    //membangun session untuk semua kartu
-                                    $allSentences[$sentenceCode] = [
-                                        "sentenceCode" => $sentenceCode, 
-                                        "traditional" => $traditional, 
-                                        "simplified" => $simplified, 
-                                        "pinyin" => $pinyin,
-                                        "english" => $english,
-                                        "indo" => $indo,
-                                    ];
-                                    //logika valid / tidak valid
-                                    if($reason == "") {
-                                        //membantun session untuk kartu yang valid
-                                        $validSentences[$sentenceCode] = [
-                                            "sentenceCode" => $sentenceCode, 
-                                            "traditional" => $traditional, 
-                                            "simplified" => $simplified, 
-                                            "pinyin" => $pinyin,
-                                            "english" => $english,
-                                            "indo" => $indo,
-                                        ];
-                                    }
-                                    else {
-                                        //membantun session untuk kartu yang tidak valid
-                                        $invalidSentences[$sentenceCode] = [
-                                            "sentenceCode" => $sentenceCode, 
-                                            "traditional" => $traditional, 
-                                            "simplified" => $simplified, 
-                                            "pinyin" => $pinyin,
-                                            "english" => $english,
-                                            "indo" => $indo,
-                                            "reason" => $reason
-                                        ];
-                                    }
-                                }
-                            } catch (Exception $e) {
-                                echo "<h1>Error loading file: " . $e->getMessage() . "</h1>";
-                            }
-                        } else {
-                            echo "<h1>Invalid file type. Only .xls and .xlsx files are allowed.</h1>";
+                    foreach($_SESSION["allSentences"] as $key => $sentence) {
+                        $sentenceCode = $sentence["sentenceCode"];
+                        $traditional = $sentence["traditional"];
+                        $simplified = $sentence["simplified"];
+                        $pinyin = $sentence["pinyin"];
+                        $english = $sentence["english"];
+                        $indo = $sentence["indo"];
+                        if(isset($_SESSION["validSentences"][$key])) {
+                            echo "<tr style = 'background-color: green;'>";
                         }
-                        //membuat session   
-                        $_SESSION["allSentences"] = $allSentences;
-                        $_SESSION["validSentences"] = $validSentences;
-                        $_SESSION["invalidSentences"] = $invalidSentences;
-
-                        date_default_timezone_set("Asia/Jakarta");
-                        $date = date("ymd_Hi");
-                        $fileExtension = pathinfo($_FILES['sentence']['name'], PATHINFO_EXTENSION);
-                        $fileName = "CRG_backup_sentence_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
-                        $_SESSION["filePath"] = $fileName;
-                        move_uploaded_file($_FILES['sentence']['tmp_name'], "../../Backup/sentence/temp/" . $fileName);
-                    } 
+                        else if(isset($_SESSION["invalidSentences"][$key])) {
+                            echo "<tr style = 'background-color: red;'>";
+                        }
+                            echo "<td id = 'short'>$sentenceCode</td>";
+                            echo "<td>$traditional</td>";
+                            echo "<td>$simplified</td>";
+                            echo "<td>$pinyin</td>";
+                            echo "<td>$english</td>";
+                            echo "<td>$indo</td>";
+                        echo "</tr>";
+                    }
                 ?>
             </table>
         </div>

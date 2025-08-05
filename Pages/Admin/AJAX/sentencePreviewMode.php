@@ -14,14 +14,19 @@
             <th>Indo</th>
         </tr>
         <?php
-            foreach($_SESSION["allSentences"] as $sentence) {
+            foreach($_SESSION["allSentences"] as $key => $sentence) {
                 $sentenceCode = $sentence["sentenceCode"];
                 $traditional = $sentence["traditional"];
                 $simplified = $sentence["simplified"];
                 $pinyin = $sentence["pinyin"];
                 $english = $sentence["english"];
                 $indo = $sentence["indo"];
-                echo "<tr>";
+                if(isset($_SESSION["validSentences"][$key])) {
+                    echo "<tr style = 'background-color: green;'>";
+                }
+                else if(isset($_SESSION["invalidSentences"][$key])) {
+                    echo "<tr style = 'background-color: red;'>";
+                }
                     echo "<td id = 'short'>$sentenceCode</td>";
                     echo "<td>$traditional</td>";
                     echo "<td>$simplified</td>";

@@ -157,6 +157,118 @@
 <body>
     <?php
         include "Components/sidebar.php";
+        include "../../SQL_Queries/connection.php";
+        require '../../Composer_Excel/vendor/autoload.php';
+        use PhpOffice\PhpSpreadsheet\IOFactory;
+        //jika page ke refresh, tidak perlu nge read ulang file, tapi mengambil dari session yang dibuat sebelum ke refresh
+        if (isset($_FILES['link'])) {
+            $fileTmpPath = $_FILES['link']['tmp_name'];
+            $fileName = $_FILES['link']['name'];
+            $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+    
+            $allowedExtensions = ['xls', 'xlsx'];
+    
+            if (in_array($fileExtension, $allowedExtensions)) {
+                try {
+                    $spreadsheet = IOFactory::load($fileTmpPath);
+                    $sheet = $spreadsheet->getSheet(2);
+                    $allLinks = [];
+                    $validLinks = [];
+                    $invalidLinks = [];
+                    foreach ($sheet->getRowIterator() as $row) {
+                        $index = $row->getRowIndex();
+                        //skip index 1 karena itu header
+                        if($index == 1) {
+                            continue;
+                        }
+                        //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
+                        $cardID = $sheet->getCell("A$index")->getValue();
+                        $sentenceCode = $sheet->getCell("B$index")->getValue();
+                        $priority = $sheet->getCell("C$index")->getCalculatedValue();
+    
+                        $cardInfo = mysqli_query($con, "SELECT chinese_sc, pinyin, word_class, meaning_eng FROM cards WHERE card_id = $cardID");
+                        $cardInfo = mysqli_fetch_array($cardInfo);
+    
+                        $sentenceInfo = mysqli_query($con, "SELECT chinese_sc FROM example_sentence WHERE sentence_code = '$sentenceCode'");
+                        $sentenceInfo = mysqli_fetch_array($sentenceInfo);
+    
+                        $cardSc     = $cardInfo ? $cardInfo['chinese_sc']    : 'Not Found';
+                        $pinyin     = $cardInfo ? $cardInfo['pinyin']        : 'Not Found';
+                        $wordClass  = $cardInfo ? $cardInfo['word_class']    : 'Not Found';
+                        $meaningEng = $cardInfo ? $cardInfo['meaning_eng']   : 'Not Found';
+                        $sentSc     = $sentenceInfo ? $sentenceInfo['chinese_sc'] : 'Not Found';
+    
+                        // echo "
+                        // <tr>
+                        //     <td>$cardID</td>
+                        //     <td>$cardSc</td>
+                        //     <td>$pinyin</td>
+                        //     <td>$wordClass</td>
+                        //     <td id='long'>$meaningEng</td>
+                        //     <td>$sentenceCode</td>
+                        //     <td>$priority</td>
+                        //     <td id='long'>$sentSc</td>
+                        // </tr>";
+    
+                        $reason = "";
+                        //check if card id exists
+                        if(mysqli_num_rows(mysqli_query($con, "SELECT card_id FROM cards WHERE card_id = '$cardID'")) == 0) {
+                            $reason .= "<p id = 'invalid'>Card ID Not Found</p>";
+                        }
+    
+                        //check if sentence code exists
+                        if(mysqli_num_rows(mysqli_query($con, "SELECT sentence_code FROM example_sentence WHERE sentence_code = '$sentenceCode'")) == 0) {
+                            $reason .= "<p id = 'invalid'>Sentence Code Not Found</p>";
+                        }
+    
+                        //check if priority is a number
+                        if(!is_numeric($priority)) {
+                            $reason .= "<p id = 'invalid'>Invalid Priority</p>";
+                        }
+    
+                        //membangun session untuk semua kartu
+                        $allLinks[] = [
+                            "cardID" => $cardID, 
+                            "sentenceCode" => $sentenceCode, 
+                            "priority" => $priority
+                        ];
+                        //logika valid / tidak valid
+                        if($reason == "") {
+                            //membantun session untuk kartu yang valid
+                            $validLinks[] = [
+                                "cardID" => $cardID, 
+                                "sentenceCode" => $sentenceCode, 
+                                "priority" => $priority
+                            ];
+                        }
+                        else {
+                            //membantun session untuk kartu yang tidak valid
+                            $invalidLinks[] = [
+                                "cardID" => $cardID, 
+                                "sentenceCode" => $sentenceCode, 
+                                "priority" => $priority,
+                                "reason" => $reason
+                            ];
+                        }
+                    }
+                } catch (Exception $e) {
+                    echo "<h1>Error loading file: " . $e->getMessage() . "</h1>";
+                }
+            } else {
+                echo "<h1>Invalid file type. Only .xls and .xlsx files are allowed.</h1>";
+            }
+            //membuat session   
+            $_SESSION["allLinks"] = $allLinks;
+            $_SESSION["validLinks"] = $validLinks;
+            $_SESSION["invalidLinks"] = $invalidLinks;
+    
+            date_default_timezone_set("Asia/Jakarta");
+            $date = date("ymd_Hi");
+            $fileExtension = pathinfo($_FILES['link']['name'], PATHINFO_EXTENSION);
+            $fileName = "CRG_backup_junction_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
+            $_SESSION["filePath"] = $fileName;
+            move_uploaded_file($_FILES['link']['tmp_name'], "../../Backup/card_sentence/temp/" . $fileName);
+        } 
     ?>
     <div id="loadingScreen">
         <img src="Components/loading.gif" alt="">
@@ -175,6 +287,11 @@
                 <button class="button" id = "importButton" onclick = "uploadLinks()">Confirm</button>
             </div>
         </div>
+        <h1 style = "display: flex; justify-content: space-evenly;">
+            <span>Total Sentences: <?php echo count($_SESSION["allLinks"]); ?></span>
+            <span>Valid Sentences: <?php echo count($_SESSION["validLinks"]); ?></span>
+            <span>Invalid Sentences: <?php echo count($_SESSION["invalidLinks"]); ?></span>
+        </h1>
         <div id="tables">
             <table>
                 <caption style = "background-color: white; color: black;">Preview</caption>
@@ -189,118 +306,40 @@
                     <th id = 'long'>Sentence Simplified</th>
                 </tr>
                 <?php
-                    include "../../SQL_Queries/connection.php";
-                    require '../../Composer_Excel/vendor/autoload.php';
-                    use PhpOffice\PhpSpreadsheet\IOFactory;
-                    //jika page ke refresh, tidak perlu nge read ulang file, tapi mengambil dari session yang dibuat sebelum ke refresh
-                    if (isset($_FILES['link'])) {
-                        $fileTmpPath = $_FILES['link']['tmp_name'];
-                        $fileName = $_FILES['link']['name'];
-                        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+                    foreach($_SESSION["allLinks"] as $key => $links) {
+                        $cardID = $links["cardID"];
+                        $sentenceCode = $links["sentenceCode"];
+                        $priority = $links["priority"];
 
-                        $allowedExtensions = ['xls', 'xlsx'];
+                        $cardInfo = mysqli_query($con, "SELECT chinese_sc, pinyin, word_class, meaning_eng FROM cards WHERE card_id = $cardID");
+                        $cardInfo = mysqli_fetch_array($cardInfo);
 
-                        if (in_array($fileExtension, $allowedExtensions)) {
-                            try {
-                                $spreadsheet = IOFactory::load($fileTmpPath);
-                                $sheet = $spreadsheet->getSheet(2);
-                                $allLinks = [];
-                                $validLinks = [];
-                                $invalidLinks = [];
-                                foreach ($sheet->getRowIterator() as $row) {
-                                    $index = $row->getRowIndex();
-                                    //skip index 1 karena itu header
-                                    if($index == 1) {
-                                        continue;
-                                    }
-                                    //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
-                                    $cardID = $sheet->getCell("A$index")->getValue();
-                                    $sentenceCode = $sheet->getCell("B$index")->getValue();
-                                    $priority = $sheet->getCell("C$index")->getCalculatedValue();
+                        $sentenceInfo = mysqli_query($con, "SELECT chinese_sc FROM example_sentence WHERE sentence_code = '$sentenceCode'");
+                        $sentenceInfo = mysqli_fetch_array($sentenceInfo);
 
-                                    $cardInfo = mysqli_query($con, "SELECT chinese_sc, pinyin, word_class, meaning_eng FROM cards WHERE card_id = $cardID");
-                                    $cardInfo = mysqli_fetch_array($cardInfo);
+                        $cardSc     = $cardInfo ? $cardInfo['chinese_sc']    : 'Not Found';
+                        $pinyin     = $cardInfo ? $cardInfo['pinyin']        : 'Not Found';
+                        $wordClass  = $cardInfo ? $cardInfo['word_class']    : 'Not Found';
+                        $meaningEng = $cardInfo ? $cardInfo['meaning_eng']   : 'Not Found';
+                        $sentSc     = $sentenceInfo ? $sentenceInfo['chinese_sc'] : 'Not Found';
 
-                                    $sentenceInfo = mysqli_query($con, "SELECT chinese_sc FROM example_sentence WHERE sentence_code = '$sentenceCode'");
-                                    $sentenceInfo = mysqli_fetch_array($sentenceInfo);
-
-                                    $cardSc     = $cardInfo ? $cardInfo['chinese_sc']    : 'Not Found';
-                                    $pinyin     = $cardInfo ? $cardInfo['pinyin']        : 'Not Found';
-                                    $wordClass  = $cardInfo ? $cardInfo['word_class']    : 'Not Found';
-                                    $meaningEng = $cardInfo ? $cardInfo['meaning_eng']   : 'Not Found';
-                                    $sentSc     = $sentenceInfo ? $sentenceInfo['chinese_sc'] : 'Not Found';
-
-                                    echo "
-                                    <tr>
-                                        <td>$cardID</td>
-                                        <td>$cardSc</td>
-                                        <td>$pinyin</td>
-                                        <td>$wordClass</td>
-                                        <td id='long'>$meaningEng</td>
-                                        <td>$sentenceCode</td>
-                                        <td>$priority</td>
-                                        <td id='long'>$sentSc</td>
-                                    </tr>";
-
-                                    $reason = "";
-                                    //check if card id exists
-                                    if(mysqli_num_rows(mysqli_query($con, "SELECT card_id FROM cards WHERE card_id = '$cardID'")) == 0) {
-                                        $reason .= "<p id = 'invalid'>Card ID Not Found</p>";
-                                    }
-
-                                    //check if sentence code exists
-                                    if(mysqli_num_rows(mysqli_query($con, "SELECT sentence_code FROM example_sentence WHERE sentence_code = '$sentenceCode'")) == 0) {
-                                        $reason .= "<p id = 'invalid'>Sentence Code Not Found</p>";
-                                    }
-
-                                    //check if priority is a number
-                                    if(!is_numeric($priority)) {
-                                        $reason .= "<p id = 'invalid'>Invalid Priority</p>";
-                                    }
-
-                                    //membangun session untuk semua kartu
-                                    $allLinks[] = [
-                                        "cardID" => $cardID, 
-                                        "sentenceCode" => $sentenceCode, 
-                                        "priority" => $priority
-                                    ];
-                                    //logika valid / tidak valid
-                                    if($reason == "") {
-                                        //membantun session untuk kartu yang valid
-                                        $validLinks[] = [
-                                            "cardID" => $cardID, 
-                                            "sentenceCode" => $sentenceCode, 
-                                            "priority" => $priority
-                                        ];
-                                    }
-                                    else {
-                                        //membantun session untuk kartu yang tidak valid
-                                        $invalidLinks[] = [
-                                            "cardID" => $cardID, 
-                                            "sentenceCode" => $sentenceCode, 
-                                            "priority" => $priority,
-                                            "reason" => $reason
-                                        ];
-                                    }
-                                }
-                            } catch (Exception $e) {
-                                echo "<h1>Error loading file: " . $e->getMessage() . "</h1>";
-                            }
-                        } else {
-                            echo "<h1>Invalid file type. Only .xls and .xlsx files are allowed.</h1>";
+                        if(isset($_SESSION["validLinks"][$key])) {
+                            echo "<tr style = 'background-color: green;'>";
                         }
-                        //membuat session   
-                        $_SESSION["allLinks"] = $allLinks;
-                        $_SESSION["validLinks"] = $validLinks;
-                        $_SESSION["invalidLinks"] = $invalidLinks;
-
-                        date_default_timezone_set("Asia/Jakarta");
-                        $date = date("ymd_Hi");
-                        $fileExtension = pathinfo($_FILES['link']['name'], PATHINFO_EXTENSION);
-                        $fileName = "CRG_backup_junction_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
-                        $_SESSION["filePath"] = $fileName;
-                        move_uploaded_file($_FILES['link']['tmp_name'], "../../Backup/card_sentence/temp/" . $fileName);
-                    } 
+                        else if(isset($_SESSION["invalidLinks"][$key])) {
+                            echo "<tr style = 'background-color: red;'>";
+                        }
+                        echo "
+                            <td>$cardID</td>
+                            <td>$cardSc</td>
+                            <td>$pinyin</td>
+                            <td>$wordClass</td>
+                            <td id='long'>$meaningEng</td>
+                            <td>$sentenceCode</td>
+                            <td>$priority</td>
+                            <td id='long'>$sentSc</td>
+                        </tr>";
+                    }
                 ?>
             </table>
         </div>

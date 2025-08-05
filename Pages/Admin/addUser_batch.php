@@ -142,6 +142,125 @@
 <body>
     <?php
         include "Components/sidebar.php";
+        include "../../SQL_Queries/connection.php";
+        require '../../Composer_Excel/vendor/autoload.php';
+        use PhpOffice\PhpSpreadsheet\IOFactory;
+
+        //read file excel
+        if (isset($_FILES['excel_file'])) {
+            $id = 1;
+            //membangun var session untuk data valid dan invalid
+            $allUsers = [];
+            $validUsers = [];
+            $invalidUsers = [];
+            $fileTmpPath = $_FILES['excel_file']['tmp_name'];
+            $fileName = $_FILES['excel_file']['name'];
+            $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+            $allowedExtensions = ['xls', 'xlsx'];
+
+            if (in_array($fileExtension, $allowedExtensions)) {
+                try {
+                    $spreadsheet = IOFactory::load($fileTmpPath);
+                    $sheet = $spreadsheet->getActiveSheet();
+                    foreach ($sheet->getRowIterator() as $row) {
+                        //mengambil data dari setiap kolumn
+                        $index = $row->getRowIndex();
+                        if($index == 1) {
+                            continue;
+                        }
+                        $name = $sheet->getCell("A$index")->getValue();
+                        $email = $sheet->getCell("B$index")->getValue();
+                        $role = $sheet->getCell("C$index")->getValue();
+                        //jika cell role null, maka jadi student
+                        if($role == "") {
+                            $role = "student";
+                        }
+                        $set = $sheet->getCell("D$index")->getValue();
+                        //jika cell charset null, maka jadi simplified
+                        if($set == "") {
+                            $set = "simplified";
+                        }
+                        $remarks = $sheet->getCell("E$index")->getValue();
+                        // echo "<tr>";
+                        //     echo "<td>" . $id++ . "</td>";
+                        //     echo "<td>$name</td>";
+                        //     echo "<td>$email</td>";
+                        //     echo "<td>$role</td>";
+                        //     echo "<td>$set</td>";
+                        //     echo "<td>$remarks</td>";
+                        // echo "</tr>";
+
+
+                        $reason = "";
+                        //check for invalid email format
+                        if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                            $reason .= "<p id = 'invalid'>Invalid Email Format</p>";
+                        }
+
+                        //check for duplicates in existing database
+                        if(mysqli_num_rows(mysqli_query($con, "SELECT email FROM users WHERE email = '$email'")) > 0) {
+                            $reason .= "<p id = 'invalid'>Email already exist in database</p>";
+                        }
+
+                        //check for duplicates in uploaded excel
+                        if(isset($validUsers[$email])) {
+                            $reason .= "<p id = 'invalid'>Email already exists in the excel file</p>";
+                        }
+
+                        //check for error in user role
+                        if(!in_array($role, ['student', 'teacher', 'admin'])) {
+                            $reason .= "<p id = 'invalid'>Invalid user role</p>";
+                        }
+
+                        //check for error in user character set
+                        if(!in_array($set, ['simplified', 'traditional'])) {
+                            $reason .= "<p id = 'invalid'>Invalid user character set</p>";
+                        }
+
+                        //logic untuk validasi data
+                        if($reason == "") {
+                            //membangun var session data valid
+                            $validUsers[$email] = [
+                                "name" => $name, 
+                                "email" => $email, 
+                                "role" => $role, 
+                                "set" => $set,
+                                "remarks" => $remarks
+                            ];
+                        }
+                        else {
+                            //membangun var session data invalid
+                            $invalidUsers[$email] = [
+                                "name" => $name, 
+                                "email" => $email, 
+                                "role" => $role, 
+                                "set" => $set,
+                                "remarks" => $remarks,
+                                "reason" => $reason
+                            ];
+                        }
+                        $allUsers[$email] = [
+                                "name" => $name, 
+                                "email" => $email, 
+                                "role" => $role, 
+                                "set" => $set,
+                                "remarks" => $remarks
+                        ];
+                    }
+                } catch (Exception $e) {
+                    echo "<h1>Error loading file: " . $e->getMessage() . "</h1>";
+                }
+            } else {
+                echo "<h1>Invalid file type. Only .xls and .xlsx files are allowed.</h1>";
+            }
+        } else {
+            echo "<h1>No file uploaded.</h1>";
+        }
+        
+        $_SESSION["allUsers"] = $allUsers;
+        $_SESSION["invalidUsers"] = $invalidUsers;
+        $_SESSION["validUsers"] = $validUsers;
     ?>
     <div id="container">
         <div id="header">
@@ -149,7 +268,7 @@
             <select id = "filter" onchange = 'previewModes(this.value)'>
                 <option value="preview">Preview (Default)</option>
                 <option value="valid">Valid Users</option>
-                <option value="invalid">Invalid Invalid</option>
+                <option value="invalid">Invalid Users</option>
             </select>
             <div>
                 <a href="overview_user.php" id = "cancel" class="button">Cancel</a>
@@ -157,6 +276,11 @@
                 <button class="button" id = "importButton" name = "import" onclick = "uploadUsers()">Import</button>
             </div>
         </div>
+        <h1 style = "display: flex; justify-content: space-evenly;">
+            <span>Total Users: <?php echo count($_SESSION["allUsers"]); ?></span>
+            <span>Valid Users: <?php echo count($_SESSION["validUsers"]); ?></span>
+            <span>Invalid Users: <?php echo count($_SESSION["invalidUsers"]); ?></span>
+        </h1>
         <div id="tables">
             <table>
                 <caption style = "background-color: white; color: black;">Uploaded Excel File</caption>
@@ -168,126 +292,24 @@
                     <th>Character Set</th>
                     <th>Remarks</th>
                 </tr>
+
                 <?php
-                    include "../../SQL_Queries/connection.php";
-                    require '../../Composer_Excel/vendor/autoload.php';
-                    use PhpOffice\PhpSpreadsheet\IOFactory;
-
-                    //read file excel
-                    if (isset($_FILES['excel_file'])) {
-                        $id = 1;
-                        //membangun var session untuk data valid dan invalid
-                        $allUsers = [];
-                        $validUsers = [];
-                        $invalidUsers = [];
-                        $fileTmpPath = $_FILES['excel_file']['tmp_name'];
-                        $fileName = $_FILES['excel_file']['name'];
-                        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-                        $allowedExtensions = ['xls', 'xlsx'];
-
-                        if (in_array($fileExtension, $allowedExtensions)) {
-                            try {
-                                $spreadsheet = IOFactory::load($fileTmpPath);
-                                $sheet = $spreadsheet->getActiveSheet();
-                                foreach ($sheet->getRowIterator() as $row) {
-                                    //mengambil data dari setiap kolumn
-                                    $index = $row->getRowIndex();
-                                    if($index == 1) {
-                                        continue;
-                                    }
-                                    $name = $sheet->getCell("A$index")->getValue();
-                                    $email = $sheet->getCell("B$index")->getValue();
-                                    $role = $sheet->getCell("C$index")->getValue();
-                                    //jika cell role null, maka jadi student
-                                    if($role == "") {
-                                        $role = "student";
-                                    }
-                                    $set = $sheet->getCell("D$index")->getValue();
-                                    //jika cell charset null, maka jadi simplified
-                                    if($set == "") {
-                                        $set = "simplified";
-                                    }
-                                    $remarks = $sheet->getCell("E$index")->getValue();
-                                    echo "<tr>";
-                                        echo "<td>" . $id++ . "</td>";
-                                        echo "<td>$name</td>";
-                                        echo "<td>$email</td>";
-                                        echo "<td>$role</td>";
-                                        echo "<td>$set</td>";
-                                        echo "<td>$remarks</td>";
-                                    echo "</tr>";
-
-
-                                    $reason = "";
-                                    //check for invalid email format
-                                    if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                                        $reason .= "<p id = 'invalid'>Invalid Email Format</p>";
-                                    }
-
-                                    //check for duplicates in existing database
-                                    if(mysqli_num_rows(mysqli_query($con, "SELECT email FROM users WHERE email = '$email'")) > 0) {
-                                        $reason .= "<p id = 'invalid'>Email already exist in database</p>";
-                                    }
-
-                                    //check for duplicates in uploaded excel
-                                    if(isset($validUsers[$email])) {
-                                        $reason .= "<p id = 'invalid'>Email already exists in the excel file</p>";
-                                    }
-
-                                    //check for error in user role
-                                    if(!in_array($role, ['student', 'teacher', 'admin'])) {
-                                        $reason .= "<p id = 'invalid'>Invalid user role</p>";
-                                    }
-
-                                    //check for error in user character set
-                                    if(!in_array($set, ['simplified', 'traditional'])) {
-                                        $reason .= "<p id = 'invalid'>Invalid user character set</p>";
-                                    }
-
-                                    //logic untuk validasi data
-                                    if($reason == "") {
-                                        //membangun var session data valid
-                                        $validUsers[$email] = [
-                                            "name" => $name, 
-                                            "email" => $email, 
-                                            "role" => $role, 
-                                            "set" => $set,
-                                            "remarks" => $remarks
-                                        ];
-                                    }
-                                    else {
-                                        //membangun var session data invalid
-                                        $invalidUsers[$email] = [
-                                            "name" => $name, 
-                                            "email" => $email, 
-                                            "role" => $role, 
-                                            "set" => $set,
-                                            "remarks" => $remarks,
-                                            "reason" => $reason
-                                        ];
-                                    }
-                                    $allUsers[$email] = [
-                                            "name" => $name, 
-                                            "email" => $email, 
-                                            "role" => $role, 
-                                            "set" => $set,
-                                            "remarks" => $remarks
-                                    ];
-                                }
-                            } catch (Exception $e) {
-                                echo "<h1>Error loading file: " . $e->getMessage() . "</h1>";
-                            }
-                        } else {
-                            echo "<h1>Invalid file type. Only .xls and .xlsx files are allowed.</h1>";
+                    $id = 1;
+                    foreach($_SESSION["allUsers"] as $key => $value) {
+                        if(isset($_SESSION["validUsers"][$key])) {
+                            echo "<tr style = 'background-color: green;'>";
                         }
-                    } else {
-                        echo "<h1>No file uploaded.</h1>";
+                        else if(isset($_SESSION["invalidUsers"][$key])) {
+                            echo "<tr style = 'background-color: red;'>";
+                        }
+                            echo "<td>" . $id++ . "</td>";
+                            echo "<td>" . $value["name"] . "</td>";
+                            echo "<td>" . $value["email"] . "</td>";
+                            echo "<td>" . $value["role"] . "</td>";
+                            echo "<td>" . $value["set"] . "</td>";
+                            echo "<td>" . $value["remarks"] . "</td>";
+                        echo "</tr>";
                     }
-                    
-                    $_SESSION["allUsers"] = $allUsers;
-                    $_SESSION["invalidUsers"] = $invalidUsers;
-                    $_SESSION["validUsers"] = $validUsers;
                 ?>
             </table>
         </div>

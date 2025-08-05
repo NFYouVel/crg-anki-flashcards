@@ -20,7 +20,12 @@ $mode = $_GET["mode"];
         <?php
         //jika page ke refresh, tidak perlu nge read ulang file, tapi mengambil dari session yang dibuat sebelum ke refresh
         foreach ($_SESSION["allCards"] as $key => $value) {
-            echo "<tr>";
+            if(isset($_SESSION["validCards"][$key])) {
+                echo "<tr style = 'background-color: green;'>";
+            }
+            else if(isset($_SESSION["invalidCards"][$key])) {
+                echo "<tr style = 'background-color: red;'>";
+            }
             echo "<td>" . $value["cardID"] . "</td>";
             echo "<td>" . $value["traditional"] . "</td>";
             echo "<td>" . $value["simplified"] . "</td>";

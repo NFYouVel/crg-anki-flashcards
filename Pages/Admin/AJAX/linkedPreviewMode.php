@@ -17,7 +17,7 @@
             <th id = 'long'>Sentence Simplified</th>
         </tr>
         <?php
-            foreach($_SESSION["allLinks"] as $links) {
+            foreach($_SESSION["allLinks"] as $key => $links) {
                 $cardID = $links["cardID"];
                 $sentenceCode = $links["sentenceCode"];
                 $priority = $links["priority"];
@@ -34,8 +34,13 @@
                 $meaningEng = $cardInfo ? $cardInfo['meaning_eng']   : 'Not Found';
                 $sentSc     = $sentenceInfo ? $sentenceInfo['chinese_sc'] : 'Not Found';
 
+                if(isset($_SESSION["validLinks"][$key])) {
+                    echo "<tr style = 'background-color: green;'>";
+                }
+                else if(isset($_SESSION["invalidLinks"][$key])) {
+                    echo "<tr style = 'background-color: red;'>";
+                }
                 echo "
-                <tr>
                     <td>$cardID</td>
                     <td>$cardSc</td>
                     <td>$pinyin</td>
