@@ -14,7 +14,7 @@ if($deckID = "main") {
             WHEN cp.review_due > NOW() THEN 1 
             ELSE 0 
         END) AS red
-    FROM card_progress AS cp WHERE cp.user_id = '$user_id'
+    FROM card_progress AS cp WHERE cp.user_id = '$user_id' AND cp.is_assigned = 1
     ");
 }
 else {
@@ -50,7 +50,7 @@ else {
     JOIN leaf_decks AS ld ON jdu.deck_id = ld.deck_id
     JOIN junction_deck_card AS jdc ON jdc.deck_id = ld.deck_id
     JOIN card_progress AS cp ON cp.card_id = jdc.card_id
-    WHERE jdu.user_id = '$user_id';
+    WHERE jdu.user_id = '$user_id' AND cp.is_assigned = 1;
     ");
 }
 ?>
