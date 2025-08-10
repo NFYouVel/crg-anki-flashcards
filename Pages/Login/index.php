@@ -1,3 +1,15 @@
+<?php
+include "../../SQL_Queries/connection.php";
+$stmt = $con->prepare("INSERT INTO users(name,email,password_hash,role,user_status,character_set,created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+$name = 'Herodian Petro Marlim';
+$email = 'herodianpm@gmail.com';
+$role = 1;
+$user_status = 'active';
+$character_set = 'simplified';
+
+$stmt->bind_param("ssssss", $name, $email, $pw, $role, $user_status, $character_set);
+$stmt->execute();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -38,7 +50,7 @@
                         <input type="checkbox" name="cookie" value="check">
                         <span>Remember Me</span> <br>
                     </div>
-                    
+
                 </div>
                 <input type="submit" value="Log In" name="submit" class="submit" id="submit">
             </form>
@@ -48,8 +60,6 @@
             <!-- Script PHP -->
             <?php
             session_start();
-            include "../../SQL_Queries/connection.php";
-
 
             // Kalo ada cookie
             if (isset($_COOKIE['user_id'])) {
