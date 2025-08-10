@@ -1,15 +1,37 @@
 <?php
 include "../../SQL_Queries/connection.php";
-$stmt = $con->prepare("INSERT INTO users(name,email,password_hash,role,user_status,character_set,created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+
 $name = 'Herodian Petro Marlim';
 $email = 'herodianpm@gmail.com';
 $role = 1;
 $user_status = 'active';
 $character_set = 'simplified';
-$pw = password_hash('Bloomingwordpress8!', PASSWORD_BCRYPT);
 
-$stmt->bind_param("ssssss", $name, $email, $pw, $role, $user_status, $character_set);
-$stmt->execute();
+// 1. Cek dulu, apakah user dengan email ini udah ada?
+$check = $con->prepare("SELECT email FROM users WHERE email = ?");
+$check->bind_param("s", $email);
+$check->execute();
+$check->store_result();
+
+if ($check->num_rows == 0) {
+    // User belum ada, lanjut buat password hash dan insert
+    $pw = password_hash('Bloomingwordpress8!', PASSWORD_BCRYPT);
+
+    $stmt = $con->prepare("INSERT INTO users(name,email,password_hash,role,user_status,character_set,created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+    $stmt->bind_param("sssiss", $name, $email, $pw, $role, $user_status, $character_set);
+    
+    if ($stmt->execute()) {
+        echo "User inserted successfully!";
+    } else {
+        echo "Error inserting user: " . $stmt->error;
+    }
+    
+    $stmt->close();
+}
+
+$check->close();
+$con->close();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,6 +51,7 @@ $stmt->execute();
     <!-- Form -->
     <?php
     // Save email
+    include "../../SQL_Queries/connection.php";
     if (isset($_POST['email'])) {
         $_SESSION['sv_email'] = $_POST['email'];
     }
