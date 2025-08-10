@@ -59,16 +59,23 @@ $(document).ready(function () {
     $(".title-to-review-second").css("cursor", "pointer");
   
     // Toggle setiap klik title deck
-    $(".title-to-review-second").click(function (e) {
-      e.stopPropagation(); // biar ga bubbling
-  
-      const subdeck = $(this).parent().find("ul").first();
-  
-      // Animate toggle
-      if (subdeck.length > 0) {
-        subdeck.slideToggle(200);
-      }
-    });
+    $(".plus").on("click", function (e) {
+        // e.stopPropagation(); // Biar nggak kena bubbling ke parent
+      
+        const $this = $(this);
+        const $ul = $this.closest(".contain").children("ul");
+      
+        // Toggle tampilannya
+        $ul.slideToggle(200);
+      
+        // Ganti tanda plus/minus
+        if ($this.text().trim() === "+") {
+          $this.text("−");
+        } else {
+          $this.text("+");
+        }
+      });
+      
     $(".title-to-review-second").each(function () {
         // Hitung level berdasarkan berapa kali dia nested dalam <ul>
         let level = $(this).parents("ul").length - 1;
@@ -79,4 +86,5 @@ $(document).ready(function () {
         // Apply indent
         $(this).css("padding-left", indent + "px");
     });
+    $('.line').width($('.title-to-review').width());
 });

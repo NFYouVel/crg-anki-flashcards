@@ -35,8 +35,11 @@
     width: 100%;
 }
 .contain {
-    padding-left: 20px;
+    padding-left: 10px;
     /* border-bottom: var(--border-size) solid var(--border-color); */
+}
+ul.child-deck {
+    padding-left: 20px;
 }
 .title-to-review {
     display: flex;
@@ -245,7 +248,17 @@ a {
     color: white;
     border-right: 1px solid var(--border-color);
 }
-
+.plus { 
+    display: flex;
+    align-items: center;
+    width: 30px;
+    z-index: 9999;
+    cursor: pointer;
+}
+.container-deck {
+    display: flex;
+    flex-direction: row;
+}
 @media screen and (max-width: 768px) {
     .title {
         font-size: 16px;

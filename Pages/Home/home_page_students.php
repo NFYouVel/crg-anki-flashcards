@@ -121,13 +121,16 @@ if (isset($_POST['hide'])) {
                                     $deckID = $deck["deck_id"];
                                     if(in_array($deckID, $rootDecks)) {
                                         echo "<li class='contain'>";
-                                            echo "<div class='title-to-review-second'>";
-                                            echo "<span class='title-second' onclick=\"window.location.href='flashcard.php?deck_id=$deckID'\">" . htmlspecialchars($deck['name']) . "</span>";
+                                        echo "<div class='container-deck'>";
+                                            echo "<div class='plus'>+</div>";
+                                            echo "<div class='title-to-review-second' onclick=\"window.location.href='flashcard.php?deck_id=$deckID'\">";
+                                            echo "<span class='title-second'>" . htmlspecialchars($deck['name']) . "</span>";
                                                 echo "<div class='to-review'>
                                                         <span class='green'>169</span>
                                                         <span class='red'>28</span>
                                                         <span class='blue'>1638</span>
                                                     </div>";
+                                            echo "</div>";
                                             echo "</div>";
                                             echo "<div class='line'></div>";
                                             

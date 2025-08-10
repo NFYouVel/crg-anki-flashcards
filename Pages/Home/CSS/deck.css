@@ -1,11 +1,15 @@
 .line {
     position: absolute;
-    right: 6px; 
-    left: -1px;  
 }
 li.contain {
     position: relative;
+    display: flex;
+    flex-direction: column;
+
 }
+/* .container-deck {
+    border-bottom: var(--border-size) solid var(--border-color);
+} */
 .title-to-review{
     margin-top: 10px;
     padding: 10px 10px;

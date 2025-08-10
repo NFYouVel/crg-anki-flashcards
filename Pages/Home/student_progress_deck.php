@@ -35,18 +35,19 @@ $student_name = $line_student['name'];
     <title>Welcome <?php echo $line['name'] ?></title>
     <link rel="icon" href="../../Logo/circle.png">
     <link rel="stylesheet" href="../../Pages/Home/CSS/home_page.css">
-    <link rel="stylesheet" href="../../Pages/Home/CSS/student_progress.css?v=1337">
+    <link rel="stylesheet" href="../../Pages/Home/CSS/student_progress.css?v=123">
     <link rel="stylesheet" href="../../Pages/Home/CSS/deck.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="../Home/jQuery/script.js"></script>
     <style>
         .nav-menu span:nth-child(2) {
-            font-size: 18px;
+            font-size: 20px;
             color: #2f6ba1;
             background-color: #deebf7;
             border-radius: 6px;
             border: 2px solid #9cb4cb;
         }
+
         html,
         body {
             overflow-y: scroll !important;
@@ -113,7 +114,7 @@ $student_name = $line_student['name'];
                         <!-- Active Chinese Senin Kamis 20.30-->
                         <li class="class-title">
                             <!-- Colored Title -->
-                            <div class="title-to-review" onclick= "window.location.href='deck_progress.php?deck_id=main'">
+                            <div class="title-to-review" onclick="window.location.href='deck_progress.php?deck_id=main'">
                                 <!-- Deck Title -->
                                 <span class="title">Main Deck</span>
                                 <!-- To Review Green Red Blue-->
@@ -124,64 +125,67 @@ $student_name = $line_student['name'];
                                 </div>
                             </div>
 
-                                <?php
-                                $rootDecks = [];
-                                function getRoot($parentID = null)
-                                {
-                                    global $con, $user_id_student, $rootDecks;
-                                    if ($parentID == null) {
-                                        $getDecks = mysqli_query($con, "SELECT deck.deck_id, deck.parent_deck_id
+                            <?php
+                            $rootDecks = [];
+                            function getRoot($parentID = null)
+                            {
+                                global $con, $user_id_student, $rootDecks;
+                                if ($parentID == null) {
+                                    $getDecks = mysqli_query($con, "SELECT deck.deck_id, deck.parent_deck_id
                                                                     FROM junction_deck_user AS deck_user
                                                                     JOIN decks AS deck 
                                                                     ON deck_user.deck_id = deck.deck_id
                                                                     WHERE deck_user.user_id = '$user_id_student'");
-                                    } else {
-                                        $getDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks WHERE deck_id = '$parentID'");
+                                } else {
+                                    $getDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks WHERE deck_id = '$parentID'");
+                                }
+                                while ($deck = mysqli_fetch_assoc($getDecks)) {
+                                    if (!in_array($deck["deck_id"], $rootDecks)) {
+                                        $rootDecks[] = $deck["deck_id"];
                                     }
-                                    while ($deck = mysqli_fetch_assoc($getDecks)) {
-                                        if (!in_array($deck["deck_id"], $rootDecks)) {
-                                            $rootDecks[] = $deck["deck_id"];
-                                        }
-                                        if ($deck["parent_deck_id"] !== null) {
-                                            getRoot($deck["parent_deck_id"]);
-                                        }
+                                    if ($deck["parent_deck_id"] !== null) {
+                                        getRoot($deck["parent_deck_id"]);
                                     }
                                 }
-                                getRoot();
+                            }
+                            getRoot();
 
-                                function showDecks($parentID = null)
-                                {
-                                    global $con, $user_id, $rootDecks;
-                                    if ($parentID == null) {
-                                        $getDecks = mysqli_query($con, "SELECT name, deck_id FROM decks WHERE parent_deck_id IS NULL");
-                                    } else {
-                                        $getDecks = mysqli_query($con, "SELECT name, deck_id FROM decks WHERE parent_deck_id = '$parentID'");
-                                    }
-                                    while ($deck = mysqli_fetch_assoc($getDecks)) {
-                                        $deckID = $deck["deck_id"];
-                                        if (in_array($deckID, $rootDecks)) {
-                                            echo "<li class='contain'>";
-                                            echo "<div class='title-to-review-second'>";
-                                            echo "<span class='title-second' onclick=\"window.location.href='deck_progress.php?deck_id=$deckID'\">" . htmlspecialchars($deck['name']) . "</span>";
-                                            echo "<div class='to-review'>
+                            function showDecks($parentID = null)
+                            {
+                                global $con, $user_id, $rootDecks;
+                                if ($parentID == null) {
+                                    $getDecks = mysqli_query($con, "SELECT name, deck_id FROM decks WHERE parent_deck_id IS NULL");
+                                } else {
+                                    $getDecks = mysqli_query($con, "SELECT name, deck_id FROM decks WHERE parent_deck_id = '$parentID'");
+                                }
+                                while ($deck = mysqli_fetch_assoc($getDecks)) {
+                                    $deckID = $deck["deck_id"];
+                                    if (in_array($deckID, $rootDecks)) {
+                                        echo "<li class='contain'>";
+                                        echo "<div class='container-deck'>";
+                                        echo "<div class='plus'>+</div>";
+                                        echo "<div class='title-to-review-second'  onclick=\"window.location.href='deck_progress.php?deck_id=$deckID'\">";
+                                        echo "<span class='title-second'>" . htmlspecialchars($deck['name']) . "</span>";
+                                        echo "<div class='to-review'>
                                                         <span class='green'>169</span>
                                                         <span class='red'>28</span>
                                                         <span class='blue'>1638</span>
-                                                    </div>";
-                                            echo "</div>";
-                                            echo "<div class='line'></div>";
+                                                        </div>";
+                                        echo "</div>";
+                                        echo "</div>";
+                                        echo "<div class='line'></div>";
 
-                                            echo "<ul>";
-                                            showDecks($deckID);
-                                            echo "</ul>";
+                                        echo "<ul class='child-deck'>";
+                                        showDecks($deckID);
+                                        echo "</ul>";
 
-                                            echo "</li>";
-                                        }
+                                        echo "</li>";
                                     }
                                 }
+                            }
 
-                                showDecks();
-                                ?>
+                            showDecks();
+                            ?>
                 </div>
             </div>
 
@@ -189,5 +193,20 @@ $student_name = $line_student['name'];
 
 
 </body>
+
+<script>
+    function syncLineWidth() {
+  const title = document.querySelector('.class-title');
+  const line = document.querySelector('.line');
+  const width = title.offsetWidth;
+
+  console.log('Current title width:', width); // <-- Cek log-nya
+
+  line.style.width = width + 'px';
+}
+
+window.addEventListener('load', syncLineWidth);
+window.addEventListener('resize', syncLineWidth);
+</script>
 
 </html>
