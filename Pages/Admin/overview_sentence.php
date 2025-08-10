@@ -177,6 +177,9 @@
     #sentence {
         color: #ffa72a;
     }
+    #sentence + ul{
+        display: block;
+    }
     #overview_sentence {
         color: #ffa72a;
     }

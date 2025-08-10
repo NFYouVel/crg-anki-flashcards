@@ -175,5 +175,11 @@
     #deck {
         color: #ffa72a;
     }
+    #deckList {
+        color: #ffa72a;
+    }
+    #deck + ul{
+        display: block;
+    }
 </style>
 </html>

@@ -319,6 +319,9 @@
     #user {
         color: #ffa72a;
     }
+    #user + ul{
+        display: block;
+    }
     #overview_user {
         color: #ffa72a;
     }

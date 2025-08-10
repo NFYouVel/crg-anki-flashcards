@@ -87,7 +87,7 @@
     <a href="homepage.php" id='home'>Home</a>
     <nav>
         <li>
-            <a id="user" href="">User</a>
+            <a id="user" href="overview_user.php">User</a>
             <ul>
                 <li><a id="overview_user" href="overview_user.php">Overview</a></li>
                 <li><a id="role" href="role.php">Role</a></li>
@@ -96,7 +96,7 @@
         <li><a id="classroom" href="classroom.php">Classroom</a></li>
         <li><a id="dictionary" href="dictionary.php?page=0">Dictionary</a></li>
         <li>
-            <a id = "sentence" href="">Sentence</a>
+            <a id = "sentence" href="overview_sentence.php">Sentence</a>
             <ul>
                 <li><a id="overview_sentence" href="overview_sentence.php">Overview</a></li>
                 <li><a id="report" href="report.php">Report</a></li>

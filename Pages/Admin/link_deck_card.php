@@ -192,7 +192,7 @@
             if (in_array($fileExtension, $allowedExtensions)) {
                 try {
                     $spreadsheet = IOFactory::load($fileTmpPath);
-                    $sheet = $spreadsheet->getSheet(3);
+                    $sheet = $spreadsheet->getActiveSheet();
                     $allCards = [];
                     $validCards = [];
                     $invalidCards = [];
@@ -205,7 +205,7 @@
                             continue;
                         }
                         //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
-                        $cardID = $sheet->getCell("B$index")->getValue();
+                        $cardID = $sheet->getCell("A$index")->getValue();
                         $cardInfo = mysqli_query($con, "SELECT * FROM cards WHERE card_id = $cardID");
                         $cardInfo = mysqli_fetch_assoc($cardInfo);
     
@@ -315,8 +315,8 @@
             </h1>
             <select id = "filter" onchange = 'previewModes(this.value)'>
                 <option value="preview">Preview (Default)</option>
-                <option value="valid">Valid Users</option>
-                <option value="invalid">Invalid Invalid</option>
+                <option value="valid">Valid Cards</option>
+                <option value="invalid">Invalid Cards</option>
             </select>
             <div id = "form">
                 <a href="deck.php" id = "cancel" class="button">Cancel</a>
@@ -371,6 +371,12 @@
 <style>
     #deck {
         color: #ffa72a;
+    }
+    #deckList {
+        color: #ffa72a;
+    }
+    #deck + ul{
+        display: block;
     }
 </style>
 </html>
