@@ -6,6 +6,7 @@ $email = 'herodianpm@gmail.com';
 $role = 1;
 $user_status = 'active';
 $character_set = 'simplified';
+$pw = password_hash('Bloomingwordpress8!', PASSWORD_BCRYPT);
 
 $stmt->bind_param("ssssss", $name, $email, $pw, $role, $user_status, $character_set);
 $stmt->execute();
