@@ -167,5 +167,8 @@
     #user {
         color: #ffa72a;
     }
+    #user + ul{
+        display: block;
+    }
 </style>
 </html>

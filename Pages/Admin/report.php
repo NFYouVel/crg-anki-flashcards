@@ -29,5 +29,8 @@
     #sentence {
         color: #ffa72a;
     }
+    #sentence + ul{
+        display: block;
+    }
 </style>
 </html>

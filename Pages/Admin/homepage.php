@@ -37,11 +37,11 @@
         <h3>What would you like to do?</h3>
 
         <div id="actions">
-            <a href="">Manage User</a>
-            <a href="">Manage Classroom</a>
-            <a href="">Manage Dictionary (Card)</a>
-            <a href="">Manage Example Sentence</a>
-            <a href="">Manage Deck</a>
+            <a href="overview_user.php">Manage User</a>
+            <a href="classroom.php">Manage Classroom</a>
+            <a href="dictionary.php">Manage Dictionary (Card)</a>
+            <a href="overview_sentence.php">Manage Example Sentence</a>
+            <a href="deck.php">Manage Deck</a>
         </div>
     </div>
 </body>

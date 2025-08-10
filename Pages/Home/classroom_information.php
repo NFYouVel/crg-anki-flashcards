@@ -138,41 +138,17 @@ $classroom_name = mysqli_fetch_array($result_classroom);
             <div class='explanation'>
                 <div class="explanationWrapper">
                     <?php
-                        $rootDecks = [];
-                        function getRoot($parentID = null) {
-                            global $con, $user_id, $rootDecks;
-                            if ($parentID == null) {
-                                $getDecks = mysqli_query($con, "SELECT deck.deck_id, deck.parent_deck_id
-                                                                FROM deck_pool AS deck_user
-                                                                JOIN decks AS deck 
-                                                                ON deck_user.deck_id = deck.deck_id
-                                                                WHERE deck_user.user_id = '$user_id'");
-                            } 
-                            else {
-                                $getDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks WHERE deck_id = '$parentID'");
+                        function getDecks($parentID) {
+                            global $classroom_id;
+                            global $con;
+                            if ($parentID == "root") {
+                                $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL ORDER BY name ASC");
+                            } else {
+                                $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE deck_id = '$parentID'");
                             }
-                            while ($deck = mysqli_fetch_assoc($getDecks)) {
-                                if (!in_array($deck["deck_id"], $rootDecks)) {
-                                    $rootDecks[] = $deck["deck_id"];
-                                }
-                                if ($deck["parent_deck_id"] !== null) {
-                                    getRoot($deck["parent_deck_id"]);
-                                } 
-                            }
-                        }
-                        getRoot();
-                        
-                        function showDecks($parentID = null) {
-                            global $con, $user_id, $rootDecks, $classroom_id;
-                            if($parentID == null) {
-                                $getDecks = mysqli_query($con, "SELECT name, deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL");
-                            }
-                            else {
-                                $getDecks = mysqli_query($con, "SELECT name, deck_id, is_leaf FROM decks WHERE parent_deck_id = '$parentID'");
-                            }
-                            while($deck = mysqli_fetch_assoc($getDecks)) {
-                                $deckID = $deck["deck_id"];
-                                if(in_array($deckID, $rootDecks)) {
+                            if (mysqli_num_rows($getDecks) > 0) {
+                                while ($deck = mysqli_fetch_assoc($getDecks)) {
+                                    $deckID = $deck["deck_id"];
                                     $name = $deck["name"];
                                     $isLeaf = $deck["is_leaf"];
 
@@ -192,7 +168,10 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                                                     }
                                                 echo "</div>";
                                             echo "</div>";
-                                            showDecks($deckID);
+                                            $getChildren = mysqli_query($con, "SELECT deck_id FROM decks WHERE parent_deck_id = '$deckID' ORDER BY name ASC");
+                                            while($children = mysqli_fetch_assoc($getChildren)) {
+                                                getDecks($children["deck_id"]);
+                                            }
                                         echo "</div>";
                                     } else {
                                         echo "<div class = 'deck'>";
@@ -215,7 +194,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                                 }
                             }
                         }
-                        showDecks();
+                        getDecks("root");
                     ?>
                 </div>
             </div>

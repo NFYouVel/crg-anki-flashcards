@@ -171,7 +171,7 @@
             if (in_array($fileExtension, $allowedExtensions)) {
                 try {
                     $spreadsheet = IOFactory::load($fileTmpPath);
-                    $sheet = $spreadsheet->getSheet(2);
+                    $sheet = $spreadsheet->getActiveSheet();
                     $allLinks = [];
                     $validLinks = [];
                     $invalidLinks = [];
@@ -348,6 +348,9 @@
 <style>
     #sentence {
         color: #ffa72a;
+    }
+    #sentence + ul {
+        display: block;
     }
     #overview_sentence {
         color: #ffa72a;

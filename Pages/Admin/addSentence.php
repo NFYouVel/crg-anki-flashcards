@@ -168,7 +168,7 @@
             if (in_array($fileExtension, $allowedExtensions)) {
                 try {
                     $spreadsheet = IOFactory::load($fileTmpPath);
-                    $sheet = $spreadsheet->getSheet(1);
+                    $sheet = $spreadsheet->getActiveSheet();
                     $allSentences = [];
                     $validSentences = [];
                     $invalidSentences = [];
@@ -323,6 +323,9 @@
 <style>
     #sentence {
         color: #ffa72a;
+    }
+    #sentence + ul{
+        display: block;
     }
     #overview_sentence {
         color: #ffa72a;

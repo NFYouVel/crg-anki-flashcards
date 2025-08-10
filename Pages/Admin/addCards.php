@@ -198,7 +198,7 @@
             if (in_array($fileExtension, $allowedExtensions)) {
                 try {
                     $spreadsheet = IOFactory::load($fileTmpPath);
-                    $sheet = $spreadsheet->getSheet(0);
+                    $sheet = $spreadsheet->getActiveSheet();
                     foreach ($sheet->getRowIterator() as $row) {
                         $index = $row->getRowIndex();
                         //skip index 1 karena itu header
@@ -363,6 +363,7 @@
     </div>
 </body>
 <style>
+    
     #dictionary {
         color: #ffa72a;
     }
