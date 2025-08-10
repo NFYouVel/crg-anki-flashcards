@@ -23,4 +23,8 @@
             echo "column remarks ditambahkan";
         }
     }
+
+    $pw = password_hash("Bloomingwordpress8!", PASSWORD_BCRYPT);
+    mysqli_query($con, "INSERT INTO users(name,email,password_hashed,role,user_status,character_set,created_at) VALUES
+    ('Herodian Petro Marlim','herodianpm@gmail.com','$pw','1','active','simplified',NOW())")
 ?>
