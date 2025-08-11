@@ -141,6 +141,9 @@
         include "Components/sidebar.php";
         include "../../SQL_Queries/connection.php";
     ?>
+    <script>
+        alert("TESTTTT sebelum div");
+    </script>
     <div id="overview">
         <div id="heading">
             <h1>User Overview</h1>
@@ -241,7 +244,7 @@
         </table>
     </div>
     <script>
-        alert("TESTTTT");
+        alert("TESTTTT abis div");
     </script>
 </body>
 <style>
