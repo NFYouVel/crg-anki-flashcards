@@ -69,6 +69,9 @@
             border: 2px solid black;
             word-break: break-word;
         }
+        #short {
+            word-break: normal;
+        }
         td {
             padding: 5px;
         }
@@ -180,16 +183,16 @@
                 <th>ID</th>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Role</th>
+                <th id = 'short'>Role</th>
                 <th>User Status</th>
                 <th>Created At</th>
                 <th>Updated At</th>
                 <th>Last Review</th>
                 <th>Deleted At</th>
                 <th>Reset PW</th>
-                <th>Character Set</th>
+                <th id = 'short'>Character Set</th>
                 <th>Remarks</th>
-                <th>Treatment</th>
+                <th id = 'short'>Treatment</th>
             </tr>
             <?php
                 $getUsers = mysqli_query($con, "SELECT * FROM users ORDER BY remarks ASC");
@@ -221,16 +224,16 @@
                         echo "<td style = 'width: 25px;'>" . $count++ . "</td>";
                         echo "<td>$name</td>";
                         echo "<td id = 'email'>$email</td>";
-                        echo "<td>$role</td>";
+                        echo "<td id = 'short'>$role</td>";
                         echo "<td>$status</td>";
                         echo "<td>$created</td>";
                         echo "<td>$updated</td>";
                         echo "<td>$lastReview</td>";
                         echo "<td>$deleted</td>";
                         echo "<td>$resetPW</td>";
-                        echo "<td>$set</td>";
+                        echo "<td id = 'short'>$set</td>";
                         echo "<td>$remarks</td>";
-                        echo "<td>
+                        echo "<td id = 'short'>
                             <a href = 'editUser.php?id=$id'>Edit</a><br>
                             <a href = 'deleteUser.php?id=$id'>Delete</a><br>
                             <a href = 'deckPool.php?id=$id'>Decks</a>
