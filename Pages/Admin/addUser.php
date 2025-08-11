@@ -111,7 +111,7 @@
             <h1>Add User</h1>
             <div id="action">
                 <a href="overview_user.php" id = "button">Cancel</a>
-                <button id = "button">Save</button>
+                <button type = "submit" id = "button">Save</button>
             </div>
         </div>
         <div id="data">
