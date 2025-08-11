@@ -147,7 +147,7 @@
                                         echo "<option value = '$roleID' selected>$roleName</option>";
                                     }
                                     else {
-
+                                        echo "<option value = '$roleID'>$roleName</option>";
                                     }
                                 }
                             ?>
