@@ -257,6 +257,8 @@
             $fileExtension = pathinfo($_FILES['sentence']['name'], PATHINFO_EXTENSION);
             $fileName = "CRG_backup_sentence_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
             $_SESSION["filePath"] = $fileName;
+
+            echo "<script>alert('$fileName')</script>";
             move_uploaded_file($_FILES['sentence']['tmp_name'], "../../Backup/sentence/temp/" . $fileName);
         } 
     ?>
