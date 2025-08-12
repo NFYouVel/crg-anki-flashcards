@@ -105,7 +105,9 @@
 
         }
     ?>
-
+    <script>
+        alert("tes")
+    </script>
     <form method = "post">
         <div id="heading">
             <h1>Add User</h1>
@@ -126,11 +128,11 @@
                 </tr>
                 <tr>
                     <td><h1>Password</h1></td>
-                    <td><input type="password" name = "password" value = "123456" placeholder = "Password" required></td>
+                    <td><input type="password" name = "password" value = "'123456'" placeholder = "Password" required></td>
                 </tr>
                 <tr>
                     <td><h1>Remarks</h1></td>
-                    <td><input type="text" name = "remarks" placeholder = "Remarks" required></td>
+                    <td><input type="text" name = "remarks" placeholder = "Remarks"></td>
                 </tr>
                 <tr>
                     <td><h1>User Role</h1></td>
