@@ -1,3 +1,3 @@
 <?php
-    include __DIR__ . '/Pages/Login/index.php';
+    include __DIR__ . '/Pages/Login/';
 ?>
