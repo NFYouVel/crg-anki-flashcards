@@ -31,7 +31,6 @@
     <?php
         include "Components/sidebar.php";
     ?>
-    </div></div>
     <div id="container">
         <h1>Hello, Herodian!</h1>
         <h3>What would you like to do?</h3>

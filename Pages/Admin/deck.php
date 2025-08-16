@@ -574,7 +574,6 @@
         });
     };
 </script>
-
 </head>
 <body>
     <?php
