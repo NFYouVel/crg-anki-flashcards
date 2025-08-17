@@ -91,9 +91,9 @@ $con->close();
                 $user_id = $_SESSION['user_id'];
                 $result = mysqli_query($con, "SELECT * FROM users WHERE user_id = '$user_id'");
                 $row = mysqli_fetch_assoc($result);
-                if ($line['role'] == 2) {
+                if ($row['role'] == 2) {
                     header("Location: ../Home/home_page.php");
-                } else if ($line['role'] == 1) {
+                } else if ($row['role'] == 1) {
                     header("Location: ../Admin/homepage.php");
                 } else {
                     header("Location: ../Home/home_page_students.php");
