@@ -21,8 +21,8 @@
         margin-left: 15%;
         padding: 24px 24px;
         box-sizing: border-box;
+        /* border: 2px solid white; */
     }
-
     #sidebar {
         background-color: #143d59;
         height: 100%;
@@ -30,11 +30,9 @@
         position: fixed;
         left: 0;
         top: 0;
+        display: flex;
+        flex-direction: column;
     }
-
-    /* #container, #sidebar {
-        padding-top: 9vh;
-    } */
 
     a {
         color: white;
@@ -50,12 +48,10 @@
         margin: 25px 0;
     }
 
-    #sidebar {
-        display: flex;
-        flex-direction: column;
-    }
-
-    #sidebar>* {
+    /* #sidebar > * {
+        margin-left: 35px;
+    } */
+    #navWrapper {
         margin-left: 35px;
     }
 
@@ -82,33 +78,60 @@
     nav li:hover>ul {
         display: block;
     }
+
+    .logo {
+        width: 80%;
+        filter: drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white);
+    }
+
+    #logout {
+        position: absolute; 
+        bottom: 24px; 
+        left: 35px;
+        font-size: 20px;
+        font-weight: bold;
+        color: #ffa72a;
+        transition: all 0.3s ease;
+    }
+
+    #logout:hover {
+        transform: translateY(-5px);
+    }
 </style>
 <div id="sidebar">
-    <a href="homepage.php" id='home'>Home</a>
-    <nav>
-        <li>
-            <a id="user" href="overview_user.php">User</a>
-            <ul>
-                <li><a id="overview_user" href="overview_user.php">Overview</a></li>
-                <li><a id="role" href="role.php">Role</a></li>
-            </ul>
-        </li>
-        <li><a id="classroom" href="classroom.php">Classroom</a></li>
-        <li><a id="dictionary" href="dictionary.php?page=0">Dictionary</a></li>
-        <li>
-            <a id = "sentence" href="overview_sentence.php">Sentence</a>
-            <ul>
-                <li><a id="overview_sentence" href="overview_sentence.php">Overview</a></li>
-                <li><a id="report" href="report.php">Report</a></li>
-            </ul>
-        </li>
-        <li>
-            <a id="deck" href="deck.php">Deck</a>
-            <ul>
-                <li><a id="deckList" href="deck.php">Deck List</a></li>
-                <li><a id="deckPool" href="deckPool.php">Deck Pool</a></li>
-                <li><a id="deckAssigned" href="deckAssigned.php">Assigned Deck</a></li>
-            </ul>
-        </li>
-    </nav>
+    <div style = "width: 100%; height: 15%; display: flex; justify-content: center; align-items: center">
+        <img class="logo" src="../../Logo/1080.png" alt="CRG Logo" style="cursor: pointer;" onclick="window.location.href = '../Home/home_page.php'">
+    </div>
+    <div id="navWrapper">
+
+        <a href="homepage.php" id='home'>Home</a>
+        <nav>
+            <li>
+                <a id="user" href="overview_user.php">User</a>
+                <ul>
+                    <li><a id="overview_user" href="overview_user.php">Overview</a></li>
+                    <li><a id="role" href="role.php">Role</a></li>
+                </ul>
+            </li>
+            <li><a id="classroom" href="classroom.php">Classroom</a></li>
+            <li><a id="dictionary" href="dictionary.php?page=0">Dictionary</a></li>
+            <li>
+                <a id = "sentence" href="overview_sentence.php">Sentence</a>
+                <ul>
+                    <li><a id="overview_sentence" href="overview_sentence.php">Overview</a></li>
+                    <li><a id="report" href="report.php">Report</a></li>
+                </ul>
+            </li>
+            <li>
+                <a id="deck" href="deck.php">Deck</a>
+                <ul>
+                    <li><a id="deckList" href="deck.php">Deck List</a></li>
+                    <li><a id="deckPool" href="deckPool.php">Deck Pool</a></li>
+                    <li><a id="deckAssigned" href="deckAssigned.php">Assigned Deck</a></li>
+                </ul>
+            </li>
+        </nav>
+    </div>
+
+    <a id = "logout" href="../Home/exit.php"><span style = "transform: scaleX(-1); display: inline-block;">⍈</span> Logout</a>
 </div>
