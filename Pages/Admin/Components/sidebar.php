@@ -88,13 +88,19 @@
         position: absolute; 
         bottom: 24px; 
         left: 35px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    #logout a {
         font-size: 20px;
         font-weight: bold;
         color: #ffa72a;
         transition: all 0.3s ease;
     }
 
-    #logout:hover {
+    #logout a:hover {
         transform: translateY(-5px);
     }
 </style>
@@ -133,5 +139,8 @@
         </nav>
     </div>
 
-    <a id = "logout" href="../Home/exit.php"><span style = "transform: scaleX(-1); display: inline-block;">⍈</span> Logout</a>
+    <div id="logout">
+        <a href="../Home/setting.php"><span>⚙️</span>Settings</a>
+        <a href="../Home/exit.php"><span style = "transform: scaleX(-1); display: inline-block;">⍈</span> Logout</a>
+    </div>
 </div>
