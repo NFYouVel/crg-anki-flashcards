@@ -33,7 +33,7 @@
                 if (!mysqli_query($con, $query)) {
                     throw new Exception("Gagal insert batch: " . mysqli_error($con));
                 }
-                $query = "INSERT INTO junction_deck_card (card_id, deck_id) VALUES ";
+                $query = "INSERT INTO junction_deck_card (card_id, deck_id, priority) VALUES ";
             }
             $count++;
 
