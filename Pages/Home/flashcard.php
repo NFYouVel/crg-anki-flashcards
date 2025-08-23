@@ -48,7 +48,7 @@ if ($green !== 0) {
             JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
             JOIN cards AS c ON dc.card_id = c.card_id
             JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-            WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.review_due <= NOW() LIMIT 1
+            WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.review_due <= NOW() ORDER BY dc.priority ASC LIMIT 1
         ");
     }
     else {
@@ -75,7 +75,7 @@ if ($green !== 0) {
             JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
             WHERE du.deck_id IN (SELECT deck_id FROM leaf_decks) AND du.user_id = '$user_id'
         )
-        SELECT * FROM flashcard WHERE review_due <= NOW() LIMIT 1
+        SELECT * FROM flashcard WHERE review_due <= NOW() ORDER BY dc.priority ASC LIMIT 1
         ");
     }
 } 
@@ -88,7 +88,7 @@ else {
             JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
             JOIN cards AS c ON dc.card_id = c.card_id
             JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-            WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.total_review = 0 LIMIT 1
+            WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.total_review = 0 ORDER BY dc.priority ASC LIMIT 1
         ");
     }
     else {
@@ -115,7 +115,7 @@ else {
             JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
             WHERE du.deck_id IN (SELECT deck_id FROM leaf_decks) AND du.user_id = '$user_id'
         )
-        SELECT * FROM flashcard WHERE total_review = 0 LIMIT 1
+        SELECT * FROM flashcard WHERE total_review = 0 ORDER BY dc.priority ASC LIMIT 1
         ");
     }
 }
