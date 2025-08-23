@@ -21,6 +21,9 @@
 
         // pembangunan string query insert sql
         $query = "INSERT INTO junction_deck_card (card_id, deck_id) VALUES ";
+        usort($_SESSION["validCards"], function($a, $b) {
+            return $a["priority"] <=> $b["priority"];
+        });
         foreach ($_SESSION["validCards"] as $key => $value) {
             // mysqli_real_escape_string untuk menghindari error saat input contohnya jika data dalam cell memiliki " / ' / ( / )
             $cardID = mysqli_real_escape_string($con, $value["cardID"]);
