@@ -20,13 +20,11 @@
         }
 
         // pembangunan string query insert sql
-        $query = "INSERT INTO junction_deck_card (card_id, deck_id) VALUES ";
-        usort($_SESSION["validCards"], function($a, $b) {
-            return $a["priority"] <=> $b["priority"];
-        });
+        $query = "INSERT INTO junction_deck_card (card_id, deck_id, priority) VALUES ";
         foreach ($_SESSION["validCards"] as $key => $value) {
             // mysqli_real_escape_string untuk menghindari error saat input contohnya jika data dalam cell memiliki " / ' / ( / )
             $cardID = mysqli_real_escape_string($con, $value["cardID"]);
+            $flpriority = mysqli_real_escape_string($con, $value["fl_priority"]);
 
             if ($count == 35) {
                 // query upload akan dikirim setiap selesai membangun query dengan 35 values, karena jika lebih, akan error
@@ -39,7 +37,7 @@
             }
             $count++;
 
-            $query .= "($cardID, '$deckID'), ";
+            $query .= "($cardID, '$deckID', '$flpriority'), ";
         }
 
         // mengirim query sisa

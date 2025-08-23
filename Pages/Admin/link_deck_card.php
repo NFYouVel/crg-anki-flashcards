@@ -206,7 +206,8 @@
                         }
                         //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
                         $cardID = $sheet->getCell("A$index")->getValue();
-                        $cardInfo = mysqli_query($con, "SELECT * FROM cards WHERE card_id = $cardID");
+                        $priority = $sheet->getCell("B$index")->getValue();
+                        $cardInfo = mysqli_query($con, "SELECT * FROM cards WHERE card_id = $cardID"); // 1954
                         $cardInfo = mysqli_fetch_assoc($cardInfo);
     
                         // echo "
@@ -255,7 +256,8 @@
                                 "pinyin" => $cardInfo["pinyin"],
                                 "class" => $cardInfo["word_class"],
                                 "english" => $cardInfo["meaning_eng"],
-                                "indo" => $cardInfo["meaning_ina"]
+                                "indo" => $cardInfo["meaning_ina"],
+                                "fl_priority" => $priority
                             ];
                         }
                         else {
