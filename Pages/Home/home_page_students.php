@@ -87,7 +87,7 @@ if (isset($_POST['hide'])) {
                         <!-- To Review Green Red Blue-->
                         <div class="to-review">
                             <span class="red"><?php echo $countMain["red"]; ?></span>
-                            <span><span class="green"><?php echo $countMain["green"]; ?></span> / <span class="blue"><?php echo $countMain["blue"]; ?></span></span>
+                            <span><span class="green"><?php echo $countMain["green"]; ?></span>/<span class="blue"><?php echo $countMain["blue"]; ?></span></span>
                         </div>
                     </div>
 
@@ -102,10 +102,10 @@ if (isset($_POST['hide'])) {
                                                                     FROM junction_deck_user AS deck_user
                                                                     JOIN decks AS deck 
                                                                     ON deck_user.deck_id = deck.deck_id
-                                                                    WHERE deck_user.user_id = '$user_id'");
+                                                                    WHERE deck_user.user_id = '$user_id' ORDER BY deck.name");
                                 } 
                                 else {
-                                    $getDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks WHERE deck_id = '$parentID'");
+                                    $getDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks WHERE deck_id = '$parentID' ORDER BY name");
                                 }
                                 while ($deck = mysqli_fetch_assoc($getDecks)) {
                                     if (!in_array($deck["deck_id"], $rootDecks)) {
@@ -121,10 +121,10 @@ if (isset($_POST['hide'])) {
                             function showDecks($parentID = null) {
                                 global $con, $user_id, $rootDecks;
                                 if($parentID == null) {
-                                    $getDecks = mysqli_query($con, "SELECT name, deck_id FROM decks WHERE parent_deck_id IS NULL");
+                                    $getDecks = mysqli_query($con, "SELECT name, deck_id FROM decks WHERE parent_deck_id IS NULL ORDER BY name");
                                 }
                                 else {
-                                    $getDecks = mysqli_query($con, "SELECT name, deck_id FROM decks WHERE parent_deck_id = '$parentID'");
+                                    $getDecks = mysqli_query($con, "SELECT name, deck_id FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name");
                                 }
                                 while($deck = mysqli_fetch_assoc($getDecks)) {
                                     $deckID = $deck["deck_id"];
@@ -141,7 +141,7 @@ if (isset($_POST['hide'])) {
                                                 echo "<div class='to-review'>
                                                         <span class='red'>$red</span>
                                                         <span>
-                                                            <span class='green'>$green</span> / <span class='blue'>$blue</span>
+                                                            <span class='green'>$green</span>/<span class='blue'>$blue</span>
                                                         </span>
                                                     </div>";
                                             echo "</div>";
