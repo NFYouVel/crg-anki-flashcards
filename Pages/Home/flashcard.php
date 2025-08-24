@@ -30,7 +30,6 @@ $_SESSION['temp_deck_id'] = $deckID;
 
 // Blue Green Red Count
 include_once "repetition_flashcard.php";
-include "../../SQL_Queries/connection.php";
 
 $counts = mysqli_fetch_assoc($query_flashcard_rbg_count);
 $blue = $counts['blue'];
@@ -68,14 +67,14 @@ if ($green !== 0) {
             SELECT deck_id FROM child_decks WHERE is_leaf = 1
         ),
         flashcard AS (
-            SELECT c.pinyin, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due
+            SELECT c.pinyin, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, dc.priority
             FROM junction_deck_user AS du
             JOIN junction_deck_card AS dc ON du.deck_id = dc.deck_id
             JOIN cards AS c ON c.card_id = dc.card_id
             JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
             WHERE du.deck_id IN (SELECT deck_id FROM leaf_decks) AND du.user_id = '$user_id'
         )
-        SELECT * FROM flashcard WHERE review_due <= NOW() ORDER BY dc.priority ASC LIMIT 1
+        SELECT * FROM flashcard WHERE review_due <= NOW() ORDER BY priority ASC LIMIT 1
         ");
     }
 } 
@@ -108,14 +107,14 @@ else {
             SELECT deck_id FROM child_decks WHERE is_leaf = 1
         ),
         flashcard AS (
-            SELECT c.pinyin, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review
+            SELECT c.pinyin, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review, dc.priority
             FROM junction_deck_user AS du
             JOIN junction_deck_card AS dc ON du.deck_id = dc.deck_id
             JOIN cards AS c ON c.card_id = dc.card_id
             JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
             WHERE du.deck_id IN (SELECT deck_id FROM leaf_decks) AND du.user_id = '$user_id'
         )
-        SELECT * FROM flashcard WHERE total_review = 0 ORDER BY dc.priority ASC LIMIT 1
+        SELECT * FROM flashcard WHERE total_review = 0 ORDER BY priority ASC LIMIT 1
         ");
     }
 }
@@ -229,9 +228,10 @@ else {
         </div>
         <!-- To Review Green Red Blue-->
         <div class="to-review">
-            <span class="green"><?php echo $green ?></span>
             <span class="red"><?php echo $red ?></span>
-            <span class="blue"><?php echo $blue ?></span>
+            <span>
+                <span class="green"><?php echo $green ?></span>/<span class="blue"><?php echo $blue ?></span>
+            </span>
         </div>
     </div>
 
