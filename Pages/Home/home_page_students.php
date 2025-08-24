@@ -141,7 +141,7 @@ if (isset($_POST['hide'])) {
                                                 echo "<div class='to-review'>
                                                         <span class='red'>$red</span>
                                                         <span>
-                                                            <span class='green'>$green</span><span class='blue' style = color: #8497B0'>/$blue</span>
+                                                            <span class='green'>$green</span><span class='blue' style = 'color: #8497B0'>/$blue</span>
                                                         </span>
                                                     </div>";
                                             echo "</div>";
