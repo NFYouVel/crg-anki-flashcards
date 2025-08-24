@@ -230,7 +230,7 @@ else {
         <div class="to-review">
             <span class="red"><?php echo $red ?></span>
             <span>
-                <span class="green"><?php echo $green ?></span>/<span class="blue"><?php echo $blue ?></span>
+                <span class="green"><?php echo $green ?></span> / <span class="blue"><?php echo $blue ?></span>
             </span>
         </div>
     </div>
