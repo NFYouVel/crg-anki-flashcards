@@ -2,10 +2,7 @@
 if($deckID == "main") {
     $query_flashcard_rbg_count = mysqli_query($con, "
     SELECT
-        COUNT(DISTINCT CASE 
-            WHEN cp.current_stage = 0 THEN cp.card_id 
-            ELSE NULL 
-        END) AS blue,
+        COUNT(cp.card_id) AS blue,
         COUNT(DISTINCT CASE 
             WHEN cp.current_stage != 0 AND cp.review_due <= NOW() THEN cp.card_id 
             ELSE NULL 
@@ -43,10 +40,7 @@ else {
         WHERE jdu.user_id = '$user_id'
     )
     SELECT
-        COUNT(DISTINCT CASE 
-            WHEN cp.current_stage = 0 THEN cp.card_id 
-            ELSE NULL 
-        END) AS blue,
+        COUNT(cp.card_id) AS blue,
         COUNT(DISTINCT CASE 
             WHEN cp.current_stage != 0 AND cp.review_due <= NOW() THEN cp.card_id 
             ELSE NULL 
