@@ -1,4 +1,3 @@
-
 <?php
 if($deckID = "main") {
     $query_flashcard_rbg_count = mysqli_query($con, "

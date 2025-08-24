@@ -61,6 +61,16 @@ if (isset($_POST['hide'])) {
     $query = "SELECT * FROM users WHERE user_id = '$user_id'";
     $result = mysqli_query($con, $query);
     $line = mysqli_fetch_array($result);
+
+    function countRGB($deckID) {
+        global $con, $user_id;
+
+        include "repetition_flashcard.php";
+
+        return mysqli_fetch_assoc($query_flashcard_rbg_count);
+    }
+
+    $countMain = countRGB("main");
     ?>
 
     <div class="wrapper-main">
@@ -76,9 +86,8 @@ if (isset($_POST['hide'])) {
                         <span class="title" onclick= "window.location.href='flashcard.php?deck_id=main'">Main Deck</span>
                         <!-- To Review Green Red Blue-->
                         <div class="to-review">
-                            <span class="green">169</span>
-                            <span class="red">28</span>
-                            <span class="blue">1638</span>
+                            <span class="red"><?php echo $countMain["red"]; ?></span>
+                            <span><span class="green"><?php echo $countMain["green"]; ?></span>/<span class="blue"><?php echo $countMain["blue"]; ?></span></span>
                         </div>
                     </div>
 
@@ -120,15 +129,20 @@ if (isset($_POST['hide'])) {
                                 while($deck = mysqli_fetch_assoc($getDecks)) {
                                     $deckID = $deck["deck_id"];
                                     if(in_array($deckID, $rootDecks)) {
+                                        $countRGB = countRGB($deckID);
+                                        $green = $countRGB["green"];
+                                        $red = $countRGB["red"];
+                                        $blue = $countRGB["blue"];
                                         echo "<li class='contain'>";
                                         echo "<div class='container-deck'>";
                                             echo "<div class='plus'>+</div>";
                                             echo "<div class='title-to-review-second' onclick=\"window.location.href='flashcard.php?deck_id=$deckID'\">";
                                             echo "<span class='title-second'>" . htmlspecialchars($deck['name']) . "</span>";
                                                 echo "<div class='to-review'>
-                                                        <span class='green'>169</span>
-                                                        <span class='red'>28</span>
-                                                        <span class='blue'>1638</span>
+                                                        <span class='red'>$red</span>
+                                                        <span>
+                                                            <span class='green'>$green</span>/<span class='blue'>$blue</span>
+                                                        </span>
                                                     </div>";
                                             echo "</div>";
                                             echo "</div>";
