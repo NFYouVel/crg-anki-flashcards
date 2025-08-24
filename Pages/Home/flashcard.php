@@ -230,7 +230,7 @@ else {
         <div class="to-review">
             <span class="red" style = "color: #ab0b01;"><?php echo $red ?></span>
             <span>
-                <span class="green" style = "color: #26940a;"><?php echo $green ?></span>/<span class="blue" style = "color: #8995aa;"><?php echo $blue ?></span>
+                <span class="green" style = "color: #26940a;"><?php echo $green ?></span><span class="blue" style = color: #8497B0'>/<?php echo $blue ?></span>
             </span>
         </div>
     </div>

@@ -87,7 +87,7 @@ if (isset($_POST['hide'])) {
                         <!-- To Review Green Red Blue-->
                         <div class="to-review">
                             <span class="red"><?php echo $countMain["red"]; ?></span>
-                            <span><span class="green"><?php echo $countMain["green"]; ?></span>/<span class="blue"><?php echo $countMain["blue"]; ?></span></span>
+                            <span><span class="green"><?php echo $countMain["green"]; ?></span><span class="blue" style = "color: #8497B0">/<?php echo $countMain["blue"]; ?></span></span>
                         </div>
                     </div>
 
@@ -141,7 +141,7 @@ if (isset($_POST['hide'])) {
                                                 echo "<div class='to-review'>
                                                         <span class='red'>$red</span>
                                                         <span>
-                                                            <span class='green'>$green</span>/<span class='blue'>$blue</span>
+                                                            <span class='green'>$green</span><span class='blue' style = color: #8497B0'>/$blue</span>
                                                         </span>
                                                     </div>";
                                             echo "</div>";
