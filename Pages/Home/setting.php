@@ -115,7 +115,7 @@ $role = $line2['role_name'];
                 }
             </script>
 
-            <div class="notification">
+            <!-- <div class="notification">
                 <h2>Notification</h2>
                 <div class="toggle-reminder">
                     <span>Study Reminder</span>
@@ -140,7 +140,7 @@ $role = $line2['role_name'];
                     <span>Time</span>
                     <span>17:00</span>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 

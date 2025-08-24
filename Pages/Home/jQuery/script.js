@@ -87,4 +87,21 @@ $(document).ready(function () {
         $(this).css("padding-left", indent + "px");
     });
     $('.line').width($('.title-to-review').width());
+
+    $("#click-show").on("click", function () {
+        $(this).css("z-index", "0");
+        $('span.pinyin').css('display','flex');
+        $('span.word-class').css('display','flex');
+        $('.vocab-card').children('table').css('display','flex');
+        $('.sentence').css('display','flex')
+        $('.vocab-card').css('border-bottom','1px solid rgb(174, 174, 174)')
+    });
+
+    $(document).on("click", ".text-report", function() {
+        $(".wrapper-report").css("display", "flex");
+    });
+    $(".button-cancel").click(function () {
+        let box = $(".wrapper-report");
+        box.fadeOut(150);
+    });
 });

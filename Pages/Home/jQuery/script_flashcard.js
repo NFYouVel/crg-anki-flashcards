@@ -7,16 +7,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const cardId = document.getElementById('flashcard-form').dataset.cardId;
             const stages = this.dataset.cs;
             document.getElementById('loading-overlay').style.display = 'flex';
+            
             // Tampilkan pesan berdasarkan status
-            const messageBox = document.getElementById('flashcard-message');
-            if (status === 'forgot') {
-                messageBox.innerText = 'It’s okay! Let’s try again!';
-            } else if (status === 'hard') {
-                messageBox.innerText = 'Nice! Keep pushing!';
-            } else if (status === 'remember') {
-                messageBox.innerText = 'Great job! You nailed it!';
-            }
-            messageBox.style.display = 'flex';
+            // const messageBox = document.getElementById('flashcard-message');
+            // if (status === 'forgot') {
+            //     messageBox.innerText = 'It’s okay! Let’s try again!';
+            // } else if (status === 'hard') {
+            //     messageBox.innerText = 'Nice! Keep pushing!';
+            // } else if (status === 'remember') {
+            //     messageBox.innerText = 'Great job! You nailed it!';
+            // }
+            // messageBox.style.display = 'flex';
 
 
             const xhr = new XMLHttpRequest();
@@ -32,3 +33,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+
+$(document).on("click", "#button-report", function(e) {
+    e.preventDefault();
+
+    if ($('input[name="reason[]"]:checked').length === 0) {
+        e.preventDefault(); // stop form submit
+        alert('Please select at least one reason!');
+    } else {
+        let formData = $("#report-sentence").serialize();
+        let sentenceCode = $(this).data("sentence-id")
+        formData += "&sentence_code=" + encodeURIComponent(sentenceCode);
+        $.ajax({
+            url: "jQuery/ajax_sendReport.php",
+            type: "GET",
+            data: formData,
+            success: function(response) {
+                alert(response);
+                $(".wrapper-report").hide();
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+                alert("Failed to send report!");
+            }
+        });
+    }
+
+});
+
+

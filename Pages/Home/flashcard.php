@@ -5,10 +5,20 @@ session_start();
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = $_COOKIE['user_id'];
 }
+// Saved Zoom
+if (isset($_SESSION['zoom'])) {
+    $savedZoom = $_SESSION['zoom'];
+} else {
+    $savedZoom = 100;
+}
+
+// Call the user
 $user_id = $_SESSION["user_id"];
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
 $line = mysqli_fetch_assoc($result);
+$chara_set = $line['character_set'];
+
 if ($line['role'] == 0) {
     $role = "Admin";
 } else if ($line['role'] == 1) {
@@ -21,8 +31,7 @@ include "../Admin/convertPinyin.php";
 // Deck ID
 if (!isset($_GET['deck_id'])) {
     $deckID = $_SESSION['temp_deck_id'];
-} 
-else {
+} else {
     $deckID = $_GET['deck_id'];
 }
 
@@ -39,9 +48,9 @@ $red = $counts['red'];
 
 // Algorithm Flashcard
 if ($green !== 0) {
-    if($deckID == "main") {
+    if ($deckID == "main") {
         $query_flashcard_algorithm = mysqli_query($con, "
-        SELECT c.pinyin, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due
+        SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due
             FROM junction_deck_user AS du 
             JOIN decks AS d ON d.deck_id = du.deck_id
             JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
@@ -49,8 +58,7 @@ if ($green !== 0) {
             JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
             WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.review_due <= NOW() ORDER BY dc.priority ASC LIMIT 1
         ");
-    }
-    else {
+    } else {
         $query_flashcard_algorithm = mysqli_query($con, "
         WITH RECURSIVE child_decks AS (
             SELECT deck_id, is_leaf
@@ -67,7 +75,7 @@ if ($green !== 0) {
             SELECT deck_id FROM child_decks WHERE is_leaf = 1
         ),
         flashcard AS (
-            SELECT c.pinyin, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, dc.priority
+            SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, dc.priority
             FROM junction_deck_user AS du
             JOIN junction_deck_card AS dc ON du.deck_id = dc.deck_id
             JOIN cards AS c ON c.card_id = dc.card_id
@@ -77,11 +85,10 @@ if ($green !== 0) {
         SELECT * FROM flashcard WHERE review_due <= NOW() ORDER BY priority ASC LIMIT 1
         ");
     }
-} 
-else {
-    if($deckID == "main") {
+} else {
+    if ($deckID == "main") {
         $query_flashcard_algorithm = mysqli_query($con, "
-        SELECT c.pinyin, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review
+        SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review
             FROM junction_deck_user AS du 
             JOIN decks AS d ON d.deck_id = du.deck_id
             JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
@@ -89,8 +96,7 @@ else {
             JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
             WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.total_review = 0 ORDER BY dc.priority ASC LIMIT 1
         ");
-    }
-    else {
+    } else {
         $query_flashcard_algorithm = mysqli_query($con, "
         WITH RECURSIVE child_decks AS (
             SELECT deck_id, is_leaf
@@ -107,7 +113,7 @@ else {
             SELECT deck_id FROM child_decks WHERE is_leaf = 1
         ),
         flashcard AS (
-            SELECT c.pinyin, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review, dc.priority
+            SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review, dc.priority
             FROM junction_deck_user AS du
             JOIN junction_deck_card AS dc ON du.deck_id = dc.deck_id
             JOIN cards AS c ON c.card_id = dc.card_id
@@ -118,6 +124,7 @@ else {
         ");
     }
 }
+
 
 ?>
 <!-- ------------------------------------------------------------------ -->
@@ -222,15 +229,15 @@ else {
     <div class="title-to-review">
         <!-- Deck Title -->
         <div>
-            <span class="calc" id="zoomIn">+</span>
-            <span class="calc" id="zoomDisplay">100%</span>
             <span class="calc" id="zoomOut">-</span>
+            <span class="calc" id="zoomDisplay">100%</span>
+            <span class="calc" id="zoomIn">+</span>
         </div>
         <!-- To Review Green Red Blue-->
         <div class="to-review">
-            <span class="red" style = "color: #ab0b01;"><?php echo $red ?></span>
+            <span class="red" style="color: #ab0b01;"><?php echo $red ?></span>
             <span>
-                <span class="green" style = "color: #26940a;"><?php echo $green ?></span><span class="blue" style = color: #8497B0'>/<?php echo $blue ?></span>
+                <span class="green" style="color: #26940a;"><?php echo $green ?></span><span class="blue" style=color: #8497B0'>/<?php echo $blue ?></span>
             </span>
         </div>
     </div>
@@ -239,11 +246,17 @@ else {
     <div class="wrapper-flashcard" id="target">
         <div class="wrapper-mid">
             <?php
-            if ($row = mysqli_fetch_assoc($query_flashcard_algorithm)) {
+            if ($row = mysqli_fetch_assoc(result: $query_flashcard_algorithm)) {
                 $pinyin = convert($row["pinyin"]);
+                if ($chara_set == "traditional") {
+                    $temp_charaset = 'chinese_tc';
+                } else {
+                    $temp_charaset = 'chinese_sc';
+                }
+
             ?>
                 <div class="vocab-card">
-                    <span class="hanzi"><?php echo htmlspecialchars($row['chinese_sc']); ?></span>
+                    <span class="hanzi"><?php echo htmlspecialchars($row[$temp_charaset]); ?></span>
                     <span class="pinyin"><?php echo htmlspecialchars($pinyin); ?></span>
                     <span class="word-class"><?php echo htmlspecialchars($row['word_class']); ?></span>
                     <table>
@@ -273,8 +286,8 @@ else {
                 while ($line = mysqli_fetch_array($query_sentence)) {
                     echo "<div class='sentence'>
                     <div class='chinese-sentence'>
-                        <span class='sentence'>{$line['chinese_tc']}</span>
-                        <a class='report'>Report Sentence</a>
+                        <span class='sentence'>{$line[$temp_charaset]}</span>
+                        <span class='report text-report' onclick=\"Report('{$line['sentence_code']}','{$line[$temp_charaset]}')\">Report Sentence</a>
                     </div>
                     <span class='pinyin'>{$line['pinyin']}</span>
                     <table>
@@ -292,16 +305,52 @@ else {
                 </div>";
                 }
                 ?>
-                
+
             <?php
             }
             ?>
         </div>
     </div>
 
+    <div class='wrapper-report'>
+        <div class='report'>
+            <div class='title-report'><span>Report Sentence</span></div>
+            <div class='explanation'>
+                <span class="ex-sentence">Sentence:</span>
+                <span class="ex-sentence">这个城市很小啊，也很多黑人</span>
+                <span style="width: 100%;">Reason: </span>
+                <form id="report-sentence">
+                    <div class="checkbox">
+                        <span>Bad Sentence</span>
+                        <input type="checkbox" name="reason[]" value="Bad Sentence">
+                    </div>
+                    <div class="checkbox">
+                        <span>Bad Pinyin</span>
+                        <input type="checkbox" name="reason[]" value="Bad Pinyin">
+                    </div>
+                    <div class="checkbox">
+                        <span>Bad Translation ENG</span>
+                        <input type="checkbox" name="reason[]" value="Bad Translation ENG">
+                    </div>
+                    <div class="checkbox">
+                        <span>Bad Translation INA</span>
+                        <input type="checkbox" name="reason[]" value="Bad Translation INA">
+                    </div>
+
+                    <span class="textarea">Let Us Know More:</span>
+                    <textarea name="details"></textarea>
+                </form>
+            </div>
+            <div class='button'>
+                <button class='button-cancel'>Cancel</button>
+                <button type="submit" id='button-report' form="report-sentence">Report</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
-    <button class="wrapper-show-answer">
-        <span href="#" class="show">Show Answer</span>
+    <button class="wrapper-show-answer" id="click-show">
+        <span class="show">Show Answer</span>
     </button>
     <div class="wrapper-show-answer" id="flashcard-form" data-card-id="<?php echo $temp_card_id; ?>">
         <button type="button" id="criteria" class="criteria forgot" data-status="forgot" data-cs="<?php echo $row['current_stage'] ?>">
@@ -316,7 +365,28 @@ else {
     </div>
 
     <script>
-        let fontSize = 100;
+        function Report(sentence_code, sentence) {
+            document.getElementById('button-report').setAttribute("data-sentence-id", sentence_code);
+            const spans = document.getElementsByClassName('ex-sentence')[1];
+            spans.innerHTML = sentence;
+        }
+
+        // Minimum 1 of selection checkboxes
+        document.getElementById('report-sentence').addEventListener('submit', function(e) {
+            const checkboxes = document.querySelectorAll('input[name="reason[]"]');
+            let checked = false;
+
+            checkboxes.forEach(cb => {
+                if (cb.checked) checked = true;
+            });
+
+            if (!checked) {
+                e.preventDefault(); // stop form submit
+                alert('Please select at least one reason!');
+            }
+        });
+
+        let fontSize = <?php echo $savedZoom; ?>;
         const zoomStep = 10;
         const minZoom = 50;
         const maxZoom = 200;
@@ -327,6 +397,10 @@ else {
         function applyZoom() {
             zoomTarget.style.fontSize = fontSize + '%';
             zoomDisplay.textContent = fontSize + '%';
+
+            $.post("savezoom.php", {
+                zoom: fontSize
+            });
         }
 
         document.getElementById('zoomIn').addEventListener('click', () => {
@@ -344,6 +418,14 @@ else {
         });
 
         applyZoom();
+
+        window.onload = function() {
+            history.pushState(null, "", location.href);
+
+            window.onpopstate = function() {
+                history.go(1);
+            };
+        };
     </script>
 
     <div id="loading-overlay">

@@ -3,8 +3,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 83vh;
+  min-height: 61vh; 
   font-size: 14px;
+  /* 83 */
 }
 
 .container {
@@ -160,8 +161,9 @@ h2 {
 
  @media screen and (max-width:768px) {
     .wrapper-setting {
-      min-height: 75vh;
+      min-height: 35vh;
     }
+    /* 75 */
     .container {
       margin: 0 20px;
     }

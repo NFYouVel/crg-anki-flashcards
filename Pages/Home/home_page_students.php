@@ -4,19 +4,27 @@ include "../../SQL_Queries/connection.php";
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = $_COOKIE['user_id'];
 }
+
+// User ID
 $user_id = $_SESSION["user_id"];
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
 $line = mysqli_fetch_array($result);
 $role_id = $line['role'];
+$user_status = $line['user_status'];
+if ($user_status == "pending") {
+    header("Location: setting.php");
+}
+
+// Role User ID
 $result2 = mysqli_query($con, "SELECT * FROM user_role WHERE role_id = '$role_id'");
 $line2 = mysqli_fetch_array($result2);
 $role = $line2['role_name'];
 
-if (isset($_POST['hide'])) {
-    $name = $line['name'];
-    echo "<script>alert('You are login with $name Account as Teacher')</script>";
-}
+// if (isset($_POST['hide'])) {
+//     $name = $line['name'];
+//     echo "<script>alert('You are login with $name Account as Teacher')</script>";
+// }
 
 
 ?>
@@ -40,13 +48,8 @@ if (isset($_POST['hide'])) {
     <div class="right-bar">
         <div class="account-info">
             <span class="username"><?php echo $line['name'] ?></span>
-            <span class="as" style="cursor: pointer;" onclick="Mode()">Student</span>
+            <span class="as">Student</span>
         </div>
-        <script>
-            function Mode() {
-                window.location.href = "home_page_students.php";
-            }
-        </script>
 
         <div class="navbar">
             <span class="icon">&#9776;</span>
@@ -81,9 +84,9 @@ if (isset($_POST['hide'])) {
                 <!-- Active Chinese Senin Kamis 20.30-->
                 <li class="class-title">
                     <!-- Colored Title -->
-                    <div class="title-to-review">
+                    <div class="title-to-review" onclick= "window.location.href='flashcard.php?deck_id=main'">
                         <!-- Deck Title -->
-                        <span class="title" onclick= "window.location.href='flashcard.php?deck_id=main'">Main Deck</span>
+                        <span class="title">Main Deck</span>
                         <!-- To Review Green Red Blue-->
                         <div class="to-review">
                             <span class="red"><?php echo $countMain["red"]; ?></span>

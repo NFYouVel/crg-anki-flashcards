@@ -199,8 +199,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                 </div>
             </div>
             <div class='button'>
-                <button class='button-cancel'>Cancel</button>
-                <button class='button-add'>Add to Classroom</button>
+                <button class='button-cancel'>Back</button>
             </div>
         </div>
     </div>
