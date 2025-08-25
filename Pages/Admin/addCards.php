@@ -228,7 +228,7 @@
                         $reason = "";
                         //check for invalid email format
                         if($cardID == "") {
-                            $cardID = "#invalidID_" . $invalidID++;
+                            $cardID = "#invalidID_" . $index;
                             $reason .= "<p id = 'invalid'>Card ID is empty ato row $index</p>";
                         }
     
