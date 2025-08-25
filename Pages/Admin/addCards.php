@@ -299,7 +299,7 @@
             $fileExtension = pathinfo($_FILES['excel_file']['name'], PATHINFO_EXTENSION);
             $fileName = "CRG_backup_card_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
             $_SESSION["filePath"] = $fileName;
-            move_uploaded_file($_FILES['excel_file']['tmp_name'], "../../Backup/card/temp/" . $fileName);
+            move_uploaded_file($_FILES['excel_file']['tmp_name'], "../../../Backup/card/temp/" . $fileName);
         } 
     ?>
     <div id="loadingScreen">
