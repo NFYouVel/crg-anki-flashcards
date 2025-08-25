@@ -224,8 +224,9 @@
                         // </tr>";
     
                         $reason = "";
+                        echo "<script>console.log('$cardID')</script>";
                         //check if card id exists
-                        if($cardID === null || $cardID == "") {
+                        if($cardID == null || $cardID == "") {
                             $reason .= "<p id = 'invalid'>Card ID Empty</p>";
                         }
                         else if(mysqli_num_rows(mysqli_query($con, "SELECT card_id FROM cards WHERE card_id = $cardID")) == 0) {
