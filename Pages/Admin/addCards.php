@@ -231,7 +231,7 @@
                         //check for invalid email format
                         if($cardID == "") {
                             $cardID = "#invalidID_" . $invalidID++;
-                            $reason .= "<p id = 'invalid'>Card ID is empty</p>";
+                            $reason .= "<p id = 'invalid'>Card ID is empty ato row $index</p>";
                         }
     
                         //check for duplicates in uploaded excel
