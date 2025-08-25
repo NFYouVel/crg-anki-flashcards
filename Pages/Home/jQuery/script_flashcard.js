@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const cardId = document.getElementById('flashcard-form').dataset.cardId;
             const stages = this.dataset.cs;
             document.getElementById('loading-overlay').style.display = 'flex';
-            
+
             // Tampilkan pesan berdasarkan status
             // const messageBox = document.getElementById('flashcard-message');
             // if (status === 'forgot') {
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-$(document).on("click", "#button-report", function(e) {
+$(document).on("click", "#button-report", function (e) {
     e.preventDefault();
 
     if ($('input[name="reason[]"]:checked').length === 0) {
@@ -43,17 +43,18 @@ $(document).on("click", "#button-report", function(e) {
         alert('Please select at least one reason!');
     } else {
         let formData = $("#report-sentence").serialize();
-        let sentenceCode = $(this).data("sentence-id")
-        formData += "&sentence_code=" + encodeURIComponent(sentenceCode);
+
         $.ajax({
             url: "jQuery/ajax_sendReport.php",
             type: "GET",
             data: formData,
-            success: function(response) {
+            success: function (response) {
                 alert(response);
                 $(".wrapper-report").hide();
+                $("#report-sentence")[0].reset();
+                sentenceCode = $('button-report').data("sentence-id")
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error(error);
                 alert("Failed to send report!");
             }

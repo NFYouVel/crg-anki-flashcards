@@ -320,6 +320,7 @@ if ($green !== 0) {
                 <span class="ex-sentence">这个城市很小啊，也很多黑人</span>
                 <span style="width: 100%;">Reason: </span>
                 <form id="report-sentence">
+                    <input type="hidden" name="sentence-id" id="hidden">
                     <div class="checkbox">
                         <span>Bad Sentence</span>
                         <input type="checkbox" name="reason[]" value="Bad Sentence">
@@ -366,7 +367,12 @@ if ($green !== 0) {
 
     <script>
         function Report(sentence_code, sentence) {
-            document.getElementById('button-report').setAttribute("data-sentence-id", sentence_code);
+            document.getElementById('report-sentence').reset();
+
+            // Set new sentence code
+            document.getElementById('hidden').value = sentence_code;
+
+            // Update sentence di modal
             const spans = document.getElementsByClassName('ex-sentence')[1];
             spans.innerHTML = sentence;
         }
