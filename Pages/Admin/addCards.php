@@ -179,10 +179,8 @@
         require '../../Composer_Excel/vendor/autoload.php';
         use PhpOffice\PhpSpreadsheet\IOFactory;
         //jika page ke refresh, tidak perlu nge read ulang file, tapi mengambil dari session yang dibuat sebelum ke refresh
-        if(isset($_SESSION["allCards"])) {
-        }
         //read excel
-        else if (isset($_FILES['excel_file'])) {
+        if (isset($_FILES['excel_file'])) {
             $id = 1;
             $invaliID = 1;
             //variabel untuk membangun variabel session (allCards, validCards, invalidCards)
