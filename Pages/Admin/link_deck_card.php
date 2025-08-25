@@ -207,8 +207,6 @@
                         //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
                         $cardID = $sheet->getCell("B$index")->getValue() ?? ""; 
                         $priority = $sheet->getCell("A$index")->getValue();
-                        $cardInfo = mysqli_query($con, "SELECT * FROM cards WHERE card_id = $cardID"); // 1954
-                        $cardInfo = mysqli_fetch_assoc($cardInfo);
     
                         // echo "
                         // <tr>
@@ -232,6 +230,10 @@
                         else if(mysqli_num_rows(mysqli_query($con, "SELECT card_id FROM cards WHERE card_id = $cardID")) == 0) {
                             $reason .= "<p id = 'invalid'>Card ID Not Found</p>";
                         }
+                        else {
+                            $cardInfo = mysqli_query($con, "SELECT * FROM cards WHERE card_id = $cardID"); // 1954
+                            $cardInfo = mysqli_fetch_assoc($cardInfo);
+                        }
     
                         //check if deck id exists
                         if(mysqli_num_rows(mysqli_query($con, "SELECT deck_id FROM decks WHERE deck_id = '$deckID'")) == 0) {
@@ -240,14 +242,14 @@
     
                         //membangun session untuk semua kartu
                         $allCards[$cardID] = [
-                            "cardID" => $cardID, 
-                            "traditional" => $cardInfo["chinese_tc"], 
-                            "simplified" => $cardInfo["chinese_sc"], 
-                            "priority" => $cardInfo["priority"],
-                            "pinyin" => $cardInfo["pinyin"],
-                            "class" => $cardInfo["word_class"],
-                            "english" => $cardInfo["meaning_eng"],
-                            "indo" => $cardInfo["meaning_ina"]
+                            "cardID" => $cardID ?? "not found",
+                            "traditional" => $cardInfo["chinese_tc"] ?? "not found", 
+                            "simplified" => $cardInfo["chinese_sc"] ?? "not found", 
+                            "priority" => $cardInfo["priority"] ?? "not found",
+                            "pinyin" => $cardInfo["pinyin"] ?? "not found",
+                            "class" => $cardInfo["word_class"] ?? "not found",
+                            "english" => $cardInfo["meaning_eng"] ?? "not found",
+                            "indo" => $cardInfo["meaning_ina" ?? "not found"]
                         ];
                         //logika valid / tidak valid
                         if($reason == "") {
@@ -267,15 +269,15 @@
                         else {
                             //membantun session untuk kartu yang tidak valid
                             $invalidCards[$cardID] = [
-                                "cardID" => $cardID,
-                                "traditional" => $cardInfo["chinese_tc"], 
-                                "simplified" => $cardInfo["chinese_sc"], 
-                                "priority" => $cardInfo["priority"],
-                                "pinyin" => $cardInfo["pinyin"],
-                                "class" => $cardInfo["word_class"],
-                                "english" => $cardInfo["meaning_eng"],
-                                "indo" => $cardInfo["meaning_ina"],
-                                "reason" => $reason
+                                "cardID" => $cardID ?? "not found",
+                                "traditional" => $cardInfo["chinese_tc"] ?? "not found", 
+                                "simplified" => $cardInfo["chinese_sc"] ?? "not found", 
+                                "priority" => $cardInfo["priority"] ?? "not found",
+                                "pinyin" => $cardInfo["pinyin"] ?? "not found",
+                                "class" => $cardInfo["word_class"] ?? "not found",
+                                "english" => $cardInfo["meaning_eng"] ?? "not found",
+                                "indo" => $cardInfo["meaning_ina"] ?? "not found",
+                                "reason" => $reason ?? "not found"
                             ];
                         }
                     }
