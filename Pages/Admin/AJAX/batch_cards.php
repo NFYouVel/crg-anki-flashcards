@@ -75,7 +75,7 @@
             $importName = $old["import_batch_name"];
 
             mysqli_query($con, "DELETE FROM data_backup WHERE import_batch_id = '$importID'");
-            unlink("../../../Backup/card/" . $importName);
+            unlink("../../../../Backup/card/" . $importName);
         }
 
         $countAll = count($_SESSION["allCards"]);
@@ -84,8 +84,8 @@
         $importedBy = $_COOKIE["user_id"];
 
         $fileName = $_SESSION["filePath"];
-        $oldPath = "../../../Backup/card/temp/" . $fileName;
-        $newPath = "../../../Backup/card/" . $fileName;
+        $oldPath = "../../../../Backup/card/temp/" . $fileName;
+        $newPath = "../../../../Backup/card/" . $fileName;
         $userID = $_COOKIE["user_id"];
 
         if (!rename($oldPath, $newPath)) {

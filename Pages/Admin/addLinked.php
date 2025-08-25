@@ -267,7 +267,7 @@
             $fileExtension = pathinfo($_FILES['link']['name'], PATHINFO_EXTENSION);
             $fileName = "CRG_backup_junction_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
             $_SESSION["filePath"] = $fileName;
-            move_uploaded_file($_FILES['link']['tmp_name'], "../../Backup/card_sentence/temp/" . $fileName);
+            move_uploaded_file($_FILES['link']['tmp_name'], "../../../Backup/card_sentence/temp/" . $fileName);
         } 
     ?>
     <div id="loadingScreen">

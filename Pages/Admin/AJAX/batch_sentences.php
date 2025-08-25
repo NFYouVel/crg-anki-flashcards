@@ -73,7 +73,7 @@
             $importName = $old["import_batch_name"];
 
             mysqli_query($con, "DELETE FROM data_backup WHERE import_batch_id = '$importID'");
-            unlink("../../../Backup/sentence/" . $importName);
+            unlink("../../../../Backup/sentence/" . $importName);
         }
 
         $countAll = count($_SESSION["allSentences"]);
@@ -82,14 +82,14 @@
         $importedBy = $_COOKIE["user_id"];
 
         $fileName = $_SESSION["filePath"];
-        $oldPath = "../../../Backup/sentence/temp/" . $fileName;
-        $newPath = "../../../Backup/sentence/" . $fileName;
+        $oldPath = "../../../../Backup/sentence/temp/" . $fileName;
+        $newPath = "../../../../Backup/sentence/" . $fileName;
         $userID = $_COOKIE["user_id"];
 
         if (!rename($oldPath, $newPath)) {
             echo "<h2>Failed to move backup file from temp folder.</h2>";
         }
-        $folder = '../../../Backup/sentence/temp/';
+        $folder = '../../../../Backup/sentence/temp/';
 
         $files = glob($folder . '*');
         foreach ($files as $file) {

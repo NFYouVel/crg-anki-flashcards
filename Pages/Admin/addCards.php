@@ -166,7 +166,7 @@
             $date = date("ymd_Hi");
             $fileExtension = pathinfo($_FILES['excel_file']['name'], PATHINFO_EXTENSION);
             $fileName = "CRG_backup_card_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
-            move_uploaded_file($_FILES['excel_file']['tmp_name'], "../../Backup/card" . $fileName);
+            move_uploaded_file($_FILES['excel_file']['tmp_name'], "../../../Backup/card" . $fileName);
             echo "
             <script>
             document.addEventListener('DOMContentLoaded', function () {

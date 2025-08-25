@@ -258,7 +258,7 @@
             $fileName = "CRG_backup_sentence_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
             $_SESSION["filePath"] = $fileName;
 
-            if (move_uploaded_file($_FILES['sentence']['tmp_name'], "../../Backup/sentence/temp/" . $fileName)) {
+            if (move_uploaded_file($_FILES['sentence']['tmp_name'], "../../../Backup/sentence/temp/" . $fileName)) {
                 echo "<script>alert('Upload successful!');</script>";
             } else {
                 echo "<script>alert('Upload failed: " . $_FILES['sentence']['error'] . "');</script>";
