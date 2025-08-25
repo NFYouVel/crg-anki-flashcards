@@ -225,7 +225,10 @@
     
                         $reason = "";
                         //check if card id exists
-                        if(mysqli_num_rows(mysqli_query($con, "SELECT card_id FROM cards WHERE card_id = $cardID")) == 0) {
+                        if($cardID === null || $cardID == "") {
+                            $reason .= "<p id = 'invalid'>Card ID Empty</p>";
+                        }
+                        else if(mysqli_num_rows(mysqli_query($con, "SELECT card_id FROM cards WHERE card_id = $cardID")) == 0) {
                             $reason .= "<p id = 'invalid'>Card ID Not Found</p>";
                         }
     

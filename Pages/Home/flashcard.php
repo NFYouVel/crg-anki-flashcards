@@ -45,7 +45,6 @@ $blue = $counts['blue'];
 $green = $counts['green'];
 $red = $counts['red'];
 
-echo "<script>console.log('$deckID')</script>";
 // Algorithm Flashcard
 if ($green !== 0) {
     if ($deckID == "main") {
