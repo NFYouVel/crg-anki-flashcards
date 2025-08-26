@@ -18,12 +18,6 @@ if (($status == "forgot" && $stage == 0) || ($status == "hard") || ($status == "
     $temp = 1;
 }
 
-// Get Stage Intervals
-$table_stage = mysqli_query($con, "SELECT * FROM stages_intervals WHERE stage = $stage");
-$time = mysqli_fetch_array($table_stage);
-$iv = $time['interval_value'];
-$iu = strtoupper($time['interval_unit']);
-
 // Get Card Progress to history
 $card_progress = mysqli_query($con, "SELECT * FROM card_progress WHERE user_id = '$user_id' AND card_id = '$card_id'");
 $result_card_progress = mysqli_fetch_assoc($card_progress);
@@ -33,6 +27,12 @@ $query_logs = "INSERT INTO logs_SRS_user_progress
 (user_id, card_id, stage_before, result, stage_after, review_due, review_actual, review_delay) VALUES
 ('$user_id', '$card_id', $stage, '$status', $stage_after, '$review_due', NOW(3), (UNIX_TIMESTAMP(NOW(3)) - UNIX_TIMESTAMP('$review_due')) * 1000)";
 mysqli_query($con, $query_logs);
+
+// Get Stage Intervals
+$table_stage = mysqli_query($con, "SELECT * FROM stages_intervals WHERE stage = $stage_after");
+$time = mysqli_fetch_array($table_stage);
+$iv = $time['interval_value'];
+$iu = strtoupper($time['interval_unit']);
 
 var_dump($iv, $iu);
 if ($status == "forgot" && $stage == 0) {

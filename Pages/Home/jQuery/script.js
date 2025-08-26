@@ -6,7 +6,7 @@ $(document).ready(function () {
         } else {
             box.css("display", "block").hide().slideDown(500);
         }
-        
+
     });
     // $(".title-to-review-second").click(function () {
     //     $(this).next().children().slideToggle(400);
@@ -57,25 +57,25 @@ $(document).ready(function () {
 
     // Tambahin cursor pointer ke title deck
     $(".title-to-review-second").css("cursor", "pointer");
-  
+
     // Toggle setiap klik title deck
-    $(".plus").on("click", function (e) {
-        // e.stopPropagation(); // Biar nggak kena bubbling ke parent
-      
-        const $this = $(this);
-        const $ul = $this.closest(".contain").children("ul");
-      
-        // Toggle tampilannya
-        $ul.slideToggle(200);
-      
-        // Ganti tanda plus/minus
-        if ($this.text().trim() === "+") {
-          $this.text("−");
-        } else {
-          $this.text("+");
-        }
-      });
-      
+    // $(".plus").on("click", function (e) {
+    //     // e.stopPropagation(); // Biar nggak kena bubbling ke parent
+
+    //     const $this = $(this);
+    //     const $ul = $this.closest(".contain").children("ul");
+
+    //     // Toggle tampilannya
+    //     $ul.slideToggle(200);
+
+    //     // Ganti tanda plus/minus
+    //     if ($this.text().trim() === "+") {
+    //       $this.text("−");
+    //     } else {
+    //       $this.text("+");
+    //     }
+    //   });
+
     $(".title-to-review-second").each(function () {
         // Hitung level berdasarkan berapa kali dia nested dalam <ul>
         let level = $(this).parents("ul").length - 1;
@@ -90,18 +90,51 @@ $(document).ready(function () {
 
     $("#click-show").on("click", function () {
         $(this).css("z-index", "0");
-        $('span.pinyin').css('display','flex');
-        $('span.word-class').css('display','flex');
-        $('.vocab-card').children('table').css('display','flex');
-        $('.sentence').css('display','flex')
-        $('.vocab-card').css('border-bottom','1px solid rgb(174, 174, 174)')
+        $('span.pinyin').css('display', 'flex');
+        $('span.word-class').css('display', 'flex');
+        $('.vocab-card').children('table').css('display', 'flex');
+        $('.sentence').css('display', 'flex')
+        $('.vocab-card').css('border-bottom', '1px solid rgb(174, 174, 174)')
     });
 
-    $(document).on("click", ".text-report", function() {
+    $(document).on("click", ".text-report", function () {
         $(".wrapper-report").css("display", "flex");
     });
     $(".button-cancel").click(function () {
         let box = $(".wrapper-report");
         box.fadeOut(150);
+    });
+
+    // New Fitur
+    let openDecks = JSON.parse(localStorage.getItem("openDecks")) || [];
+
+    // Buka ulang deck yang ada di list
+    openDecks.forEach(function (id) {
+        let $contain = $(`.contain[data-id='${id}']`);
+        $contain.children("ul").show();       // buka subdeck
+        $contain.find(".plus").text("−");     // ubah tanda jadi minus
+    });
+
+    $(".plus").on("click", function () {
+        let $this = $(this);
+        let $contain = $this.closest(".contain");
+        let $ul = $contain.children("ul");
+        let deckId = $contain.data("id");
+
+        // Toggle show/hide
+        if ($ul.is(":visible")) {
+            $ul.slideUp(200);
+            $this.text("+");
+            openDecks = openDecks.filter(x => x !== deckId);
+        } else {
+            $ul.slideDown(200);
+            $this.text("−");
+            if (!openDecks.includes(deckId)) {
+                openDecks.push(deckId);
+            }
+        }
+
+        // Update localStorage
+        localStorage.setItem("openDecks", JSON.stringify(openDecks));
     });
 });
