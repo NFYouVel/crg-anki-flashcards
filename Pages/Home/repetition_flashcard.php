@@ -4,7 +4,7 @@ if($deckID == "main") {
     SELECT
         COUNT(cp.card_id) AS blue,
         COUNT(DISTINCT CASE 
-            WHEN cp.current_stage != 0 AND cp.review_due <= NOW() THEN cp.card_id 
+            WHEN cp.current_stage != 0 THEN cp.card_id 
             ELSE NULL 
         END) AS green,
         COUNT(DISTINCT CASE 
@@ -42,7 +42,7 @@ else {
     SELECT
         COUNT(cp.card_id) AS blue,
         COUNT(DISTINCT CASE 
-            WHEN cp.current_stage != 0 AND cp.review_due <= NOW() THEN cp.card_id 
+            WHEN cp.current_stage != 0 THEN cp.card_id 
             ELSE NULL 
         END) AS green,
         COUNT(DISTINCT CASE 
