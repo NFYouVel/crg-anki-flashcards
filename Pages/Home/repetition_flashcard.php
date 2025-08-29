@@ -8,7 +8,7 @@ if($deckID == "main") {
             ELSE NULL 
         END) AS green,
         COUNT(DISTINCT CASE 
-            WHEN cp.review_due > NOW() THEN cp.card_id 
+            WHEN cp.review_due <= NOW() THEN cp.card_id 
             ELSE NULL 
         END) AS red
     FROM card_progress AS cp 
@@ -46,7 +46,7 @@ else {
             ELSE NULL 
         END) AS green,
         COUNT(DISTINCT CASE 
-            WHEN cp.review_due > NOW() THEN cp.card_id 
+            WHEN cp.review_due <= NOW() THEN cp.card_id 
             ELSE NULL 
         END) AS red
     FROM distinct_cards AS dc
