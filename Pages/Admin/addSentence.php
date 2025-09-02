@@ -163,6 +163,7 @@
         if (isset($_FILES['sentence'])) {
             $invalidID = 1;
             $fileTmpPath = $_FILES['sentence']['tmp_name'];
+            echo "<script>alert('$fileTmpPath')</script>";
             $fileName = $_FILES['sentence']['name'];
             $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
         
