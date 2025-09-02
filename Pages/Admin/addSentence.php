@@ -155,7 +155,7 @@
 </head>
 <body>
     <?php
-        include "Components/sidebar.php";
+        // include "Components/sidebar.php";
         include "../../SQL_Queries/connection.php";
         require '../../Composer_Excel/vendor/autoload.php';
         use PhpOffice\PhpSpreadsheet\IOFactory;
