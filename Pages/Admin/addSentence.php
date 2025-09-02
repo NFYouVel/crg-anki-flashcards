@@ -246,17 +246,17 @@
             $_SESSION["validSentences"] = $validSentences;
             $_SESSION["invalidSentences"] = $invalidSentences;
         
-            date_default_timezone_set("Asia/Jakarta");
-            $date = date("ymd_Hi");
-            $fileExtension = pathinfo($_FILES['sentence']['name'], PATHINFO_EXTENSION);
-            $fileName = "CRG_backup_sentence_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
-            $_SESSION["filePath"] = $fileName;
+            // date_default_timezone_set("Asia/Jakarta");
+            // $date = date("ymd_Hi");
+            // $fileExtension = pathinfo($_FILES['sentence']['name'], PATHINFO_EXTENSION);
+            // $fileName = "CRG_backup_sentence_$date" . "_" . $_COOKIE["user_id"] . "." . $fileExtension;
+            // $_SESSION["filePath"] = $fileName;
 
-            if (move_uploaded_file($_FILES['sentence']['tmp_name'], "../../../Backup/sentence/temp/" . $fileName)) {
-                echo "<script>alert('Upload successful!');</script>";
-            } else {
-                echo "<script>alert('Upload failed: " . $_FILES['sentence']['error'] . "');</script>";
-            }
+            // if (move_uploaded_file($_FILES['sentence']['tmp_name'], "../../../Backup/sentence/temp/" . $fileName)) {
+            //     echo "<script>alert('Upload successful!');</script>";
+            // } else {
+            //     echo "<script>alert('Upload failed: " . $_FILES['sentence']['error'] . "');</script>";
+            // }
         } 
     ?>
     <div id="loadingScreen">
