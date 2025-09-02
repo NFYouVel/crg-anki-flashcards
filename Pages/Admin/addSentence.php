@@ -1,5 +1,8 @@
 <?php
     session_start();
+    unset($_SESSION["allSentences"]);
+    unset($_SESSION["validSentences"]);
+    unset($_SESSION["invalidSentences"]);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -185,15 +188,6 @@
                         $pinyin = $sheet->getCell("D$index")->getValue();
                         $english = $sheet->getCell("E$index")->getValue();
                         $indo = $sheet->getCell("F$index")->getValue();
-        
-                        // echo "<tr>";
-                        //     echo "<td id = 'short'>$sentenceCode</td>";
-                        //     echo "<td>$traditional</td>";
-                        //     echo "<td>$simplified</td>";
-                        //     echo "<td>$pinyin</td>";
-                        //     echo "<td>$english</td>";
-                        //     echo "<td>$indo</td>";
-                        // echo "</tr>";
         
                         $reason = "";
                         //check for empty sentence code
