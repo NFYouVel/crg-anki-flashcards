@@ -179,12 +179,12 @@
                             continue;
                         }
                         //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
-                        $sentenceCode = $sheet->getCell("A$index")->getValue();
-                        $traditional = $sheet->getCell("B$index")->getValue();
-                        $simplified = $sheet->getCell("C$index")->getValue();
-                        $pinyin = $sheet->getCell("D$index")->getValue();
-                        $english = $sheet->getCell("E$index")->getValue();
-                        $indo = $sheet->getCell("F$index")->getValue();
+                        $sentenceCode = $sheet->getCell("A$index")->getValue() ?? "";
+                        $traditional = $sheet->getCell("B$index")->getValue() ?? "";
+                        $simplified = $sheet->getCell("C$index")->getValue() ?? "";
+                        $pinyin = $sheet->getCell("D$index")->getValue() ?? "";
+                        $english = $sheet->getCell("E$index")->getValue() ?? "";
+                        $indo = $sheet->getCell("F$index")->getValue() ?? "";
         
                         $reason = "";
                         //check for empty sentence code
