@@ -12,6 +12,11 @@ $role_id = $line['role'];
 if($role_id != 2) {
     header("Location: ../Login");
 }
+$role_id = $line['role'];
+$user_status = $line['user_status'];
+if ($user_status == "pending") {
+    header("Location: setting.php");
+}
 $result2 = mysqli_query($con, "SELECT * FROM user_role WHERE role_id = '$role_id'");
 $line2 = mysqli_fetch_array($result2);
 $role = $line2['role_name'];
