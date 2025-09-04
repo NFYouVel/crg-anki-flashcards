@@ -16,12 +16,6 @@ $result2 = mysqli_query($con, "SELECT * FROM user_role WHERE role_id = '$role_id
 $line2 = mysqli_fetch_array($result2);
 $role = $line2['role_name'];
 
-if (isset($_POST['hide'])) {
-    $name = $line['name'];
-    echo "<script>alert('You are login with $name Account as Teacher')</script>";
-}
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">

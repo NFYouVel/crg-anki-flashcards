@@ -5,10 +5,18 @@ include "../../SQL_Queries/connection.php";
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = $_COOKIE['user_id'];
 }
+
+// User ID
 $user_id = $_SESSION["user_id"];
-
-
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
+$result = mysqli_query($con, $query);
+$line = mysqli_fetch_array($result);
+$role_id = $line['role'];
+$user_status = $line['user_status'];
+if ($user_status == "pending") {
+    echo "<script>alert('You have to change your password immediately to protect your account.')</script>";
+}
+
 $result = mysqli_query($con, $query);
 $line = mysqli_fetch_array($result);
 $email = $line['email'];
