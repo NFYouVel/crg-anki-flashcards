@@ -252,3 +252,9 @@ tr td:nth-of-type(2) {
 .title-student {
     cursor: pointer;
 }
+
+@media screen and (max-width: 768px) {
+    .add {
+        width: 90%;
+    }
+}

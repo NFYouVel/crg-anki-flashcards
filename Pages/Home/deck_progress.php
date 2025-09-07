@@ -8,6 +8,10 @@ $user_id = $_SESSION["user_id"];
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
 $line = mysqli_fetch_assoc($result);
+$role_id = $line['role'];
+if ($role_id != 2) {
+    header("Location: ../Login");
+}
 
 if ($line['role'] == 0) {
     $role = "Admin";

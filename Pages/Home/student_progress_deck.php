@@ -4,6 +4,8 @@ include "../../SQL_Queries/connection.php";
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = $_COOKIE['user_id'];
 }
+
+// User ID Teacher
 $user_id = $_SESSION["user_id"];
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
@@ -12,6 +14,9 @@ $role_id = $line['role'];
 $result2 = mysqli_query($con, "SELECT * FROM user_role WHERE role_id = '$role_id'");
 $line2 = mysqli_fetch_array($result2);
 $role = $line2['role_name'];
+if ($role_id != 2) {
+    header("Location: ../Login");
+}
 
 if (isset($_POST['hide'])) {
     $name = $line['name'];
