@@ -1,5 +1,10 @@
 <?php
     session_start();
+    include_once "../../SQL_Queries/connection.php";
+    $user_id = $_SESSION["user_id"];
+    if(mysqli_fetch_assoc(mysqli_query($con, "SELECT role FROM users WHERE user_id = '$user_id'"))["role"] != 1) {
+        header("Location: ../Login");
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
