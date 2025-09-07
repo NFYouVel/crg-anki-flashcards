@@ -2,9 +2,7 @@
 include "../../SQL_Queries/connection.php";
 // User ID
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = $_COOKIE['user_id'];
-}
+
 // Saved Zoom
 if (isset($_SESSION['zoom'])) {
     $savedZoom = $_SESSION['zoom'];
