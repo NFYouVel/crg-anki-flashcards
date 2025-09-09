@@ -11,16 +11,7 @@ if (isset($_SESSION['zoom'])) {
 }
 
 // Call the user
-$user_id = $_SESSION["user_id"] ?? $_COOKIE["user_id"];
-// if(isset($_SESSION["user_id"])) {
-//     $user_id = $_SESSION["user_id"];
-// }
-// else if(isset($_COOKIE["user_id"])) {
-//     $user_id = $_COOKIE["user_id"];
-// }
-// else if(!isset($_SESSION["user_id"]) && !isset($_COOKIE["user_id"])){
-//     // header("Location: ../Login");
-// }
+$user_id = $_SESSION["user_id"];
 
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
