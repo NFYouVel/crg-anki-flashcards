@@ -19,8 +19,9 @@ else if(isset($_COOKIE["user_id"])) {
     $user_id = $_COOKIE["user_id"];
 }
 else if(!isset($_SESSION["user_id"]) && !isset($_COOKIE["user_id"])){
-    header("Location: ../Login");
+    // header("Location: ../Login");
 }
+
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
 $line = mysqli_fetch_assoc($result);
