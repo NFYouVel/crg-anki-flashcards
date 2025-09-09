@@ -10,12 +10,23 @@ $user_id =  $_SESSION["user_id"];
 $card_id = mysqli_real_escape_string($con, $_GET['card_id']);
 $status  = mysqli_real_escape_string($con, $_GET['status']);
 $stage   = mysqli_real_escape_string($con, $_GET['stage']);
-if (($status == "forgot" && $stage == 0) || ($status == "hard") || ($status == "remember" && $stage == 18)) {
-    $temp = 0;
-} else if ($status == "forgot") {
-    $temp = -1;
+if ($stage == 0) {
+    if ($status == "forgot") {
+        $temp = 0;
+    }
+    else if ($status = "hard") {
+        $temp = 1;
+    } else {
+        $temp = 3;
+    }
 } else {
-    $temp = 1;
+    if (($status == "hard") || ($status == "remember" && $stage == 18)) {
+        $temp = 0;
+    } else if ($status == "forgot") {
+        $temp = -1;
+    } else {
+        $temp = 1;
+    }
 }
 
 // Get Card Progress to history
