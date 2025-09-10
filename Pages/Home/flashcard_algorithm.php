@@ -13,17 +13,18 @@ $stage   = mysqli_real_escape_string($con, $_GET['stage']);
 if ($stage == 0) {
     if ($status == "forgot") {
         $temp = 0;
-    }
-    else if ($status = "hard") {
+    } else if ($status = "hard") {
         $temp = 1;
     } else {
         $temp = 3;
     }
 } else {
-    if (($status == "hard") || ($status == "remember" && $stage == 18)) {
+    if ($stage == 1 && $status == "forget") {
+        $temo = -1;
+    } else if ($status == "forgot" && $stage != 1) {
+        $temp = -2;
+    } else if (($status == "hard") || ($status == "remember" && $stage == 18)) {
         $temp = 0;
-    } else if ($status == "forgot") {
-        $temp = -1;
     } else {
         $temp = 1;
     }
