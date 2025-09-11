@@ -104,7 +104,7 @@
     </div>
     <div id="navWrapper">
 
-        <a href="homepage.php" id='home'>Home</a>
+        <a href="index.php" id='home'>Home</a>
         <nav>
             <li>
                 <a id="user" href="overview_user.php">User</a>

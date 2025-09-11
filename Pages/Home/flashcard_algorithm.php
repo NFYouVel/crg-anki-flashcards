@@ -13,14 +13,14 @@ $stage   = mysqli_real_escape_string($con, $_GET['stage']);
 if ($stage == 0) {
     if ($status == "forgot") {
         $temp = 0;
-    } else if ($status = "hard") {
+    } else if ($status == "hard") {
         $temp = 1;
     } else {
         $temp = 3;
     }
 } else {
-    if ($stage == 1 && $status == "forget") {
-        $temo = -1;
+    if ($stage == 1 && $status == "forgot") {
+        $temp = -1;
     } else if ($status == "forgot" && $stage != 1) {
         $temp = -2;
     } else if (($status == "hard") || ($status == "remember" && $stage == 18)) {
@@ -47,33 +47,81 @@ $iv = $time['interval_value'];
 $iu = strtoupper($time['interval_unit']);
 
 var_dump($iv, $iu);
-if ($status == "forgot" && $stage == 0) {
-    $send_query = "
+if ($stage == 0) {
+    if ($status == "forgot") {
+        $send_query = "
     UPDATE card_progress SET total_review = total_review + 1, total_fail = total_fail + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
     WHERE user_id = '$user_id' AND card_id = '$card_id'
     ";
-} else if ($status == "forgot") {
-    $send_query = "
-    UPDATE card_progress SET current_stage = current_stage - 1, total_review = total_review + 1, total_fail = total_fail + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
+        echo 1;
+    } else if ($status == "hard") {
+        $send_query = "
+    UPDATE card_progress SET current_stage = current_stage + 1, total_review = total_review + 1, total_hard = total_hard + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
     WHERE user_id = '$user_id' AND card_id = '$card_id'
     ";
-} else if ($status == "hard") {
-    $send_query = "
-    UPDATE card_progress SET total_review = total_review + 1, total_hard = total_hard + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
+        echo 2;
+    } else {
+        $send_query = "
+    UPDATE card_progress SET current_stage = current_stage + 3, total_review = total_review + 1, total_remember = total_remember + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
     WHERE user_id = '$user_id' AND card_id = '$card_id'
     ";
-} else if ($status == "remember" && $stage == 18) {
-    $send_query = "
-    UPDATE card_progress SET total_review = total_review + 1, total_remember = total_remember + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
-    WHERE user_id = '$user_id' AND card_id = '$card_id'
-    ";
+    }
+    echo 3;
 } else {
-    $send_query = "
+    if ($status == "forgot" && $stage == 1) {
+        $send_query = " 
+    UPDATE card_progress SET current_stage = current_stage - 1, total_review = total_review + 1, total_fail = total_fail + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
+    WHERE user_id = '$user_id' AND card_id = '$card_id'";
+        echo 10;
+    } else if ($status == "forgot") {
+        $send_query = " 
+    UPDATE card_progress SET current_stage = current_stage - 2 , total_review = total_review + 1, total_fail = total_fail + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
+    WHERE user_id = '$user_id' AND card_id = '$card_id'";
+        echo 20;
+    } else if ($status == "hard") {
+        $send_query = " 
+    UPDATE card_progress SET total_review = total_review + 1, total_hard = total_hard + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
+    WHERE user_id = '$user_id' AND card_id = '$card_id'";
+        echo 30;
+    } else if ($status == "remember" && $stage == 18) {
+        $send_query = "
+    UPDATE card_progress SET total_review = total_review + 1, total_remember = total_remember + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
+    WHERE user_id = '$user_id' AND card_id = '$card_id'";
+        echo 4;
+    } else {
+        $send_query = "
     UPDATE card_progress SET current_stage = current_stage + 1, total_review = total_review + 1, total_remember = total_remember + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
-    WHERE user_id = '$user_id' AND card_id = '$card_id'
-    ";
+    WHERE user_id = '$user_id' AND card_id = '$card_id'";
+        echo 5;
+    }
 }
+
+// if ($status == "forgot" && $stage == 0) {
+//     $send_query = "
+//     UPDATE card_progress SET total_review = total_review + 1, total_fail = total_fail + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
+//     WHERE user_id = '$user_id' AND card_id = '$card_id'
+//     ";
+// } else if ($status == "forgot") {
+//     $send_query = "
+//     UPDATE card_progress SET current_stage = current_stage - 1, total_review = total_review + 1, total_fail = total_fail + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
+//     WHERE user_id = '$user_id' AND card_id = '$card_id'
+//     ";
+// } else if ($status == "hard") {
+//     $send_query = "
+//     UPDATE card_progress SET total_review = total_review + 1, total_hard = total_hard + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
+//     WHERE user_id = '$user_id' AND card_id = '$card_id'
+//     ";
+// } else if ($status == "remember" && $stage == 18) {
+//     $send_query = "
+//     UPDATE card_progress SET total_review = total_review + 1, total_remember = total_remember + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
+//     WHERE user_id = '$user_id' AND card_id = '$card_id'
+//     ";
+// } else {
+//     $send_query = "
+//     UPDATE card_progress SET current_stage = current_stage + 1, total_review = total_review + 1, total_remember = total_remember + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
+//     WHERE user_id = '$user_id' AND card_id = '$card_id'
+//     ";
+// }
 // History SRS User Progress
 mysqli_query($con, $send_query);
 header("Location: flashcard.php");
-?>

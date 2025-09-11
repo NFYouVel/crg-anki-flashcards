@@ -160,7 +160,7 @@ $con->close();
                             if ($line['role'] == 2) {
                                 header("Location: ../Home/home_page.php");
                             } else if ($line['role'] == 1) {
-                                header("Location: ../Admin/homepage.php");
+                                header("Location: ../Admin/");
                             } else {
                                 header("Location: ../Home/home_page_students.php");
                             }
