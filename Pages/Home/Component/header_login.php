@@ -48,7 +48,7 @@
     }
 
     .right-bar span {
-        color: blue;
+        color: rgb(20, 61, 89);
         font-size: 2.7vh;
         text-align: right;
         font-family: 'Nunito', sans-serif;

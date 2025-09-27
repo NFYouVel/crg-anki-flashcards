@@ -2,6 +2,9 @@
 include "../../SQL_Queries/connection.php";
 // User ID
 session_start();
+if (!isset($_COOKIE["user_id"])) {
+    header("Location: ../..");
+}
 
 // Saved Zoom
 if (isset($_SESSION['zoom'])) {
@@ -227,7 +230,7 @@ if ($green !== 0) {
     <!-- + - and to review -->
     <div class="title-to-review">
         <!-- Deck Title -->
-        <div>
+        <div class="wrapper-zoom">
             <span class="calc" id="zoomOut">-</span>
             <span class="calc" id="zoomDisplay">100%</span>
             <span class="calc" id="zoomIn">+</span>
@@ -235,15 +238,14 @@ if ($green !== 0) {
         <!-- To Review Green Red Blue-->
         <div class="to-review">
             <span class="red" style="color: #ab0b01;"><?php echo $red ?></span>
-            <span>
-                <span class="green" style="color: #26940a;"><?php echo $green ?></span><span class="blue" style=color: #8497B0'>/<?php echo $blue ?></span>
-            </span>
+            <!-- <span> -->
+            <span class="green" style="color: #26940a;"><?php echo $green ?></span>
+            <span class="blue">/<?php echo $blue ?></span>
+            <!-- </span> -->
         </div>
     </div>
 
     <!-- Cards -->
-    <div class="wrapper-flashcard" id="target">
-        <div class="wrapper-mid">
             <?php
             if ($row = mysqli_fetch_assoc(result: $query_flashcard_algorithm)) {
                 $pinyin = convert($row["pinyin"]);
@@ -254,20 +256,22 @@ if ($green !== 0) {
                 }
 
             ?>
+    <div class="wrapper-flashcard" id="target">
+        <div class="wrapper-mid">
                 <div class="vocab-card">
                     <span class="hanzi"><?php echo htmlspecialchars($row[$temp_charaset]); ?></span>
                     <span class="pinyin"><?php echo htmlspecialchars($pinyin); ?></span>
                     <span class="word-class"><?php echo htmlspecialchars($row['word_class']); ?></span>
                     <table>
                         <tr>
-                            <td class="sub">EN</td>
-                            <td class="colon">:</td>
-                            <td class="meaning"><?php echo htmlspecialchars($row['meaning_eng']); ?></td>
+                            <td class="sub"><div>EN</div></td>
+                            <td class="colon"><div>:</div></td>
+                            <td class="meaning"><div><?php echo htmlspecialchars($row['meaning_eng']); ?></div></td>
                         </tr>
                         <tr>
-                            <td class="sub">ID</td>
-                            <td class="colon">:</td>
-                            <td class="meaning"><?php echo htmlspecialchars($row['meaning_ina']); ?></td>
+                            <td class="sub"><div>ID</div></td>
+                            <td class="colon"><div>:</div></td>
+                            <td class="meaning"><div><?php echo htmlspecialchars($row['meaning_ina']); ?></div></td>
                         </tr>
                     </table>
                 </div>
@@ -288,26 +292,26 @@ if ($green !== 0) {
                         <span class='sentence'>{$line[$temp_charaset]}</span>
                         <span class='report text-report' onclick=\"Report('{$line['sentence_code']}','{$line[$temp_charaset]}')\">Report Sentence</a>
                     </div>
+                    <div class='wrapper-pinyin'>
                     <span class='pinyin'>{$line['pinyin']}</span>
+                    </div>
                     <table>
                         <tr>
-                            <td class='sub'>EN</td>
-                            <td class='colon'>:</td>
-                            <td class='meaning'>{$line['meaning_eng']}</td>
+                            <td class='sub'><div>EN</div></td>
+                            <td class='colon'><div>:</div></td>
+                            <td class='meaning'><div>{$line['meaning_eng']}</div></td>
                         </tr>
                         <tr>
-                            <td class='sub'>ID</td>
-                            <td class='colon'>:</td>
-                            <td class='meaning'>{$line['meaning_ina']}</td>
+                            <td class='sub'><div>ID</div></td>
+                            <td class='colon'><div>:</div></td>
+                            <td class='meaning'><div>{$line['meaning_ina']}</div></td>
                         </tr>
                     </table>
                 </div>";
                 }
                 ?>
 
-            <?php
-            }
-            ?>
+
         </div>
     </div>
 
@@ -437,5 +441,17 @@ if ($green !== 0) {
         <div class="loader"></div>
         <div id="flashcard-message" style="display:none;">Niceee</div>
     </div>
+<?php
+            } else {
+                echo "<div class='end-deck'>";
+                echo "<p style='color: white; font-size:26px; font-weight: bold; margin: 10px 0;'>Great job! You've completed this deck for now.</p>";
+                echo "<p style='color: white;'>You can take a break, or review another deck.</p>";
+                echo "<button class='wrapper-show-answer' id='click-show'>
+                <span class='show'>Back To Your Decks</span>
+                </button>";
+                echo "</div>";
+            }
+?>
 </body>
+
 </html>

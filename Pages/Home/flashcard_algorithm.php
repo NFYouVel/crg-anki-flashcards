@@ -17,7 +17,7 @@ if ($stage == 0) {
         $temp = 1;
     } else {
         //adjustment: ubah jadi 4
-        $temp = 4;
+        $temp = 5;
     }
 } else {
     if ($stage == 1 && $status == "forgot") {
@@ -64,7 +64,7 @@ if ($stage == 0) {
     } else {
         //adjustment: ubah jadi 4
         $send_query = "
-    UPDATE card_progress SET current_stage = current_stage + 4, total_review = total_review + 1, total_remember = total_remember + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
+    UPDATE card_progress SET current_stage = current_stage + 5, total_review = total_review + 1, total_remember = total_remember + 1, review_due = NOW() + INTERVAL $iv $iu, review_last = NOW()
     WHERE user_id = '$user_id' AND card_id = '$card_id'
     ";
     }

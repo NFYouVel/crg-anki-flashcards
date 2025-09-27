@@ -96,12 +96,12 @@ $role = $line2['role_name'];
                         <td>******</td>
                         <td class="right"><a href="../Login/newpassword.php?email=<?php echo $email; ?>">reset password</a></td>
                     </tr>
-                    <tr>
+                    <!-- <tr>
                         <td>Card Meaning</td>
                         <td>:</td>
                         <td>Indonesia, English</td>
                         <td class="right"><a href="#">edit</a></td>
-                    </tr>
+                    </tr> -->
                 </table>
             </div>
 

@@ -133,7 +133,7 @@
                 </tr>
                 <tr>
                     <td><h1>Password</h1></td>
-                    <td><input type="password" name = "password" value = "123456" placeholder = "Password" required></td>
+                    <td><input type="password" name = "password" value = "crg1638" placeholder = "Password" required></td>
                 </tr>
                 <tr>
                     <td><h1>Remarks</h1></td>
