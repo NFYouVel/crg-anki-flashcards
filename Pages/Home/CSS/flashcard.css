@@ -14,7 +14,15 @@ body {
     margin-left: 21px;
     z-index: 100;
 }
-
+.wrapper-zoom {
+    display: flex;
+    justify-content: space-around;
+    z-index: 2;
+}
+.wrapper-zoom #zoomDisplay {
+    min-width: 54px;
+    max-width: 54px;
+}
 .title-to-review {
     height: 24px;
 }
@@ -53,11 +61,13 @@ body {
 }
 
 .hanzi {
-    font-size: 2em;
+    font-size: 72px;
+    max-height: 94px;
 }
 
 .vocab-card .pinyin {
-    font-size: 1em;
+    font-size: 1.375em;
+    /* max-height: 27px; */
 }
 
 .word-class {
@@ -68,21 +78,28 @@ div.sentence {
     margin-top: 0.7em;
 }
 
-span.word-class,
-span.mean-EN,
-span.mean-ID {
-    padding-bottom: 7px;
-    font-size: 0.9em;
+.sentence .pinyin {
+    font-size: 0.75em;
+    line-height: 1.1;
+    margin-bottom: 3px;
+    /* vertical-align: top; */
+    /* max-height: 14px; */
+}
+
+span.word-class {
+    /* padding-bottom: 7px; */
+    font-size: 1.25em;
 }
 
 span.sentence {
-    padding: 6px 0;
-    font-size: 1em;
+    /* padding: 6px 0; */
+    font-size: 1.5em;
 }
 
 .chinese-sentence {
     display: flex;
     justify-content: space-between;
+    /* max-height: 35px; */
 }
 
 span.report {
@@ -93,7 +110,7 @@ span.report {
     color: rgb(20, 61, 89);
     font-weight: bold;
     padding: 5px;
-
+    min-width: 120px;
 }
 
 .hanzi,
@@ -105,9 +122,13 @@ td,
 table {
     margin: 0;
 }
-
 td {
     border: none;
+}
+
+td div{
+    vertical-align: top;
+    line-height: 1.2;
 }
 
 td.sub {
@@ -343,6 +364,14 @@ textarea {
     box-shadow: 0 0 8px rgba(255, 165, 5, 0.4);
   }
   
+  .end-deck{
+    display: flex;
+    flex-direction: column;
+    height: 72%;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
 @keyframes spin {
     0% {
         transform: rotate(0deg);
@@ -358,9 +387,9 @@ textarea {
         width: 25%;
     }
 
-    .hanzi {
+    /* .hanzi {
         font-size: 2.5em;
-    }
+    } */
 
     span.report {
         font-size: 14px;

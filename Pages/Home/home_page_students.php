@@ -91,7 +91,8 @@ $role = $line2['role_name'];
                         <!-- To Review Green Red Blue-->
                         <div class="to-review">
                             <span class="red"><?php echo $countMain["red"]; ?></span>
-                            <span><span class="green"><?php echo $countMain["green"]; ?></span><span class="blue" style="color: #8497B0">/<?php echo $countMain["blue"]; ?></span></span>
+                            <span class="green"><?php echo $countMain["green"]; ?></span>
+                            <span class="blue">/<?php echo $countMain["blue"]; ?></span>
                         </div>
                     </div>
 
@@ -148,11 +149,10 @@ $role = $line2['role_name'];
                                     echo "<div class='title-to-review-second' onclick=\"window.location.href='flashcard.php?deck_id=$deckID'\">";
                                     echo "<span class='title-second'>" . htmlspecialchars($deck['name']) . "</span>";
                                     echo "<div class='to-review'>
-                                                        <span class='red'>$red</span>
-                                                        <span>
-                                                            <span class='green'>$green</span><span class='blue' style = 'color: #8497B0'>/$blue</span>
-                                                        </span>
-                                                    </div>";
+                                            <span class='red'>$red</span>
+                                            <span class='green'>$green</span>
+                                            <span class='blue' style = 'color: #8497B0;'>/$blue</span>
+                                        </div>";
                                     echo "</div>";
                                     echo "</div>";
                                     echo "<div class='line'></div>";
