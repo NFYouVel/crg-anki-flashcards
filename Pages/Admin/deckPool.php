@@ -23,7 +23,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deck Pool</title>
-    <link rel="icon" href="../../Logo/circle.png">
+    <link rel="icon" href="../../Assets/Icons/1080.png">
     <script src="../../library/jquery.js"></script>
     <style>
         h2, h1 {
