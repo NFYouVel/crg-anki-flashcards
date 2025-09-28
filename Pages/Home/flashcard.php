@@ -435,6 +435,8 @@ if ($green !== 0) {
                 history.go(1);
             };
         };
+
+        
     </script>
 
     <div id="loading-overlay">
@@ -446,12 +448,17 @@ if ($green !== 0) {
                 echo "<div class='end-deck'>";
                 echo "<p style='color: white; font-size:26px; font-weight: bold; margin: 10px 0;'>Great job! You've completed this deck for now.</p>";
                 echo "<p style='color: white;'>You can take a break, or review another deck.</p>";
-                echo "<button class='wrapper-show-answer' id='click-show'>
+                echo "<button class='wrapper-show-answer' onclick='BackHomePage()'>
                 <span class='show'>Back To Your Decks</span>
                 </button>";
                 echo "</div>";
             }
 ?>
+    <script>
+        function BackHomePage() {
+            window.location.href = "home_page_students.php";
+        }
+    </script>
 </body>
 
 </html>
