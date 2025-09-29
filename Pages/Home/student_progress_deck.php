@@ -38,7 +38,7 @@ $student_name = $line_student['name'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome <?php echo $line['name'] ?></title>
-    <link rel="icon" href="../../Logo/circle.png">
+    <link rel="icon" href="../../Assets/Icons/1080.png">
     <link rel="stylesheet" href="../../Pages/Home/CSS/home_page.css">
     <link rel="stylesheet" href="../../Pages/Home/CSS/student_progress.css?v=123">
     <link rel="stylesheet" href="../../Pages/Home/CSS/deck.css">
