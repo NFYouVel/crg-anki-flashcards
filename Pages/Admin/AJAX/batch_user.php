@@ -19,7 +19,7 @@
         foreach($validUsers as $key => $value) {
             $name = $value["name"];
             $email = $value["email"];
-            $password = password_hash("123456", PASSWORD_BCRYPT);
+            $password = password_hash("crg1638", PASSWORD_BCRYPT);
             $role = $value["role"];
             $roleID = mysqli_query($con, "SELECT role_id FROM user_role WHERE role_key = '$role'");
             $roleID = mysqli_fetch_array($roleID);
