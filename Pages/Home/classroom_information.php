@@ -4,6 +4,8 @@ include "../../SQL_Queries/connection.php";
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = $_COOKIE['user_id'];
 }
+
+// User Teacher
 $user_id = $_SESSION["user_id"];
 $classroom_id = $_GET["classroom_id"];
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";
@@ -22,6 +24,7 @@ if (isset($_POST['hide'])) {
     echo "<script>alert('You are login with $name Account as Teacher')</script>";
 }
 
+// Ngitung Jumlah student
 $query = "SELECT * FROM junction_classroom_user WHERE classroom_id = '$classroom_id' AND classroom_role_id = '3'";
 $result = mysqli_query($con, $query);
 $count = 0;
@@ -316,31 +319,36 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                     $temp_name = $line_name['name'];
 
                     // Get the student RGB
-                    $result_rgb = mysqli_query($con, "
-                    SELECT * 
-                    FROM junction_deck_classroom 
-                    JOIN junction_deck_card jdcard
-                        ON junction_deck_classroom.deck_id = jdcard.deck_id
-                    JOIN card_progress cp
-                        ON cp.card_id = jdcard.card_id AND user_id = '$user_id_student'
-                    WHERE junction_deck_classroom.classroom_id = '$classroom_id';
-                    ");
+                    // $result_rgb = mysqli_query($con, "
+                    // SELECT * 
+                    // FROM junction_deck_classroom 
+                    // JOIN junction_deck_card jdcard
+                    //     ON junction_deck_classroom.deck_id = jdcard.deck_id
+                    // JOIN card_progress cp
+                    //     ON cp.card_id = jdcard.card_id AND user_id = '$user_id_student'
+                    // WHERE junction_deck_classroom.classroom_id = '$classroom_id';
+                    // ");
 
                     // Count RGB Manually PHP
-                    $count_rgb = mysqli_fetch_array($result_rgb);
-                    date_default_timezone_set("Asia/Jakarta");
-                    $now = new DateTime();
-                    $db_datetime = new DateTime($count_rgb['review_due']);
-                    $red = $green = $grey = 0;
-                    for ($i = 0; $i < mysqli_num_rows($result_rgb); $i++) {
-                        if ($db_datetime <= $now) {
-                            $red++;
-                        } else {
-                            $green++;
-                        }
-                        $grey++;
-                    }
+                    $query_flashcard_rbg_count = mysqli_query($con, "
+                        SELECT
+                            COUNT(cp.card_id) AS blue,
+                            COUNT(DISTINCT CASE 
+                                WHEN cp.current_stage != 0 THEN cp.card_id 
+                                ELSE NULL 
+                            END) AS green,
+                            COUNT(DISTINCT CASE 
+                                WHEN cp.review_due <= NOW() AND cp.review_due != cp.review_first THEN cp.card_id 
+                                ELSE NULL 
+                            END) AS red
+                        FROM card_progress AS cp 
+                        WHERE cp.user_id = '$user_id_student' AND cp.is_assigned = 1
+                        ");
 
+                    $count_rgb = mysqli_fetch_array($query_flashcard_rbg_count);
+                    $grey = $count_rgb['blue'];
+                    $green = $count_rgb['green'];
+                    $red = $count_rgb['red'];
                     echo " <div class='title-student' onclick='ClickToDP(this)' data-id='$user_id_student'>
                     <!-- Deck Title -->
                     <span class='title'>$temp_name</span>
