@@ -1,26 +1,46 @@
 <?php
 session_start();
 include "../../SQL_Queries/connection.php";
+
+// INITIALIZE SESSION
+if (!isset($_COOKIE['user_id'])) {
+    header("Location: ../Login");
+}
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = $_COOKIE['user_id'];
 }
-$user_id = $_SESSION["user_id"];
-$query = "SELECT * FROM users WHERE user_id = '$user_id'";
-$result = mysqli_query($con, $query);
-$line = mysqli_fetch_array($result);
-$role_id = $line['role'];
-if($role_id != 2) {
-    header("Location: ../Login");
-}
-$role_id = $line['role'];
-$user_status = $line['user_status'];
-if ($user_status == "pending") {
-    header("Location: setting.php");
-}
-$result2 = mysqli_query($con, "SELECT * FROM user_role WHERE role_id = '$role_id'");
-$line2 = mysqli_fetch_array($result2);
-$role = $line2['role_name'];
+// END INITIALIZE SESSION
 
+$user_id = $_COOKIE["user_id"];
+
+// ==== QUERY : USER INFO ====
+$stmtUser = $con->prepare("SELECT u.name, u.role, u.user_status, ur.role_name FROM users AS u
+JOIN user_role AS ur ON u.role = ur.role_id
+WHERE u.user_id = ?");
+$stmtUser->bind_param("s", $user_id);
+$stmtUser->execute();
+$result = $stmtUser->get_result();
+$line = $result->fetch_assoc();
+$stmtUser->close();
+
+// ==== MODEL : USER INFO ====
+$name = $line['name'];
+$roleId = $line['role'];
+$userStatus = $line['user_status'];
+$roleName = $line['role_name'];
+
+// ==== ACCESS CONTROL ====
+if ($roleId != 2) {
+    header("Location: ../Login");
+} 
+if ($roleId == 2 && $userStatus == "active") {
+    $_SESSION["rolePage"] = "Teacher";
+}
+if (isset($line["user_status"]) && $line["user_status"] === "pending") {
+    header("Location: setting.php");
+    exit;
+}
+// ==== END QUERY : USER INFO ====
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,7 +48,7 @@ $role = $line2['role_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome <?php echo $line['name'] ?></title>
+    <title>Welcome <?= $name ?></title>
     <link rel="icon" href="../../Assets/Icons/1080.png">
     <link rel="stylesheet" href="../../Pages/Home/CSS/home_page.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -41,13 +61,11 @@ $role = $line2['role_name'];
 
     <div class="right-bar">
         <div class="account-info">
-            <span class="username"><?php echo $line['name'] ?></span>
-            <span class="as" style="cursor: pointer;" onclick="Mode()"><?php echo $role ?> Mode</span>
+            <span class="username"><?= $name ?></span>
+            <span class="as" style="cursor: pointer;" onclick="Mode()"><?= $_SESSION["rolePage"] ?> Mode</span>
         </div>
         <script>
-            function Mode() {
-                window.location.href = "home_page_teacher_student.php";
-            }
+
         </script>
 
         <div class="navbar">
@@ -59,87 +77,60 @@ $role = $line2['role_name'];
     <?php include "Component/account_logout.php"; ?>
 
     <!-- Main Deck -->
-    <?php
-    $query = "SELECT * FROM users WHERE user_id = '$user_id'";
-    $result = mysqli_query($con, $query);
-    $line = mysqli_fetch_array($result);
-
-    if (isset($line["user_status"]) && $line["user_status"] === "pending") {
-        header("Location: setting.php");
-        //     echo "<div class='wrapper-update'>
-        //     <div class='update'>
-        //         <div class='title-update'><span>Update Your Password!</span></div>
-        //         <div class='explanation'>
-        //             <span>Important!</span>
-        //             <span>To keep your account, you should change your password immediately!</span>
-        //             <span class='br'>You will be moved to user setting page!</span>
-        //         </div>
-        //         <div class='button'>
-        //             <button class='button-update'>Update</button>
-        //         </div>
-        //     </div>
-        // </div>";
-        exit;
-    }
-    ?>
-
     <div class="wrapper-main">
         <div class="deck-layout">
-            <!-- Example: For Teacher -->
             <ul>
-                <!-- First Main -->
-                <!-- Active Chinese Senin Kamis 20.30-->
                 <?php
-                $query = "SELECT * FROM junction_classroom_user WHERE user_id = '$user_id'";
-                $result = mysqli_query($con, $query);
+                if ($_SESSION["rolePage"] === "Teacher") {
+                    // Initialize variables
+                    $classrooms = [];
 
-                while ($rowClassRaw = mysqli_fetch_array($result)) {
-                    $classroom = mysqli_real_escape_string($con, $rowClassRaw['classroom_id']);
-                    $query = "SELECT * FROM classroom WHERE classroom_id = '$classroom'";
-                    $classroomResult = mysqli_query($con, $query);
-                    $rowClass = mysqli_fetch_array($classroomResult);
-                    $temp = $rowClass['classroom_id'];
-                    echo "<li class='class-title' onclick='goToClassroom(this)' data-id='$temp'>"; // ????
-                    $temp_classroom = $rowClass['classroom_id'];
-                    // Colored Title
-                    echo "<div class='title-to-review'>";
-                    // Deck Title
-                    echo "<span class='title'>";
-                    echo $rowClass['name'];
-                    echo "</span>";
+                    // ==== QUERY : CLASSROOMS ====
+                    $stmtClassroom = $con->prepare("SELECT * FROM junction_classroom_user AS jcu JOIN classroom AS c ON jcu.classroom_id = c.classroom_id WHERE jcu.user_id = ?");
+                    $stmtClassroom->bind_param("s", $user_id);
+                    $stmtClassroom->execute();
+                    $result = $stmtClassroom->get_result();
 
-                    // To Review Green Red Blue
-                    echo
-                    "<div class='to-review'>
-                            <span class='click'>Click for More Information</span>
-                        </div>
-                        </div>";
+                    while ($row = $result->fetch_assoc()) {
+                        $classrooms[] = $row;
+                    }
 
-                    echo "</li>";
+                    $stmtClassroom->close();
+                    // ==== END QUERY CLASSROOMS ====
+
+                    // ==== VIEW : CLASSROOMS ====
+                    foreach ($classrooms as $rowClass) {
+                ?>
+                        <li class="class-title" onclick="goToClassroom(this)" data-id="<?= $rowClass['classroom_id']; ?>">
+                            <div class="title-to-review">
+                                <span class="title"> <?= $rowClass['name']; ?> </span>
+                                <div class="to-review">
+                                    <span class="click">Click for More Information</span>
+                                </div>
+                            </div>
+                        </li>
+                <?php
+                    }
+                    // ==== END VIEW CLASSROOMS ==== 
+                } else if ($_SESSION["rolePage"] === "Student") {
+
                 }
                 ?>
-
-                <!-- Third Main -->
-
-
-
-                <!-- </li> -->
-                <!-- Sampe Sini (Second)-->
-
-
-
-                <!-- Sampe Sini (First)-->
             </ul>
         </div>
     </div>
+
+    <!-- ==== SCRIPT ==== -->
     <script>
         function goToClassroom(elem) {
             const classroomId = elem.getAttribute("data-id");
             window.location.href = `classroom_information.php?classroom_id=${classroomId}`;
         }
+
+        function Mode() {
+            window.location.href = "home_page_students.php";
+        }
     </script>
-
-
 </body>
 
 </html>
