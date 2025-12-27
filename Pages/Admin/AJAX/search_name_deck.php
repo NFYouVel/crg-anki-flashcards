@@ -8,6 +8,8 @@
     }
     else if ($type == "student"){
         $getNames = mysqli_query($con, "SELECT name, user_id FROM users WHERE role = 3 AND name LIKE '%$name%'");
+    } else if ($type == "student_teacher"){
+        $getNames = mysqli_query($con, "SELECT name, user_id FROM users WHERE (role = 2 OR role = 3) AND name LIKE '%$name%'");
     }
     while($studentNames = mysqli_fetch_assoc($getNames)) {
         $name = $studentNames["name"];

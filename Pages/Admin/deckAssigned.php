@@ -1027,14 +1027,14 @@
                             document.getElementById("suggestions").innerHTML = xmlhttp.responseText;
                         }
                     }
-                    xmlhttp.open("GET", "AJAX/search_name_deck.php?type=student&name=" + str + "&userID=<?php echo $userID; ?>", true);
+                    xmlhttp.open("GET", "AJAX/search_name_deck.php?type=student_teacher&name=" + str + "&userID=<?php echo $userID; ?>", true);
                     xmlhttp.send();
                 }
             </script>
             <div id="details">
                 <div id = "information">
                     <div id="header">
-                        <h2>Student Information</h2>
+                        <h2>Student/Teacher Information</h2>
                     </div>
                     <div id="info">
                         <table id = "infoTable">
@@ -1046,7 +1046,7 @@
                                             <input type="text" id = "searchName" onkeyup = "getNameSuggestions(this.value)" onclick = "this.select();" autocomplete="off" value = "<?php echo $userInfo["name"]; ?>">
                                             <div id="suggestions">
                                                 <?php
-                                                    $getNames = mysqli_query($con, "SELECT name, user_id FROM users WHERE role = 3");
+                                                    $getNames = mysqli_query($con, "SELECT name, user_id FROM users WHERE role = 3 OR role = 2");
                                                     while($studentNames = mysqli_fetch_assoc($getNames)) {
                                                         $name = $studentNames["name"];
                                                         $tempID = $studentNames["user_id"];
