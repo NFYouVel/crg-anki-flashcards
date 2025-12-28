@@ -17,7 +17,7 @@
         // if($tempID == $userID) {
         //     continue;
         // }
-        if($type == "student") {
+        if($type == "student" || $type == "student_teacher") {
             $dir = "deckAssigned.php?id=$tempID";
         }
         else {
