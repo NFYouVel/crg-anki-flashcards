@@ -64,7 +64,7 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
         <div class="account-info">
             <span class="username"><?php echo $line['name'] ?></span>
             <?php
-            if (!isset($_SESSION["rolepage"])) { ?>
+            if (isset($_SESSION["rolepage"])) { ?>
                 <span class="as" style="cursor: pointer;" onclick="Mode()"><?= $_SESSION["rolePage"] ?> Mode</span>
             <?php } else { ?>
                 <span class="as">Student</span>
