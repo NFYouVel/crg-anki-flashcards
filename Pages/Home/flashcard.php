@@ -404,6 +404,9 @@ if ($green !== 0) {
         const zoomDisplay = document.getElementById('zoomDisplay');
 
         function applyZoom() {
+            console.log(fontSize)
+            $(".hanzi").css("font-size", (fontSize + 250) + "%");
+            $(".hanzi").css("margin-bottom", (fontSize - 100) + "px");
             zoomTarget.style.fontSize = fontSize + '%';
             zoomDisplay.textContent = fontSize + '%';
 
