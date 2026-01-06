@@ -38,6 +38,31 @@ if (!isset($_GET['deck_id'])) {
 
 $_SESSION['temp_deck_id'] = $deckID;
 
+date_default_timezone_set('Asia/Jakarta');
+$allDecks = [];
+if(!isset($_SESSION['all_decks']) || $_SESSION['all_decks_expires'] < time()) {
+    $getAllDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks;");
+    while($row = mysqli_fetch_assoc($getAllDecks)) {
+        $allDecks[$row['deck_id']] = $row['parent_deck_id'];
+    }
+    $_SESSION['all_decks'] = $allDecks;
+    $_SESSION['all_decks_expires'] = time() + 1800;
+} else {
+    $allDecks = $_SESSION["all_decks"];
+}
+
+$leafDecks = [];
+if(!isset($_SESSION['leaf_decks']) || $_SESSION['leaf_decks_expires'] < time()) {
+    $getLeafDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks;");
+    while($row = mysqli_fetch_assoc($getLeafDecks)) {
+        $getLeafDecks[$row['deck_id']] = $row['parent_deck_id'];
+    }
+    $_SESSION['leaf_decks'] = $leafDecks;
+    $_SESSION['leaf_decks_expires'] = time() + 1800;
+} else {
+    $allDecks = $_SESSION["all_decks"];
+}
+
 // Blue Green Red Count
 include_once "repetition_flashcard.php";
 
@@ -47,86 +72,75 @@ $green = $counts['green'];
 $red = $counts['red'];
 
 // Algorithm Flashcard
-if ($green !== 0) {
-    if ($deckID == "main") {
-        $query_flashcard_algorithm = mysqli_query($con, "
-        SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due
-            FROM junction_deck_user AS du 
-            JOIN decks AS d ON d.deck_id = du.deck_id
-            JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
-            JOIN cards AS c ON dc.card_id = c.card_id
-            JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-            WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.review_due <= NOW() ORDER BY d.name ASC, dc.priority ASC LIMIT 1
-        ");
-    } else {
-        $query_flashcard_algorithm = mysqli_query($con, "
-        WITH RECURSIVE child_decks AS (
-            SELECT deck_id, is_leaf, name
-            FROM decks WHERE deck_id = '$deckID'
+$allCards = [];
+$chosenCard;
+$cardIds;
+$getAllCards;
 
-            UNION ALL
-
-            SELECT d.deck_id, d.is_leaf, d.name
-            FROM decks AS d 
-            JOIN child_decks AS cd 
-            ON d.parent_deck_id = cd.deck_id
-        ),
-        leaf_decks AS (
-            SELECT name, deck_id FROM child_decks WHERE is_leaf = 1
-        ),
-        flashcard AS (
-            SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, dc.priority, ld.name AS ld_name
-            FROM junction_deck_user AS du
-            JOIN junction_deck_card AS dc ON du.deck_id = dc.deck_id
-            JOIN cards AS c ON c.card_id = dc.card_id
-            JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-            JOIN leaf_decks AS ld ON du.deck_id = ld.deck_id
-            WHERE du.deck_id IN (SELECT deck_id FROM leaf_decks) AND du.user_id = '$user_id'
-        )
-        SELECT * FROM flashcard WHERE review_due <= NOW() ORDER BY ld_name ASC, priority ASC LIMIT 1
-        ");
-    }
+if($green != 0) {
+    $getAllCards = mysqli_query($con, "
+    SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due
+    FROM junction_deck_user AS du 
+    JOIN decks AS d ON d.deck_id = du.deck_id
+    JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
+    JOIN cards AS c ON dc.card_id = c.card_id
+    JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
+    WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.review_due <= NOW() ORDER BY d.name ASC, dc.priority ASC
+    ");
 } else {
-    if ($deckID == "main") {
-        $query_flashcard_algorithm = mysqli_query($con, "
+    $getAllCards = mysqli_query($con, "
         SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review
-            FROM junction_deck_user AS du 
-            JOIN decks AS d ON d.deck_id = du.deck_id
-            JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
-            JOIN cards AS c ON dc.card_id = c.card_id
-            JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-            WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.total_review = 0 ORDER BY d.name ASC, dc.priority ASC LIMIT 1
-        ");
-    } else {
-        $query_flashcard_algorithm = mysqli_query($con, "
-        WITH RECURSIVE child_decks AS (
-            SELECT deck_id, is_leaf, name
-            FROM decks WHERE deck_id = '$deckID'
-
-            UNION ALL
-    
-            SELECT d.deck_id, d.is_leaf, d.name
-            FROM decks AS d 
-            JOIN child_decks AS cd 
-            ON d.parent_deck_id = cd.deck_id
-        ),
-        leaf_decks AS (
-            SELECT name, deck_id FROM child_decks WHERE is_leaf = 1
-        ),
-        flashcard AS (
-            SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review, dc.priority, ld.name AS ld_name
-            FROM junction_deck_user AS du
-            JOIN junction_deck_card AS dc ON du.deck_id = dc.deck_id
-            JOIN cards AS c ON c.card_id = dc.card_id
-            JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-            JOIN leaf_decks AS ld ON du.deck_id = ld.deck_id
-            WHERE du.deck_id IN (SELECT deck_id FROM leaf_decks) AND du.user_id = '$user_id'
-        )
-        SELECT * FROM flashcard WHERE total_review = 0 ORDER BY ld_name ASC, priority ASC LIMIT 1
-        ");
-    }
+        FROM junction_deck_user AS du 
+        JOIN decks AS d ON d.deck_id = du.deck_id
+        JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
+        JOIN cards AS c ON dc.card_id = c.card_id
+        JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
+        WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.total_review = 0 ORDER BY d.name ASC, dc.priority ASC
+    ");
 }
 
+$cardIds = [];
+
+while($card = mysqli_fetch_assoc($getAllCards)) {
+    $allCards[$card['card_id']] = $card;
+    $cardIds[] = $card['card_id'];
+}
+
+$cardIds = implode(",", $cardIds);
+
+$getSentences = mysqli_query($con, "
+    SELECT jcs.card_id, es.*
+    FROM junction_card_sentence jcs
+    INNER JOIN example_sentence es 
+        ON jcs.sentence_code = es.sentence_code
+    WHERE jcs.card_id IN ($cardIds)
+");
+
+while ($row = mysqli_fetch_assoc($getSentences)) {
+    $allCards[$row['card_id']]['sentences'][] = $row;
+}
+
+$getParentDecks = mysqli_query($con, "
+    SELECT card_id, deck_id
+    FROM junction_deck_card
+    WHERE card_id IN ($cardIds)
+");
+
+while ($row = mysqli_fetch_assoc($getParentDecks)) {
+    $allCards[$row['card_id']]['parent_decks'][] = $row['deck_id'];
+}
+
+if($deckID == "main") {
+    $chosenCard = $allCards;
+} else {
+    $chosenCard = $allCards;
+    // $chosenCard = array_filter($allCards, function($card) use ($deckID) {
+    //     return in_array($deckID, $card['parent_decks']);
+    // });
+}
+
+$key = array_key_first($chosenCard);
+$chosenCard = $chosenCard[$key];
 
 ?>
 <!-- ------------------------------------------------------------------ -->
@@ -245,66 +259,51 @@ if ($green !== 0) {
         </div>
     </div>
 
-    <!-- Cards -->
-            <?php
-            if ($row = mysqli_fetch_assoc(result: $query_flashcard_algorithm)) {
-                $pinyin = convert($row["pinyin"]);
-                if ($chara_set == "traditional") {
-                    $temp_charaset = 'chinese_tc';
-                } else {
-                    $temp_charaset = 'chinese_sc';
-                }
+    
+    <p style = "color: white;"><?php echo "'" . implode("', '", $chosenCard['parent_decks']) . "'"; ?></p>
+    <pre style = "color: white;"><?php print_r($chosenCard); ?></pre>
+    <!-- <pre style = "color: white;"><?php print_r($allCards); ?></pre> -->
 
-            ?>
     <div class="wrapper-flashcard" id="target">
         <div class="wrapper-mid">
                 <div class="vocab-card">
-                    <span class="hanzi"><?php echo htmlspecialchars($row[$temp_charaset]); ?></span>
-                    <span class="pinyin"><?php echo htmlspecialchars($pinyin); ?></span>
-                    <span class="word-class"><?php echo htmlspecialchars($row['word_class']); ?></span>
+                    <span class="hanzi"><?php echo htmlspecialchars($chosenCard["chinese_sc"]); ?></span>
+                    <span class="pinyin"><?php echo htmlspecialchars(convert($chosenCard["pinyin"])); ?></span>
+                    <span class="word-class"><?php echo htmlspecialchars($chosenCard['word_class']); ?></span>
                     <table>
                         <tr>
                             <td class="sub"><div>EN</div></td>
                             <td class="colon"><div>:</div></td>
-                            <td class="meaning"><div><?php echo htmlspecialchars($row['meaning_eng']); ?></div></td>
+                            <td class="meaning"><div><?php echo htmlspecialchars($chosenCard['meaning_eng']); ?></div></td>
                         </tr>
                         <tr>
                             <td class="sub"><div>ID</div></td>
                             <td class="colon"><div>:</div></td>
-                            <td class="meaning"><div><?php echo htmlspecialchars($row['meaning_ina']); ?></div></td>
+                            <td class="meaning"><div><?php echo htmlspecialchars($chosenCard['meaning_ina']); ?></div></td>
                         </tr>
                     </table>
                 </div>
 
                 <?php
-                $temp_card_id = $row['card_id'];
-                $query_sentence = mysqli_query($con, "
-                SELECT sentence.*
-                FROM junction_card_sentence AS jcs
-                JOIN example_sentence AS sentence
-                    ON sentence.sentence_code = jcs.sentence_code
-                WHERE jcs.card_id = $temp_card_id
-                ");
-
-                while ($line = mysqli_fetch_array($query_sentence)) {
+                foreach($chosenCard["sentences"] as $sentence) {
                     echo "<div class='sentence'>
                     <div class='chinese-sentence'>
-                        <span class='sentence'>{$line[$temp_charaset]}</span>
-                        <span class='report text-report' onclick=\"Report('{$line['sentence_code']}','{$line[$temp_charaset]}')\">Report Sentence</a>
+                        <span class='sentence'>{$sentence['chinese_sc']}</span>
+                        <span class='report text-report' onclick=\"Report('{$sentence['sentence_code']}','{$sentence['chinese_sc']}')\">Report Sentence</a>
                     </div>
                     <div class='wrapper-pinyin'>
-                    <span class='pinyin'>{$line['pinyin']}</span>
+                    <span class='pinyin'>{$sentence['pinyin']}</span>
                     </div>
                     <table>
                         <tr>
                             <td class='sub'><div>EN</div></td>
                             <td class='colon'><div>:</div></td>
-                            <td class='meaning'><div>{$line['meaning_eng']}</div></td>
+                            <td class='meaning'><div>{$sentence['meaning_eng']}</div></td>
                         </tr>
                         <tr>
                             <td class='sub'><div>ID</div></td>
                             <td class='colon'><div>:</div></td>
-                            <td class='meaning'><div>{$line['meaning_ina']}</div></td>
+                            <td class='meaning'><div>{$sentence['meaning_ina']}</div></td>
                         </tr>
                     </table>
                 </div>";
@@ -356,14 +355,14 @@ if ($green !== 0) {
     <button class="wrapper-show-answer" id="click-show">
         <span class="show">Show Answer</span>
     </button>
-    <div class="wrapper-show-answer" id="flashcard-form" data-card-id="<?php echo $temp_card_id; ?>">
-        <button type="button" id="criteria" class="criteria forgot" data-status="forgot" data-cs="<?php echo $row['current_stage'] ?>">
+    <div class="wrapper-show-answer" id="flashcard-form" data-card-id="<?php echo $chosenCard["card_id"]; ?>">
+        <button type="button" id="criteria" class="criteria forgot" data-status="forgot" data-cs="<?php echo $chosenCard['current_stage'] ?>">
             <span>X</span><span>Forgot</span>
         </button>
-        <button type="button" id="criteria" class="criteria hard" data-status="hard" data-cs="<?php echo $row['current_stage'] ?>">
+        <button type="button" id="criteria" class="criteria hard" data-status="hard" data-cs="<?php echo $chosenCard['current_stage'] ?>">
             <span>...</span><span>Hard</span>
         </button>
-        <button type="button" id="criteria" class="criteria remember" data-status="remember" data-cs="<?php echo $row['current_stage'] ?>">
+        <button type="button" id="criteria" class="criteria remember" data-status="remember" data-cs="<?php echo $chosenCard['current_stage'] ?>">
             <span>V</span><span>Remember</span>
         </button>
     </div>
@@ -447,15 +446,15 @@ if ($green !== 0) {
         <div id="flashcard-message" style="display:none;">Niceee</div>
     </div>
 <?php
-            } else {
-                echo "<div class='end-deck'>";
-                echo "<p style='color: white; font-size:26px; font-weight: bold; margin: 10px 0;'>Great job! You've completed this deck for now.</p>";
-                echo "<p style='color: white;'>You can take a break, or review another deck.</p>";
-                echo "<button class='wrapper-show-answer' onclick='BackHomePage()'>
-                <span class='show'>Back To Your Decks</span>
-                </button>";
-                echo "</div>";
-            }
+            // } else {
+            //     echo "<div class='end-deck'>";
+            //     echo "<p style='color: white; font-size:26px; font-weight: bold; margin: 10px 0;'>Great job! You've completed this deck for now.</p>";
+            //     echo "<p style='color: white;'>You can take a break, or review another deck.</p>";
+            //     echo "<button class='wrapper-show-answer' onclick='BackHomePage()'>
+            //     <span class='show'>Back To Your Decks</span>
+            //     </button>";
+            //     echo "</div>";
+            // }
 ?>
     <script>
         function BackHomePage() {
