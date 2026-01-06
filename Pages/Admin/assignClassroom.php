@@ -199,7 +199,14 @@
             </table>
 
             <table id="assigned">
-                <caption>Assigned Users</caption>
+                <?php
+                    $countUsers = mysqli_query($con, "SELECT 
+                        (SELECT COUNT(*) FROM junction_classroom_user WHERE classroom_id = '$classroomID' AND classroom_role_id = 2) as teachers, 
+                        (SELECT COUNT(*) FROM junction_classroom_user WHERE classroom_id = '$classroomID' AND classroom_role_id = 3) as students
+                    ");
+                    $countUsers = mysqli_fetch_array($countUsers);
+                ?>
+                <caption>Assigned Users (<?php echo $countUsers["teachers"] ?> teachers, <?php echo $countUsers["students"] ?> students)</caption>
                 <tr>
                     <th>Name</th>
                     <th>Role</th>
