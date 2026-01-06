@@ -40,35 +40,65 @@ $_SESSION['temp_deck_id'] = $deckID;
 
 date_default_timezone_set('Asia/Jakarta');
 $allDecks = [];
-if(!isset($_SESSION['all_decks']) || $_SESSION['all_decks_expires'] < time()) {
-    $getAllDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks;");
-    while($row = mysqli_fetch_assoc($getAllDecks)) {
+$decksList = [];
+
+if (!isset($_SESSION['all_decks']) || !isset($_SESSION['decks_list']) || $_SESSION['all_decks_expires'] < time()) {
+    $getAllDecks = mysqli_query($con, "
+        SELECT deck_id, parent_deck_id, name, is_leaf
+        FROM decks
+        ORDER BY name ASC
+    ");
+
+    while ($row = mysqli_fetch_assoc($getAllDecks)) {
         $allDecks[$row['deck_id']] = $row['parent_deck_id'];
+        $decksList[] = $row;
     }
+
     $_SESSION['all_decks'] = $allDecks;
+    $_SESSION['decks_list'] = $decksList;
     $_SESSION['all_decks_expires'] = time() + 1800;
 } else {
-    $allDecks = $_SESSION["all_decks"];
+    $allDecks = $_SESSION['all_decks'];
+    $decksList = $_SESSION['decks_list'];
 }
 
-$leafDecks = [];
-if(!isset($_SESSION['leaf_decks']) || $_SESSION['leaf_decks_expires'] < time()) {
-    $getLeafDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks;");
-    while($row = mysqli_fetch_assoc($getLeafDecks)) {
-        $getLeafDecks[$row['deck_id']] = $row['parent_deck_id'];
+
+function isDescendant($deckId, $targetParent, $allDecks) {
+    while (isset($allDecks[$deckId]) && $allDecks[$deckId]) {
+        if ($allDecks[$deckId] === $targetParent) {
+            return true;
+        }
+        $deckId = $allDecks[$deckId];
     }
-    $_SESSION['leaf_decks'] = $leafDecks;
-    $_SESSION['leaf_decks_expires'] = time() + 1800;
-} else {
-    $allDecks = $_SESSION["all_decks"];
+    return false;
 }
 
-function getLeafDecks($deckID) {
-    global $allDecks, $leafDecks;
-    if ($allDecks[$deckID] == null) {
-        $leafDecks[] = $deckID;
-    } else {
-        getLeafDecks($allDecks[$deckID]);
+$firstLeafDeck;
+if ($deckID === "main") {
+    $firstLeafDeck = null;
+} else {
+    $firstLeafDeck = null;
+
+    foreach ($decksList as $deck) {
+        // if the clicked deck itself is a leaf
+        if ($deck['deck_id'] === $deckID && $deck['is_leaf']) {
+            $firstLeafDeck = $deckID;
+            break;
+        }
+    }
+
+    // otherwise find descendant leaf decks
+    if ($firstLeafDeck === null) {
+        $leafDecks = [];
+
+        foreach ($decksList as $deck) {
+            if ($deck['is_leaf'] && isDescendant($deck['deck_id'], $deckID, $allDecks)) {
+                $leafDecks[] = $deck;
+            }
+        }
+
+        usort($leafDecks, fn($a, $b) => strcmp($a['name'], $b['name']));
+        $firstLeafDeck = $leafDecks[0]['deck_id'] ?? null;
     }
 }
 
@@ -86,6 +116,9 @@ $chosenCard;
 $cardIds;
 $getAllCards;
 
+//check if correct
+$deckCondition = $deckID !== "main" && $firstLeafDeck !== null ? "AND d.deck_id = '$firstLeafDeck'" : "";
+
 if($green != 0) {
     $getAllCards = mysqli_query($con, "
     SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due
@@ -94,7 +127,7 @@ if($green != 0) {
     JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
     JOIN cards AS c ON dc.card_id = c.card_id
     JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-    WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.review_due <= NOW() ORDER BY d.name ASC, dc.priority ASC
+    WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.review_due <= NOW() ORDER BY d.name ASC, dc.priority ASC
     ");
 } else {
     $getAllCards = mysqli_query($con, "
@@ -104,7 +137,7 @@ if($green != 0) {
         JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
         JOIN cards AS c ON dc.card_id = c.card_id
         JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-        WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.total_review = 0 ORDER BY d.name ASC, dc.priority ASC
+        WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.total_review = 0 ORDER BY d.name ASC, dc.priority ASC
     ");
 }
 
@@ -136,17 +169,31 @@ $getParentDecks = mysqli_query($con, "
 ");
 
 while ($row = mysqli_fetch_assoc($getParentDecks)) {
-    $allCards[$row['card_id']]['parent_decks'][] = $row['deck_id'];
+    $cardId = $row['card_id'];
+
+    $allCards[$cardId]['parent_decks'] ??= [];
+    $allCards[$cardId]['parent_decks'][] = $row['deck_id'];
+
+    //get ancestors
+    $parent = $row['deck_id'];
+    while (isset($allDecks[$parent]) && !empty($allDecks[$parent])) {
+        $parent = $allDecks[$parent];
+        if(!in_array($parent, $allCards[$row['card_id']]['parent_decks'], true)) {
+            $allCards[$row['card_id']]['parent_decks'][] = $parent;
+        }
+    }
 }
 
 if($deckID == "main") {
     $chosenCard = $allCards;
 } else {
     $chosenCard = $allCards;
-    // $chosenCard = array_filter($allCards, function($card) use ($deckID) {
-    //     return in_array($deckID, $card['parent_decks']);
-    // });
+    $chosenCard = array_filter($allCards, function($card) use ($deckID, $firstLeafDeck) {
+        return in_array($firstLeafDeck, $card['parent_decks']);
+    });
 }
+
+$filteredCards = $chosenCard;
 
 $key = array_key_first($chosenCard);
 $chosenCard = $chosenCard[$key];
@@ -269,7 +316,7 @@ $chosenCard = $chosenCard[$key];
     </div>
 
     
-    <p style = "color: white;"><?php echo "'" . implode("', '", $chosenCard['parent_decks']) . "'"; ?></p>
+    <pre style = "color: white;"><?php echo print_r($filteredCards); ?></pre>
     <pre style = "color: white;"><?php print_r($chosenCard); ?></pre>
     <!-- <pre style = "color: white;"><?php print_r($allCards); ?></pre> -->
 
@@ -294,28 +341,30 @@ $chosenCard = $chosenCard[$key];
                 </div>
 
                 <?php
-                foreach($chosenCard["sentences"] as $sentence) {
-                    echo "<div class='sentence'>
-                    <div class='chinese-sentence'>
-                        <span class='sentence'>{$sentence['chinese_sc']}</span>
-                        <span class='report text-report' onclick=\"Report('{$sentence['sentence_code']}','{$sentence['chinese_sc']}')\">Report Sentence</a>
-                    </div>
-                    <div class='wrapper-pinyin'>
-                    <span class='pinyin'>{$sentence['pinyin']}</span>
-                    </div>
-                    <table>
-                        <tr>
-                            <td class='sub'><div>EN</div></td>
-                            <td class='colon'><div>:</div></td>
-                            <td class='meaning'><div>{$sentence['meaning_eng']}</div></td>
-                        </tr>
-                        <tr>
-                            <td class='sub'><div>ID</div></td>
-                            <td class='colon'><div>:</div></td>
-                            <td class='meaning'><div>{$sentence['meaning_ina']}</div></td>
-                        </tr>
-                    </table>
-                </div>";
+                if(isset($chosenCard["sentences"])) {
+                    foreach($chosenCard["sentences"] as $sentence) {
+                        echo "<div class='sentence'>
+                        <div class='chinese-sentence'>
+                            <span class='sentence'>{$sentence['chinese_sc']}</span>
+                            <span class='report text-report' onclick=\"Report('{$sentence['sentence_code']}','{$sentence['chinese_sc']}')\">Report Sentence</a>
+                        </div>
+                        <div class='wrapper-pinyin'>
+                        <span class='pinyin'>{$sentence['pinyin']}</span>
+                        </div>
+                        <table>
+                            <tr>
+                                <td class='sub'><div>EN</div></td>
+                                <td class='colon'><div>:</div></td>
+                                <td class='meaning'><div>{$sentence['meaning_eng']}</div></td>
+                            </tr>
+                            <tr>
+                                <td class='sub'><div>ID</div></td>
+                                <td class='colon'><div>:</div></td>
+                                <td class='meaning'><div>{$sentence['meaning_ina']}</div></td>
+                            </tr>
+                        </table>
+                    </div>";
+                    }
                 }
                 ?>
 
