@@ -63,6 +63,15 @@ if(!isset($_SESSION['leaf_decks']) || $_SESSION['leaf_decks_expires'] < time()) 
     $allDecks = $_SESSION["all_decks"];
 }
 
+function getLeafDecks($deckID) {
+    global $allDecks, $leafDecks;
+    if ($allDecks[$deckID] == null) {
+        $leafDecks[] = $deckID;
+    } else {
+        getLeafDecks($allDecks[$deckID]);
+    }
+}
+
 // Blue Green Red Count
 include_once "repetition_flashcard.php";
 
