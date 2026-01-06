@@ -86,6 +86,9 @@
             justify-content: space-evenly;
             gap: 8px;
         }
+        #tables td:nth-child(1) {
+            text-align: left;
+        }
     </style>
     <script>
         function searchClassroom(str) {
@@ -129,7 +132,7 @@
                 <th>Action</th>
             </tr>
             <?php
-                $getClassroom = mysqli_query($con, "SELECT classroom_id, name FROM classroom");
+                $getClassroom = mysqli_query($con, "SELECT classroom_id, name FROM classroom ORDER BY REGEXP_REPLACE(name, '^[^a-zA-Z0-9]+', '') ASC");
                 while($classroom = mysqli_fetch_array($getClassroom)) {
                     $classroomID = $classroom["classroom_id"];
                     $classroomName = $classroom["name"];

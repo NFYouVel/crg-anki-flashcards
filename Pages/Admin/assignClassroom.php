@@ -206,17 +206,18 @@
                     <th>Action</th>
                 </tr>
                 <?php
-                    $getUsers = mysqli_query($con, "SELECT user_id, classroom_role_id FROM junction_classroom_user WHERE classroom_id = '$classroomID'");
+                    $getUsers = mysqli_query($con, "
+                        SELECT u.user_id, u.name, ur.role_name 
+                        FROM junction_classroom_user jcu 
+                        JOIN users u ON u.user_id = jcu.user_id
+                        JOIN user_role ur ON ur.role_id = jcu.classroom_role_id
+                        WHERE jcu.classroom_id = '$classroomID' 
+                        ORDER BY jcu.classroom_role_id ASC, u.name ASC
+                        ");
                     while($user = mysqli_fetch_array($getUsers)) {
                         $userID = $user["user_id"];
-                        $name = mysqli_query($con, "SELECT name FROM users WHERE user_id = '$userID'");
-                        $name = mysqli_fetch_array($name);
-                        $name = $name["name"];
-                        $role = $user["classroom_role_id"];
-                        $role = mysqli_query($con, "SELECT role_name FROM user_role WHERE role_id = $role");
-                        $role = mysqli_fetch_array($role);
-                        $role = $role["role_name"];
-
+                        $name = $user["name"];
+                        $role = $user["role_name"];
                         echo "<tr>";
                             echo "<td>$name</td>";
                             echo "<td>$role</td>";
