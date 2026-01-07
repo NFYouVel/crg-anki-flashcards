@@ -154,59 +154,43 @@ while($card = mysqli_fetch_assoc($getAllCards)) {
     $cardIds[] = $card['card_id'];
 }
 
-if (!empty($cardIds)) {
-    $cardIds = implode(",", $cardIds);
+$cardIds = implode(",", $cardIds);
 
-    $getSentences = mysqli_query($con, "
-        SELECT jcs.card_id, es.*
-        FROM junction_card_sentence jcs
-        INNER JOIN example_sentence es 
-            ON jcs.sentence_code = es.sentence_code
-        WHERE jcs.card_id IN ($cardIds)
-    ");
+$getSentences = mysqli_query($con, "
+    SELECT jcs.card_id, es.*
+    FROM junction_card_sentence jcs
+    INNER JOIN example_sentence es 
+        ON jcs.sentence_code = es.sentence_code
+    WHERE jcs.card_id IN ($cardIds)
+");
 
-    while ($row = mysqli_fetch_assoc($getSentences)) {
-        $allCards[$row['card_id']]['sentences'][] = $row;
-    }
+while ($row = mysqli_fetch_assoc($getSentences)) {
+    $allCards[$row['card_id']]['sentences'][] = $row;
 }
 
+$getParentDecks = mysqli_query($con, "
+    SELECT card_id, deck_id
+    FROM junction_deck_card
+    WHERE card_id IN ($cardIds)
+");
 
-if (!empty($cardIds)) {
-    $getParentDecks = mysqli_query($con, "
-        SELECT card_id, deck_id
-        FROM junction_deck_card
-        WHERE card_id IN ($cardIds)
-    ");
+while ($row = mysqli_fetch_assoc($getParentDecks)) {
+    $cardId = $row['card_id'];
 
-    while ($row = mysqli_fetch_assoc($getParentDecks)) {
-        $cardId = $row['card_id'];
+    $allCards[$cardId]['parent_decks'] ??= [];
+    $allCards[$cardId]['parent_decks'][] = $row['deck_id'];
 
-        $allCards[$cardId]['parent_decks'] ??= [];
-        $allCards[$cardId]['parent_decks'][] = $row['deck_id'];
-
-        // get ancestors
-        $parent = $row['deck_id'];
-        while (isset($allDecks[$parent]) && !empty($allDecks[$parent])) {
-            $parent = $allDecks[$parent];
-            if (!in_array($parent, $allCards[$cardId]['parent_decks'], true)) {
-                $allCards[$cardId]['parent_decks'][] = $parent;
-            }
+    //get ancestors
+    $parent = $row['deck_id'];
+    while (isset($allDecks[$parent]) && !empty($allDecks[$parent])) {
+        $parent = $allDecks[$parent];
+        if(!in_array($parent, $allCards[$row['card_id']]['parent_decks'], true)) {
+            $allCards[$row['card_id']]['parent_decks'][] = $parent;
         }
     }
 }
 
-
-if($deckID == "main") {
-    $chosenCard = $allCards;
-} else {
-    $chosenCard = $allCards;
-    $chosenCard = array_filter($allCards, function($card) use ($deckID, $firstLeafDeck) {
-        return in_array($firstLeafDeck, $card['parent_decks']);
-    });
-}
-
-$filteredCards = $chosenCard;
-
+$chosenCard = $allCards;
 $key = array_key_first($chosenCard);
 $chosenCard = $chosenCard[$key];
 
