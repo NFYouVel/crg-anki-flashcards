@@ -195,8 +195,6 @@ $key = array_key_first($chosenCard);
 $chosenCard = $chosenCard[$key];
 
 ?>
-
-?>
 <!DOCTYPE html>
 <html lang="en">
 
