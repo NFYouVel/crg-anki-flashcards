@@ -92,6 +92,11 @@ if ($deckID === "main") {
                 $leafDecksList[] = $deck['deck_id'];
             }
         }
+        usort($leafDecksList, function($a, $b) use ($decksList) {
+            $nameA = array_filter($decksList, fn($d) => $d['deck_id'] === $a)[0]['name'] ?? '';
+            $nameB = array_filter($decksList, fn($d) => $d['deck_id'] === $b)[0]['name'] ?? '';
+            return strcmp($nameA, $nameB);
+        });
     }
 }
 
@@ -124,7 +129,7 @@ if($green != 0) {
     JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
     JOIN cards AS c ON dc.card_id = c.card_id
     JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-    WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.review_due <= NOW() ORDER BY d.name ASC, dc.priority ASC
+    WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.review_due <= NOW() ORDER BY d.name ASC, dc.priority ASC LIMIT 1
     ");
 } else {
     $getAllCards = mysqli_query($con, "
@@ -134,7 +139,7 @@ if($green != 0) {
         JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
         JOIN cards AS c ON dc.card_id = c.card_id
         JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-        WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.total_review = 0 ORDER BY d.name ASC, dc.priority ASC
+        WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.total_review = 0 ORDER BY d.name ASC, dc.priority ASC LIMIT 1
     ");
 }
 
