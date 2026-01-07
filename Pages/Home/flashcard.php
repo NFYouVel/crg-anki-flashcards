@@ -84,14 +84,15 @@ if ($deckID === "main") {
 } else {
     $firstLeafDeck = null;
 
-    
-    foreach ($decksList as $deck) {
-        if ($deck['deck_id'] === $deckID && $deck['is_leaf']) {
-            $firstLeafDeck = $deckID;
-            break;
-        }
+    //check if selected deck is already leaf deck, if true, then firstLeafDeck = selected deck
+    $selectedDeck = mysqli_query($con, "SELECT * FROM decks WHERE deck_id = '$deckID'");
+    $selectedDeck = mysqli_fetch_assoc($selectedDeck);
+
+    if ($selectedDeck['is_leaf']) {
+        $firstLeafDeck = $deckID;
     }
 
+    //if selected deck is not leaf deck, then find first leaf deck child of selected deck and sort by deck name
     if ($firstLeafDeck === null) {
         $leafDecks = [];
 
@@ -120,6 +121,7 @@ $chosenCard;
 $cardIds;
 $getAllCards;
 
+//if user select main deck, then select from all decks, if not, only select from first leaf deck
 $deckCondition = $deckID !== "main" && $firstLeafDeck !== null ? "AND d.deck_id = '$firstLeafDeck'" : "";
 
 if($green != 0) {
@@ -146,6 +148,7 @@ if($green != 0) {
 
 $cardIds = [];
 
+//get all cards from query above
 while($card = mysqli_fetch_assoc($getAllCards)) {
     $allCards[$card['card_id']] = $card;
     $cardIds[] = $card['card_id'];
