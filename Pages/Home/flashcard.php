@@ -79,7 +79,16 @@ function isDescendant($deckId, $targetParent, $allDecks) {
 
 $leafDecksList = [];
 if ($deckID === "main") {
-    $leafDecksList = null;
+    foreach ($decksList as $deck) {
+        if ($deck['is_leaf']) {
+            $leafDecksList[] = $deck['deck_id'];
+        }
+    }
+    usort($leafDecksList, function($a, $b) use ($decksList) {
+        $nameA = array_filter($decksList, fn($d) => $d['deck_id'] === $a)[0]['name'] ?? '';
+        $nameB = array_filter($decksList, fn($d) => $d['deck_id'] === $b)[0]['name'] ?? '';
+        return strcmp($nameA, $nameB);
+    });
 } else {
     $selectedDeck = mysqli_query($con, "SELECT * FROM decks WHERE deck_id = '$deckID'");
     $selectedDeck = mysqli_fetch_assoc($selectedDeck);
@@ -116,7 +125,7 @@ $cardIds = [];
 $getAllCards;
 
 $deckCondition = "";
-if ($deckID !== "main" && !empty($leafDecksList)) {
+if (!empty($leafDecksList)) {
     $leafDecksStr = "'" . implode("','", $leafDecksList) . "'";
     $deckCondition = "AND d.deck_id IN ($leafDecksStr)";
 }
