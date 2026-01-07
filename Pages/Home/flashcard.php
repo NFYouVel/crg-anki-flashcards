@@ -77,35 +77,33 @@ function isDescendant($deckId, $targetParent, $allDecks) {
     return false;
 }
 
-$leafDecksList = [];
+$firstLeafDeck;
 if ($deckID === "main") {
-    foreach ($decksList as $deck) {
-        if ($deck['is_leaf']) {
-            $leafDecksList[] = $deck['deck_id'];
-        }
-    }
-    usort($leafDecksList, function($a, $b) use ($decksList) {
-        $nameA = array_filter($decksList, fn($d) => $d['deck_id'] === $a)[0]['name'] ?? '';
-        $nameB = array_filter($decksList, fn($d) => $d['deck_id'] === $b)[0]['name'] ?? '';
-        return strcmp($nameA, $nameB);
-    });
+    //if user is opening main deck, no need to filter
+    $firstLeafDeck = null;
 } else {
+    $firstLeafDeck = null;
+
+    //check if selected deck is already leaf deck, if true, then firstLeafDeck = selected deck
     $selectedDeck = mysqli_query($con, "SELECT * FROM decks WHERE deck_id = '$deckID'");
     $selectedDeck = mysqli_fetch_assoc($selectedDeck);
 
     if ($selectedDeck['is_leaf']) {
-        $leafDecksList = [$deckID];
-    } else {
+        $firstLeafDeck = $deckID;
+    }
+
+    //if selected deck is not leaf deck, then find first leaf deck child of selected deck and sort by deck name
+    if ($firstLeafDeck === null) {
+        $leafDecks = [];
+
         foreach ($decksList as $deck) {
             if ($deck['is_leaf'] && isDescendant($deck['deck_id'], $deckID, $allDecks)) {
-                $leafDecksList[] = $deck['deck_id'];
+                $leafDecks[] = $deck;
             }
         }
-        usort($leafDecksList, function($a, $b) use ($decksList) {
-            $nameA = array_filter($decksList, fn($d) => $d['deck_id'] === $a)[0]['name'] ?? '';
-            $nameB = array_filter($decksList, fn($d) => $d['deck_id'] === $b)[0]['name'] ?? '';
-            return strcmp($nameA, $nameB);
-        });
+
+        usort($leafDecks, fn($a, $b) => strcmp($a['name'], $b['name']));
+        $firstLeafDeck = $leafDecks[0]['deck_id'] ?? null;
     }
 }
 
@@ -117,18 +115,14 @@ $blue = $counts['blue'];
 $green = $counts['green'];
 $red = $counts['red'];
 
-
 // Algorithm Flashcard
 $allCards = [];
 $chosenCard;
-$cardIds = [];
+$cardIds;
 $getAllCards;
 
-$deckCondition = "";
-if (!empty($leafDecksList)) {
-    $leafDecksStr = "'" . implode("','", $leafDecksList) . "'";
-    $deckCondition = "AND d.deck_id IN ($leafDecksStr)";
-}
+//if user select main deck, then select from all decks, if not, only select from first leaf deck
+$deckCondition = $deckID !== "main" && $firstLeafDeck !== null ? "AND d.deck_id = '$firstLeafDeck'" : "";
 
 if($green != 0) {
     $getAllCards = mysqli_query($con, "
@@ -138,7 +132,7 @@ if($green != 0) {
     JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
     JOIN cards AS c ON dc.card_id = c.card_id
     JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-    WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.review_due <= NOW() ORDER BY d.name ASC, dc.priority ASC LIMIT 1
+    WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.review_due <= NOW() ORDER BY d.name ASC, dc.priority ASC
     ");
 } else {
     $getAllCards = mysqli_query($con, "
@@ -148,58 +142,59 @@ if($green != 0) {
         JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
         JOIN cards AS c ON dc.card_id = c.card_id
         JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-        WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.total_review = 0 ORDER BY d.name ASC, dc.priority ASC LIMIT 1
+        WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.total_review = 0 ORDER BY d.name ASC, dc.priority ASC
     ");
 }
 
+$cardIds = [];
+
+//get all cards from query above
 while($card = mysqli_fetch_assoc($getAllCards)) {
     $allCards[$card['card_id']] = $card;
     $cardIds[] = $card['card_id'];
 }
 
-if (!empty($cardIds)) {
-    $cardIdsStr = implode(",", $cardIds);
+$cardIds = implode(",", $cardIds);
 
-    $getSentences = mysqli_query($con, "
-        SELECT jcs.card_id, es.*
-        FROM junction_card_sentence jcs
-        INNER JOIN example_sentence es 
-            ON jcs.sentence_code = es.sentence_code
-        WHERE jcs.card_id IN ($cardIdsStr)
-    ");
+$getSentences = mysqli_query($con, "
+    SELECT jcs.card_id, es.*
+    FROM junction_card_sentence jcs
+    INNER JOIN example_sentence es 
+        ON jcs.sentence_code = es.sentence_code
+    WHERE jcs.card_id IN ($cardIds)
+");
 
-    while ($row = mysqli_fetch_assoc($getSentences)) {
-        $allCards[$row['card_id']]['sentences'][] = $row;
-    }
+while ($row = mysqli_fetch_assoc($getSentences)) {
+    $allCards[$row['card_id']]['sentences'][] = $row;
+}
 
-    $getParentDecks = mysqli_query($con, "
-        SELECT card_id, deck_id
-        FROM junction_deck_card
-        WHERE card_id IN ($cardIdsStr)
-    ");
+$getParentDecks = mysqli_query($con, "
+    SELECT card_id, deck_id
+    FROM junction_deck_card
+    WHERE card_id IN ($cardIds)
+");
 
-    while ($row = mysqli_fetch_assoc($getParentDecks)) {
-        $cardId = $row['card_id'];
+while ($row = mysqli_fetch_assoc($getParentDecks)) {
+    $cardId = $row['card_id'];
 
-        $allCards[$cardId]['parent_decks'] ??= [];
-        $allCards[$cardId]['parent_decks'][] = $row['deck_id'];
+    $allCards[$cardId]['parent_decks'] ??= [];
+    $allCards[$cardId]['parent_decks'][] = $row['deck_id'];
 
-        //get ancestors
-        $parent = $row['deck_id'];
-        while (isset($allDecks[$parent]) && !empty($allDecks[$parent])) {
-            $parent = $allDecks[$parent];
-            if(!in_array($parent, $allCards[$row['card_id']]['parent_decks'], true)) {
-                $allCards[$row['card_id']]['parent_decks'][] = $parent;
-            }
+    //get ancestors
+    $parent = $row['deck_id'];
+    while (isset($allDecks[$parent]) && !empty($allDecks[$parent])) {
+        $parent = $allDecks[$parent];
+        if(!in_array($parent, $allCards[$row['card_id']]['parent_decks'], true)) {
+            $allCards[$row['card_id']]['parent_decks'][] = $parent;
         }
     }
-
-    $chosenCard = $allCards;
-    $key = array_key_first($chosenCard);
-    $chosenCard = $chosenCard[$key];
-} else {
-    $chosenCard = null;
 }
+
+$chosenCard = $allCards;
+$key = array_key_first($chosenCard);
+$chosenCard = $chosenCard[$key];
+
+?>
 
 ?>
 <!DOCTYPE html>
