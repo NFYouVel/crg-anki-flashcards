@@ -115,6 +115,7 @@ $blue = $counts['blue'];
 $green = $counts['green'];
 $red = $counts['red'];
 
+
 // Algorithm Flashcard
 $allCards = [];
 $chosenCard;
@@ -123,6 +124,14 @@ $getAllCards;
 
 //if user select main deck, then select from all decks, if not, only select from first leaf deck
 $deckCondition = $deckID !== "main" && $firstLeafDeck !== null ? "AND d.deck_id = '$firstLeafDeck'" : "";
+
+echo "DEBUG INFO:<br>";
+echo "deckID: " . $deckID . "<br>";
+echo "firstLeafDeck: " . ($firstLeafDeck ?? 'NULL') . "<br>";
+echo "deckCondition: " . $deckCondition . "<br>";
+echo "green: " . $green . "<br>";
+echo "blue: " . $blue . "<br>";
+echo "red: " . $red . "<br>";
 
 if($green != 0) {
     $getAllCards = mysqli_query($con, "
@@ -145,6 +154,15 @@ if($green != 0) {
         WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.total_review = 0 ORDER BY d.name ASC, dc.priority ASC
     ");
 }
+
+echo "Query: <pre>" . 
+($green != 0 ? 
+    "SELECT ... WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.review_due <= NOW() ..." :
+    "SELECT ... WHERE du.user_id = '$user_id' AND d.is_leaf = 1 $deckCondition AND cp.total_review = 0 ...") 
+. "</pre><br>";
+echo "Rows returned: " . mysqli_num_rows($getAllCards) . "<br>";
+echo "Card IDs found: " . count($cardIds) . "<br>";
+die();
 
 $cardIds = [];
 
