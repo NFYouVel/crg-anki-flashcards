@@ -19,6 +19,7 @@ $query = "SELECT * FROM users WHERE user_id = '$user_id'";
 $result = mysqli_query($con, $query);
 $line = mysqli_fetch_assoc($result);
 $chara_set = $line['character_set'];
+$chara_set = ($chara_set == "simplified") ? "chinese_sc" : "chinese_tc";
 
 if ($line['role'] == 0) {
     $role = "Admin";
@@ -39,9 +40,12 @@ if (!isset($_GET['deck_id'])) {
 $_SESSION['temp_deck_id'] = $deckID;
 
 date_default_timezone_set('Asia/Jakarta');
+//all decks: key: deck_id, value: parent_deck_id
 $allDecks = [];
+//list of all decks including deck_id, parent_deck_id, name, is_leaf
 $decksList = [];
 
+//get and save all decks to session for optimization
 if (!isset($_SESSION['all_decks']) || !isset($_SESSION['decks_list']) || $_SESSION['all_decks_expires'] < time()) {
     $getAllDecks = mysqli_query($con, "
         SELECT deck_id, parent_deck_id, name, is_leaf
@@ -62,7 +66,7 @@ if (!isset($_SESSION['all_decks']) || !isset($_SESSION['decks_list']) || $_SESSI
     $decksList = $_SESSION['decks_list'];
 }
 
-
+//function to check if a deck is a decendant of another deck
 function isDescendant($deckId, $targetParent, $allDecks) {
     while (isset($allDecks[$deckId]) && $allDecks[$deckId]) {
         if ($allDecks[$deckId] === $targetParent) {
@@ -75,19 +79,19 @@ function isDescendant($deckId, $targetParent, $allDecks) {
 
 $firstLeafDeck;
 if ($deckID === "main") {
+    //if user is opening main deck, no need to filter
     $firstLeafDeck = null;
 } else {
     $firstLeafDeck = null;
 
+    
     foreach ($decksList as $deck) {
-        // if the clicked deck itself is a leaf
         if ($deck['deck_id'] === $deckID && $deck['is_leaf']) {
             $firstLeafDeck = $deckID;
             break;
         }
     }
 
-    // otherwise find descendant leaf decks
     if ($firstLeafDeck === null) {
         $leafDecks = [];
 
@@ -116,12 +120,11 @@ $chosenCard;
 $cardIds;
 $getAllCards;
 
-//check if correct
 $deckCondition = $deckID !== "main" && $firstLeafDeck !== null ? "AND d.deck_id = '$firstLeafDeck'" : "";
 
 if($green != 0) {
     $getAllCards = mysqli_query($con, "
-    SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due
+    SELECT c.pinyin, c.$chara_set, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due
     FROM junction_deck_user AS du 
     JOIN decks AS d ON d.deck_id = du.deck_id
     JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
@@ -131,7 +134,7 @@ if($green != 0) {
     ");
 } else {
     $getAllCards = mysqli_query($con, "
-        SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review
+        SELECT c.pinyin, c.$chara_set, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review
         FROM junction_deck_user AS du 
         JOIN decks AS d ON d.deck_id = du.deck_id
         JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
@@ -199,8 +202,6 @@ $key = array_key_first($chosenCard);
 $chosenCard = $chosenCard[$key];
 
 ?>
-<!-- ------------------------------------------------------------------ -->
-<!-- DOCTYPE HTML -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -315,15 +316,10 @@ $chosenCard = $chosenCard[$key];
         </div>
     </div>
 
-    
-    <pre style = "color: white;"><?php echo print_r($filteredCards); ?></pre>
-    <pre style = "color: white;"><?php print_r($chosenCard); ?></pre>
-    <!-- <pre style = "color: white;"><?php print_r($allCards); ?></pre> -->
-
     <div class="wrapper-flashcard" id="target">
         <div class="wrapper-mid">
                 <div class="vocab-card">
-                    <span class="hanzi"><?php echo htmlspecialchars($chosenCard["chinese_sc"]); ?></span>
+                    <span class="hanzi"><?php echo htmlspecialchars($chosenCard[$chara_set]); ?></span>
                     <span class="pinyin"><?php echo htmlspecialchars(convert($chosenCard["pinyin"])); ?></span>
                     <span class="word-class"><?php echo htmlspecialchars($chosenCard['word_class']); ?></span>
                     <table>
@@ -345,8 +341,8 @@ $chosenCard = $chosenCard[$key];
                     foreach($chosenCard["sentences"] as $sentence) {
                         echo "<div class='sentence'>
                         <div class='chinese-sentence'>
-                            <span class='sentence'>{$sentence['chinese_sc']}</span>
-                            <span class='report text-report' onclick=\"Report('{$sentence['sentence_code']}','{$sentence['chinese_sc']}')\">Report Sentence</a>
+                            <span class='sentence'>{$sentence[$chara_set]}</span>
+                            <span class='report text-report' onclick=\"Report('{$sentence['sentence_code']}','{$sentence[$chara_set]}')\">Report Sentence</a>
                         </div>
                         <div class='wrapper-pinyin'>
                         <span class='pinyin'>{$sentence['pinyin']}</span>
