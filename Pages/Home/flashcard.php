@@ -195,8 +195,6 @@ $key = array_key_first($chosenCard);
 $chosenCard = $chosenCard[$key];
 
 ?>
-<!-- ------------------------------------------------------------------ -->
-<!-- DOCTYPE HTML -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -311,12 +309,11 @@ $chosenCard = $chosenCard[$key];
         </div>
     </div>
 
-    <!-- Cards -->
     <div class="wrapper-flashcard" id="target">
         <div class="wrapper-mid">
                 <div class="vocab-card">
                     <span class="hanzi"><?php echo htmlspecialchars($chosenCard[$chara_set]); ?></span>
-                    <span class="pinyin"><?php echo htmlspecialchars(convert($chosenCard['pinyin'])); ?></span>
+                    <span class="pinyin"><?php echo htmlspecialchars(convert($chosenCard["pinyin"])); ?></span>
                     <span class="word-class"><?php echo htmlspecialchars($chosenCard['word_class']); ?></span>
                     <table>
                         <tr>
@@ -333,30 +330,34 @@ $chosenCard = $chosenCard[$key];
                 </div>
 
                 <?php
-                foreach($chosenCard["sentences"] as $line) {
-                    echo "<div class='sentence'>
+                if(isset($chosenCard["sentences"])) {
+                    foreach($chosenCard["sentences"] as $sentence) {
+                        echo "<div class='sentence'>
                         <div class='chinese-sentence'>
-                            <span class='sentence'>{$line[$chara_set]}</span>
-                            <span class='report text-report' onclick=\"Report('{$line['sentence_code']}','{$line[$chara_set]}')\">Report Sentence</a>
+                            <span class='sentence'>{$sentence[$chara_set]}</span>
+                            <span class='report text-report' onclick=\"Report('{$sentence['sentence_code']}','{$sentence[$chara_set]}')\">Report Sentence</a>
                         </div>
                         <div class='wrapper-pinyin'>
-                        <span class='pinyin'>{$line['pinyin']}</span>
+                        <span class='pinyin'>{$sentence['pinyin']}</span>
                         </div>
                         <table>
                             <tr>
                                 <td class='sub'><div>EN</div></td>
                                 <td class='colon'><div>:</div></td>
-                                <td class='meaning'><div>{$line['meaning_eng']}</div></td>
+                                <td class='meaning'><div>{$sentence['meaning_eng']}</div></td>
                             </tr>
                             <tr>
                                 <td class='sub'><div>ID</div></td>
                                 <td class='colon'><div>:</div></td>
-                                <td class='meaning'><div>{$line['meaning_ina']}</div></td>
+                                <td class='meaning'><div>{$sentence['meaning_ina']}</div></td>
                             </tr>
                         </table>
                     </div>";
+                    }
                 }
                 ?>
+
+
         </div>
     </div>
 
@@ -401,7 +402,7 @@ $chosenCard = $chosenCard[$key];
     <button class="wrapper-show-answer" id="click-show">
         <span class="show">Show Answer</span>
     </button>
-    <div class="wrapper-show-answer" id="flashcard-form" data-card-id="<?php echo $temp_card_id; ?>">
+    <div class="wrapper-show-answer" id="flashcard-form" data-card-id="<?php echo $chosenCard["card_id"]; ?>">
         <button type="button" id="criteria" class="criteria forgot" data-status="forgot" data-cs="<?php echo $chosenCard['current_stage'] ?>">
             <span>X</span><span>Forgot</span>
         </button>
