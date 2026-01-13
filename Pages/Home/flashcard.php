@@ -50,83 +50,128 @@ $red = $counts['red'];
 if ($green !== 0) {
     if ($deckID == "main") {
         $query_flashcard_algorithm = mysqli_query($con, "
-        SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due
-            FROM junction_deck_user AS du 
-            JOIN decks AS d ON d.deck_id = du.deck_id
-            JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
-            JOIN cards AS c ON dc.card_id = c.card_id
-            JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-            WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.review_due <= NOW() ORDER BY d.name ASC, dc.priority ASC LIMIT 1
+        SELECT 
+            c.pinyin,
+            c.chinese_tc,
+            c.chinese_sc,
+            c.word_class,
+            c.meaning_eng,
+            c.meaning_ina,
+            c.card_id,
+            cp.current_stage,
+            cp.review_due
+        FROM card_progress cp
+        JOIN cards c
+            ON c.card_id = cp.card_id
+        JOIN junction_deck_card dc
+            ON dc.card_id = c.card_id
+        JOIN decks d
+            ON d.deck_id = dc.deck_id
+            AND d.is_leaf = 1
+        JOIN junction_deck_user du
+            ON du.deck_id = d.deck_id
+            AND du.user_id = cp.user_id
+        WHERE cp.user_id = '$user_id'
+        AND cp.review_due <= CURRENT_TIMESTAMP
+        ORDER BY d.name ASC, dc.priority ASC
+        LIMIT 1;
         ");
     } else {
         $query_flashcard_algorithm = mysqli_query($con, "
-        WITH RECURSIVE child_decks AS (
-            SELECT deck_id, is_leaf, name
-            FROM decks WHERE deck_id = '$deckID'
-
-            UNION ALL
-
-            SELECT d.deck_id, d.is_leaf, d.name
-            FROM decks AS d 
-            JOIN child_decks AS cd 
-            ON d.parent_deck_id = cd.deck_id
-        ),
-        leaf_decks AS (
-            SELECT name, deck_id FROM child_decks WHERE is_leaf = 1
-        ),
-        flashcard AS (
-            SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, dc.priority, ld.name AS ld_name
-            FROM junction_deck_user AS du
-            JOIN junction_deck_card AS dc ON du.deck_id = dc.deck_id
-            JOIN cards AS c ON c.card_id = dc.card_id
-            JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-            JOIN leaf_decks AS ld ON du.deck_id = ld.deck_id
-            WHERE du.deck_id IN (SELECT deck_id FROM leaf_decks) AND du.user_id = '$user_id'
-        )
-        SELECT * FROM flashcard WHERE review_due <= NOW() ORDER BY ld_name ASC, priority ASC LIMIT 1
+        SELECT
+            c.pinyin,
+            c.chinese_tc,
+            c.chinese_sc,
+            c.word_class,
+            c.meaning_eng,
+            c.meaning_ina,
+            c.card_id,
+            cp.current_stage,
+            cp.review_due,
+            dc.priority,
+            ld.name AS ld_name
+        FROM card_progress cp
+        JOIN cards c
+            ON c.card_id = cp.card_id
+        JOIN junction_deck_card dc
+            ON dc.card_id = c.card_id
+        JOIN leaf_deck_map ldm
+            ON ldm.deck_id = '$deckID'
+            AND ldm.leaf_deck_id = dc.deck_id
+        JOIN junction_deck_user du
+            ON du.deck_id = dc.deck_id
+        AND du.user_id = cp.user_id
+        JOIN decks ld
+            ON ld.deck_id = dc.deck_id
+        WHERE cp.user_id = '$user_id'
+        AND cp.review_due <= CURRENT_TIMESTAMP
+        ORDER BY ld.name ASC, dc.priority ASC
+        LIMIT 1;
         ");
     }
 } else {
     if ($deckID == "main") {
         $query_flashcard_algorithm = mysqli_query($con, "
-        SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review
-            FROM junction_deck_user AS du 
-            JOIN decks AS d ON d.deck_id = du.deck_id
-            JOIN junction_deck_card AS dc ON d.deck_id = dc.deck_id
-            JOIN cards AS c ON dc.card_id = c.card_id
-            JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-            WHERE du.user_id = '$user_id' AND d.is_leaf = 1 AND cp.total_review = 0 ORDER BY d.name ASC, dc.priority ASC LIMIT 1
+        SELECT 
+            c.pinyin,
+            c.chinese_tc,
+            c.chinese_sc,
+            c.word_class,
+            c.meaning_eng,
+            c.meaning_ina,
+            c.card_id,
+            cp.current_stage,
+            cp.review_due
+        FROM card_progress cp
+        JOIN cards c
+            ON c.card_id = cp.card_id
+        JOIN junction_deck_card dc
+            ON dc.card_id = c.card_id
+        JOIN decks d
+            ON d.deck_id = dc.deck_id
+            AND d.is_leaf = 1
+        JOIN junction_deck_user du
+            ON du.deck_id = d.deck_id
+            AND du.user_id = cp.user_id
+        WHERE cp.user_id = '$user_id'
+        AND cp.total_review = 0
+        ORDER BY d.name ASC, dc.priority ASC
+        LIMIT 1;
         ");
     } else {
         $query_flashcard_algorithm = mysqli_query($con, "
-        WITH RECURSIVE child_decks AS (
-            SELECT deck_id, is_leaf, name
-            FROM decks WHERE deck_id = '$deckID'
-
-            UNION ALL
-    
-            SELECT d.deck_id, d.is_leaf, d.name
-            FROM decks AS d 
-            JOIN child_decks AS cd 
-            ON d.parent_deck_id = cd.deck_id
-        ),
-        leaf_decks AS (
-            SELECT name, deck_id FROM child_decks WHERE is_leaf = 1
-        ),
-        flashcard AS (
-            SELECT c.pinyin, c.chinese_tc, c.chinese_sc, c.word_class, c.meaning_eng, c.meaning_ina, c.card_id, cp.current_stage, cp.review_due, cp.total_review, dc.priority, ld.name AS ld_name
-            FROM junction_deck_user AS du
-            JOIN junction_deck_card AS dc ON du.deck_id = dc.deck_id
-            JOIN cards AS c ON c.card_id = dc.card_id
-            JOIN card_progress AS cp ON c.card_id = cp.card_id AND cp.user_id = du.user_id
-            JOIN leaf_decks AS ld ON du.deck_id = ld.deck_id
-            WHERE du.deck_id IN (SELECT deck_id FROM leaf_decks) AND du.user_id = '$user_id'
-        )
-        SELECT * FROM flashcard WHERE total_review = 0 ORDER BY ld_name ASC, priority ASC LIMIT 1
+        SELECT
+            c.pinyin,
+            c.chinese_tc,
+            c.chinese_sc,
+            c.word_class,
+            c.meaning_eng,
+            c.meaning_ina,
+            c.card_id,
+            cp.current_stage,
+            cp.review_due,
+            dc.priority,
+            ld.name AS ld_name
+        FROM card_progress cp
+        JOIN cards c
+            ON c.card_id = cp.card_id
+        JOIN junction_deck_card dc
+            ON dc.card_id = c.card_id
+        JOIN leaf_deck_map ldm
+            ON ldm.deck_id = '$deckID'
+            AND ldm.leaf_deck_id = dc.deck_id
+        JOIN junction_deck_user du
+            ON du.deck_id = dc.deck_id
+        AND du.user_id = cp.user_id
+        JOIN decks ld
+            ON ld.deck_id = dc.deck_id
+        WHERE cp.user_id = '$user_id'
+        AND cp.total_review = 0
+        ORDER BY ld.name ASC, dc.priority ASC
+        LIMIT 1;
         ");
     }
 }
-
 
 ?>
 <!-- ------------------------------------------------------------------ -->
