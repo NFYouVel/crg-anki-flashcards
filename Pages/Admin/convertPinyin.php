@@ -1,9 +1,4 @@
 <?php
-    // session_start();
-    include_once "../../SQL_Queries/connection.php";
-    $user_id = $_SESSION["user_id"];
-?>
-<?php
 function getPriority($letter) {
     if ($letter == "a") {
         return 5;

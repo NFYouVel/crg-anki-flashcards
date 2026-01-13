@@ -64,6 +64,7 @@
                 deleteDecks($childID);
             }
         }
+        mysqli_query($con, "DELETE FROM leaf_deck_map WHERE deck_id = '$deckID' OR leaf_deck_id = '$deckID'");
         mysqli_query($con, "DELETE FROM junction_deck_card WHERE deck_id = '$deckID'");
         mysqli_query($con, "DELETE FROM decks WHERE deck_id = '$deckID'");
     }

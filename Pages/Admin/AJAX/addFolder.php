@@ -65,7 +65,27 @@
         mysqli_query($con, "INSERT INTO decks (name, created_by_user_id, is_leaf) VALUES ('$name', '$userID', $type)");
     }
     else {
-        mysqli_query($con, "INSERT INTO decks (name, created_by_user_id, parent_deck_id, is_leaf) VALUES ('$name', '$userID', '$parentID', $type)");
+        $uuid = sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x1000,
+            mt_rand(0, 0x3fff) | 0x8000, 
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+        );
+        mysqli_query($con, "INSERT INTO decks (deck_id, name, created_by_user_id, parent_deck_id, is_leaf) VALUES ('$uuid', '$name', '$userID', '$parentID', $type)");
+        //deck added is leaf
+        if($type == 1) {
+            $parentDecks = [];
+            while($parentID) {
+                $parentDecks[] = "('$parentID', '$uuid')";
+                $parentID = mysqli_query($con, "SELECT parent_deck_id FROM decks WHERE deck_id = '$parentID'");
+                $parentID = mysqli_fetch_assoc($parentID);
+                $parentID = $parentID["parent_deck_id"];
+            }
+            $parentDecks = implode(", ", $parentDecks);
+            mysqli_query($con, "INSERT INTO leaf_deck_map (deck_id, leaf_deck_id) VALUES $parentDecks");
+        }
     }
 ?>
 
