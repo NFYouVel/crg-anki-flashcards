@@ -52,6 +52,7 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
     <title>Welcome <?php echo $line['name'] ?></title>
     <link rel="icon" href="../../Assets/Icons/1080.png">
     <link rel="stylesheet" href="../../Pages/Home/CSS/home_page.css">
+    <link href='https://cdn.boxicons.com/3.0.7/fonts/basic/boxicons.min.css' rel='stylesheet'>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../Home/jQuery/script.js"></script>
 </head>
@@ -64,7 +65,7 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
         <div class="account-info">
             <span class="username"><?php echo $line['name'] ?></span>
             <?php
-            if (isset($_SESSION["rolepage"])) { ?>
+            if (isset($_SESSION["rolePage"])) { ?>
                 <span class="as" style="cursor: pointer;" onclick="Mode()"><?= $_SESSION["rolePage"] ?> Mode</span>
             <?php } else { ?>
                 <span class="as">Student</span>
@@ -161,7 +162,7 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
                                     if (mysqli_num_rows($hasChild) === 0) {
                                         echo "<div class='md5qdw8dq' style='width: 30px; display: flex; align-items: center;'></div>";
                                     } else {
-                                        echo "<div class='plus'>+</div>";
+                                        echo "<div class='plus'><i class='bx  bxs-caret-down bx-flip-horizontal' style='color:#8e8e8e;font-size: 24px'></i> </div>";
                                     }
                                     echo "<div class='title-to-review-second' onclick=\"window.location.href='flashcard.php?deck_id=$deckID'\">";
                                     echo "<span class='title-second'>" . htmlspecialchars($deck['name']) . "</span>";

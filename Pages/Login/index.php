@@ -140,13 +140,41 @@ $con->close();
                     exit;
                 }
 
+                //
+        
                 if ($line = mysqli_fetch_array($result)) {
+                    // ==== MODEL : USER INFO ====
+                    $userIdLogin = $line['user_id'];
+                    $role = $line['role'];
+                    // ==== MODEL : USER INFO ====
+
                     if (password_verify($password_raw, $line["password_hash"])) {
+
+                        // ==== LOGIC IF USER ISN'T IN A CLASS ====
+                        if ($role == 3) {
+                            $stmtUser = $con->prepare("SELECT jcu.user_id, jcu.classroom_id FROM users AS u
+                            JOIN junction_classroom_user AS jcu ON u.user_id = jcu.user_id
+                            WHERE u.user_id = ?");
+                            $stmtUser->bind_param("s", $userIdLogin);
+                            $stmtUser->execute();
+                            $result = $stmtUser->get_result();
+                            if ($result->num_rows > 0) {
+                                $line = $result->fetch_array();
+                                $isInClass = true;
+                            } else {
+                                $isInClass = false;
+                            }
+                            $stmtUser->close();
+                        }
+
                         if ($line['user_status'] == "suspended") { // Kalo account suspended
                             echo "<script>document.getElementById('error').innerHTML = 'Your account is suspended. Contact admin for more information';</script>";
                             echo "<script>document.getElementById('error').style.visibility = 'visible';</script>";
                         } else if ($line['user_status'] == "deleted") { //Kalo account deleted
                             echo "<script>document.getElementById('error').innerHTML = 'Your account is deleted. Contact admin for more information';</script>";
+                            echo "<script>document.getElementById('error').style.visibility = 'visible';</script>";
+                        } else if ($role == 3 && !$isInClass) {
+                            echo "<script>document.getElementById('error').innerHTML = 'You are not in a class. Contact admin for more information';</script>";
                             echo "<script>document.getElementById('error').style.visibility = 'visible';</script>";
                         } else { // Kalo berhasil
                             $_SESSION['count_brute_force'] = 0;

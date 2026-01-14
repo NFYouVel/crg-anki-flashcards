@@ -286,10 +286,22 @@ a {
 .plus {
     display: flex;
     align-items: center;
-    width: 30px;
+    width: 36px;
     z-index: 9999;
     cursor: pointer;
+    color:rgb(143, 143, 143);
 }
+.plus i {
+  color: #8e8e8e;
+  transition: transform 0.2s ease;
+}
+
+/* kondisi OPEN */
+.plus.open i {
+  transform: rotate(180deg);
+}
+
+
 
 .container-deck {
     display: flex;

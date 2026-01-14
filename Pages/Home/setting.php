@@ -88,13 +88,13 @@ $role = $line2['role_name'];
                         <td>Character Set</td>
                         <td>:</td>
                         <td id="editChara"><?php echo $line['character_set']; ?></td>
-                        <td class="right" onclick="changeCharacterSet()" style="cursor: pointer;">edit</td>
+                        <td class="right" onclick="changeCharacterSet()" style="cursor: pointer;">switch</td>
                     </tr>
                     <tr>
                         <td>Password</td>
                         <td>:</td>
                         <td>******</td>
-                        <td class="right"><a href="../Login/newpassword.php?email=<?php echo $email; ?>">reset password</a></td>
+                        <td class="right"><a href="../Login/newpassword.php?email=<?php echo $email; ?>">change password</a></td>
                     </tr>
                     <!-- <tr>
                         <td>Card Meaning</td>

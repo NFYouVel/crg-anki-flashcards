@@ -111,8 +111,8 @@ $(document).ready(function () {
     // Buka ulang deck yang ada di list
     openDecks.forEach(function (id) {
         let $contain = $(`.contain[data-id='${id}']`);
-        $contain.children("ul").show();       // buka subdeck
-        $contain.find(".plus").text("−");     // ubah tanda jadi minus
+        $contain.children("ul").show();
+        $contain.find(".plus").addClass("open");
     });
 
     $(".plus").on("click", function () {
@@ -121,20 +121,19 @@ $(document).ready(function () {
         let $ul = $contain.children("ul");
         let deckId = $contain.data("id");
 
-        // Toggle show/hide
         if ($ul.is(":visible")) {
             $ul.slideUp(200);
-            $this.text("+");
+            $this.removeClass("open");
             openDecks = openDecks.filter(x => x !== deckId);
         } else {
             $ul.slideDown(200);
-            $this.text("−");
+            $this.addClass("open");
             if (!openDecks.includes(deckId)) {
                 openDecks.push(deckId);
             }
         }
 
-        // Update localStorage
         localStorage.setItem("openDecks", JSON.stringify(openDecks));
     });
+
 });
