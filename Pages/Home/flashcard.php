@@ -51,6 +51,7 @@ if ($green !== 0) {
     if ($deckID == "main") {
         $query_flashcard_algorithm = mysqli_query($con, "
         SELECT 
+            c.card_id,
             c.pinyin,
             c.chinese_tc,
             c.chinese_sc,
@@ -79,6 +80,7 @@ if ($green !== 0) {
     } else {
         $query_flashcard_algorithm = mysqli_query($con, "
         SELECT
+            c.card_id,
             c.pinyin,
             c.chinese_tc,
             c.chinese_sc,
@@ -113,6 +115,7 @@ if ($green !== 0) {
     if ($deckID == "main") {
         $query_flashcard_algorithm = mysqli_query($con, "
         SELECT 
+            c.card_id,
             c.pinyin,
             c.chinese_tc,
             c.chinese_sc,
@@ -141,6 +144,7 @@ if ($green !== 0) {
     } else {
         $query_flashcard_algorithm = mysqli_query($con, "
         SELECT
+            c.card_id,
             c.pinyin,
             c.chinese_tc,
             c.chinese_sc,
@@ -174,8 +178,8 @@ if ($green !== 0) {
 }
 
 ?>
+
 <!-- ------------------------------------------------------------------ -->
-<!-- DOCTYPE HTML -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -291,32 +295,45 @@ if ($green !== 0) {
     </div>
 
     <!-- Cards -->
-            <?php
-            if ($row = mysqli_fetch_assoc(result: $query_flashcard_algorithm)) {
-                $pinyin = convert($row["pinyin"]);
-                if ($chara_set == "traditional") {
-                    $temp_charaset = 'chinese_tc';
-                } else {
-                    $temp_charaset = 'chinese_sc';
-                }
+    <?php
+    if ($row = mysqli_fetch_assoc(result: $query_flashcard_algorithm)) {
+        $pinyin = convert($row["pinyin"]);
+        $cardId = $row['card_id'];
+        if ($chara_set == "traditional") {
+            $temp_charaset = 'chinese_tc';
+        } else {
+            $temp_charaset = 'chinese_sc';
+        }
 
-            ?>
-    <div class="wrapper-flashcard" id="target">
-        <div class="wrapper-mid">
+    ?>
+        <div class="wrapper-flashcard" id="target">
+            <div class="wrapper-mid">
                 <div class="vocab-card">
                     <span class="hanzi"><?php echo htmlspecialchars($row[$temp_charaset]); ?></span>
                     <span class="pinyin"><?php echo htmlspecialchars($pinyin); ?></span>
                     <span class="word-class"><?php echo htmlspecialchars($row['word_class']); ?></span>
                     <table>
                         <tr>
-                            <td class="sub"><div>EN</div></td>
-                            <td class="colon"><div>:</div></td>
-                            <td class="meaning"><div><?php echo htmlspecialchars($row['meaning_eng']); ?></div></td>
+                            <td class="sub">
+                                <div>EN</div>
+                            </td>
+                            <td class="colon">
+                                <div>:</div>
+                            </td>
+                            <td class="meaning">
+                                <div><?php echo htmlspecialchars($row['meaning_eng']); ?></div>
+                            </td>
                         </tr>
                         <tr>
-                            <td class="sub"><div>ID</div></td>
-                            <td class="colon"><div>:</div></td>
-                            <td class="meaning"><div><?php echo htmlspecialchars($row['meaning_ina']); ?></div></td>
+                            <td class="sub">
+                                <div>ID</div>
+                            </td>
+                            <td class="colon">
+                                <div>:</div>
+                            </td>
+                            <td class="meaning">
+                                <div><?php echo htmlspecialchars($row['meaning_ina']); ?></div>
+                            </td>
                         </tr>
                     </table>
                 </div>
@@ -357,151 +374,199 @@ if ($green !== 0) {
                 ?>
 
 
-        </div>
-    </div>
-
-    <div class='wrapper-report'>
-        <div class='report'>
-            <div class='title-report'><span>Report Sentence</span></div>
-            <div class='explanation'>
-                <span class="ex-sentence">Sentence:</span>
-                <span class="ex-sentence">这个城市很小啊，也很多黑人</span>
-                <span style="width: 100%;">Reason: </span>
-                <form id="report-sentence">
-                    <input type="hidden" name="sentence-id" id="hidden">
-                    <div class="checkbox">
-                        <span>Bad Sentence</span>
-                        <input type="checkbox" name="reason[]" value="Bad Sentence">
-                    </div>
-                    <div class="checkbox">
-                        <span>Bad Pinyin</span>
-                        <input type="checkbox" name="reason[]" value="Bad Pinyin">
-                    </div>
-                    <div class="checkbox">
-                        <span>Bad Translation ENG</span>
-                        <input type="checkbox" name="reason[]" value="Bad Translation ENG">
-                    </div>
-                    <div class="checkbox">
-                        <span>Bad Translation INA</span>
-                        <input type="checkbox" name="reason[]" value="Bad Translation INA">
-                    </div>
-
-                    <span class="textarea">Let Us Know More:</span>
-                    <textarea name="details"></textarea>
-                </form>
-            </div>
-            <div class='button'>
-                <button class='button-cancel'>Cancel</button>
-                <button type="submit" id='button-report' form="report-sentence">Report</button>
             </div>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <button class="wrapper-show-answer" id="click-show">
-        <span class="show">Show Answer</span>
-    </button>
-    <div class="wrapper-show-answer" id="flashcard-form" data-card-id="<?php echo $temp_card_id; ?>">
-        <button type="button" id="criteria" class="criteria forgot" data-status="forgot" data-cs="<?php echo $row['current_stage'] ?>">
-            <span>X</span><span>Forgot</span>
+        <div class='wrapper-report'>
+            <div class='report'>
+                <div class='title-report'><span>Report Sentence</span></div>
+                <div class='explanation'>
+                    <span class="ex-sentence">Sentence:</span>
+                    <span class="ex-sentence">这个城市很小啊，也很多黑人</span>
+                    <span style="width: 100%;">Reason: </span>
+                    <form id="report-sentence">
+                        <input type="hidden" name="sentence-id" id="hidden">
+                        <div class="checkbox">
+                            <span>Bad Sentence</span>
+                            <input type="checkbox" name="reason[]" value="Bad Sentence">
+                        </div>
+                        <div class="checkbox">
+                            <span>Bad Pinyin</span>
+                            <input type="checkbox" name="reason[]" value="Bad Pinyin">
+                        </div>
+                        <div class="checkbox">
+                            <span>Bad Translation ENG</span>
+                            <input type="checkbox" name="reason[]" value="Bad Translation ENG">
+                        </div>
+                        <div class="checkbox">
+                            <span>Bad Translation INA</span>
+                            <input type="checkbox" name="reason[]" value="Bad Translation INA">
+                        </div>
+
+                        <span class="textarea">Let Us Know More:</span>
+                        <textarea name="details"></textarea>
+                    </form>
+                </div>
+                <div class='button'>
+                    <button class='button-cancel'>Cancel</button>
+                    <button type="submit" id='button-report' form="report-sentence">Report</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <button class="wrapper-show-answer" id="click-show">
+            <span class="show">Show Answer</span>
         </button>
-        <button type="button" id="criteria" class="criteria hard" data-status="hard" data-cs="<?php echo $row['current_stage'] ?>">
-            <span>...</span><span>Hard</span>
-        </button>
-        <button type="button" id="criteria" class="criteria remember" data-status="remember" data-cs="<?php echo $row['current_stage'] ?>">
-            <span>V</span><span>Remember</span>
-        </button>
-    </div>
 
-    <script>
-        function Report(sentence_code, sentence) {
-            document.getElementById('report-sentence').reset();
+        <?php
+        // ==== QUERY : Range duration for spaced repetition ====
+        $stmtRangeDuration = $con->prepare("SELECT c.current_stage FROM card_progress AS c WHERE c.user_id = ? AND c.card_id = ?");
+        $stmtRangeDuration->bind_param("ss", $user_id, $cardId);
+        $stmtRangeDuration->execute();
+        $resultRangeDuration = $stmtRangeDuration->get_result();
+        $rowRangeDuration = $resultRangeDuration->fetch_assoc();
+        // ==== END QUERY RANGE DURATION ====
 
-            // Set new sentence code
-            document.getElementById('hidden').value = sentence_code;
+        // ==== MODEL : Fetch current stage ====
+        $currentStage = $rowRangeDuration['current_stage'];
+        // ==== END MODEL FETCH CURRENT STAGE ====
+        $stmtRangeDuration->close();
 
-            // Update sentence di modal
-            const spans = document.getElementsByClassName('ex-sentence')[1];
-            spans.innerHTML = sentence;
+        // DETERMINE THE FORGOT HARD AND REMEMBER BUTTON DETAILS BASED ON CURRENT STAGE
+        $forgotDetails = -2;
+        $hardDetails = 0;
+        $rememberDetails = 1;
+
+        if ($currentStage == 0) {
+            $forgotDetails = 0;
+            $hardDetails = 1;
+            $rememberDetails = 5;
+        } else {
+            if ($currentStage == 1) {
+                $forgotDetails = -1;
+            } 
+            
+            if ($currentStage == 18) {
+                $rememberDetails = 0;
+            }
         }
 
-        // Minimum 1 of selection checkboxes
-        document.getElementById('report-sentence').addEventListener('submit', function(e) {
-            const checkboxes = document.querySelectorAll('input[name="reason[]"]');
-            let checked = false;
+        // ==== QUERY : Fetch stage after update ====
+        $stage1 = $forgotDetails + $currentStage;
+        $stage2 = $hardDetails + $currentStage;
+        $stage3 = $rememberDetails + $currentStage;
+        $stageAfter = $con->prepare("SELECT shown FROM stages_intervals WHERE stage IN (?, ?, ?) ORDER BY stage ASC");
+        $stageAfter->bind_param("iii", $stage1, $stage2, $stage3);
+        $stageAfter->execute();
+        $resultStageAfter = $stageAfter->get_result();
 
-            checkboxes.forEach(cb => {
-                if (cb.checked) checked = true;
+        $rowStageForgot = $resultStageAfter->fetch_assoc();
+        $rowStageHard = $resultStageAfter->fetch_assoc();
+        $rowStageRemember = $resultStageAfter->fetch_assoc();
+        // ==== END QUERY STAGE AFTER UPDATE ====
+        $stageAfter->close();
+        ?>
+
+        <div class="wrapper-show-answer" id="flashcard-form" data-card-id="<?php echo $temp_card_id; ?>">
+            <button type="button" id="criteria" class="criteria forgot" data-status="forgot" data-cs="<?php echo $row['current_stage'] ?>">
+                <span><?= $rowStageForgot['shown'] ?></span><span>Forgot</span>
+            </button>
+            <button type="button" id="criteria" class="criteria hard" data-status="hard" data-cs="<?php echo $row['current_stage'] ?>">
+                <span><?= $rowStageHard['shown'] ?></span><span>Hard</span>
+            </button>
+            <button type="button" id="criteria" class="criteria remember" data-status="remember" data-cs="<?php echo $row['current_stage'] ?>">
+                <span><?= $rowStageRemember['shown'] ?></span><span>Remember</span>
+            </button>
+        </div>
+
+        <script>
+            function Report(sentence_code, sentence) {
+                document.getElementById('report-sentence').reset();
+
+                // Set new sentence code
+                document.getElementById('hidden').value = sentence_code;
+
+                // Update sentence di modal
+                const spans = document.getElementsByClassName('ex-sentence')[1];
+                spans.innerHTML = sentence;
+            }
+
+            // Minimum 1 of selection checkboxes
+            document.getElementById('report-sentence').addEventListener('submit', function(e) {
+                const checkboxes = document.querySelectorAll('input[name="reason[]"]');
+                let checked = false;
+
+                checkboxes.forEach(cb => {
+                    if (cb.checked) checked = true;
+                });
+
+                if (!checked) {
+                    e.preventDefault(); // stop form submit
+                    alert('Please select at least one reason!');
+                }
             });
 
-            if (!checked) {
-                e.preventDefault(); // stop form submit
-                alert('Please select at least one reason!');
+            let fontSize = <?php echo $savedZoom; ?>;
+            const zoomStep = 10;
+            const minZoom = 50;
+            const maxZoom = 200;
+
+            const zoomTarget = document.querySelector('.wrapper-flashcard');
+            const zoomDisplay = document.getElementById('zoomDisplay');
+
+            function applyZoom() {
+                console.log(fontSize)
+                $(".hanzi").css("font-size", (fontSize + 250) + "%");
+                $(".hanzi").css("margin-bottom", (fontSize - 100) + "px");
+                zoomTarget.style.fontSize = fontSize + '%';
+                zoomDisplay.textContent = fontSize + '%';
+
+                $.post("savezoom.php", {
+                    zoom: fontSize
+                });
             }
-        });
 
-        let fontSize = <?php echo $savedZoom; ?>;
-        const zoomStep = 10;
-        const minZoom = 50;
-        const maxZoom = 200;
-
-        const zoomTarget = document.querySelector('.wrapper-flashcard');
-        const zoomDisplay = document.getElementById('zoomDisplay');
-
-        function applyZoom() {
-            console.log(fontSize)
-            $(".hanzi").css("font-size", (fontSize + 250) + "%");
-            $(".hanzi").css("margin-bottom", (fontSize - 100) + "px");
-            zoomTarget.style.fontSize = fontSize + '%';
-            zoomDisplay.textContent = fontSize + '%';
-
-            $.post("savezoom.php", {
-                zoom: fontSize
+            document.getElementById('zoomIn').addEventListener('click', () => {
+                if (fontSize < maxZoom) {
+                    fontSize += zoomStep;
+                    applyZoom();
+                }
             });
-        }
 
-        document.getElementById('zoomIn').addEventListener('click', () => {
-            if (fontSize < maxZoom) {
-                fontSize += zoomStep;
-                applyZoom();
-            }
-        });
+            document.getElementById('zoomOut').addEventListener('click', () => {
+                if (fontSize > minZoom) {
+                    fontSize -= zoomStep;
+                    applyZoom();
+                }
+            });
 
-        document.getElementById('zoomOut').addEventListener('click', () => {
-            if (fontSize > minZoom) {
-                fontSize -= zoomStep;
-                applyZoom();
-            }
-        });
+            applyZoom();
 
-        applyZoom();
+            window.onload = function() {
+                history.pushState(null, "", location.href);
 
-        window.onload = function() {
-            history.pushState(null, "", location.href);
-
-            window.onpopstate = function() {
-                history.go(1);
+                window.onpopstate = function() {
+                    history.go(1);
+                };
             };
-        };
+        </script>
 
-        
-    </script>
-
-    <div id="loading-overlay">
-        <div class="loader"></div>
-        <div id="flashcard-message" style="display:none;">Niceee</div>
-    </div>
-<?php
-            } else {
-                echo "<div class='end-deck'>";
-                echo "<p style='color: white; font-size:26px; font-weight: bold; margin: 10px 0;'>Great job! You've completed this deck for now.</p>";
-                echo "<p style='color: white;'>You can take a break, or review another deck.</p>";
-                echo "<button class='wrapper-show-answer' onclick='BackHomePage()'>
+        <div id="loading-overlay">
+            <div class="loader"></div>
+            <div id="flashcard-message" style="display:none;">Niceee</div>
+        </div>
+    <?php
+    } else {
+        echo "<div class='end-deck'>";
+        echo "<p style='color: white; font-size:26px; font-weight: bold; margin: 10px 0;'>Great job! You've completed this deck for now.</p>";
+        echo "<p style='color: white;'>You can take a break, or review another deck.</p>";
+        echo "<button class='wrapper-show-answer' onclick='BackHomePage()'>
                 <span class='show'>Back To Your Decks</span>
                 </button>";
-                echo "</div>";
-            }
-?>
+        echo "</div>";
+    }
+    ?>
     <script>
         function BackHomePage() {
             window.location.href = "home_page_students.php";
