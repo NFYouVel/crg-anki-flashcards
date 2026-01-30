@@ -86,7 +86,7 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
                     $classrooms = [];
 
                     // ==== QUERY : CLASSROOMS ====
-                    $stmtClassroom = $con->prepare("SELECT * FROM junction_classroom_user AS jcu JOIN classroom AS c ON jcu.classroom_id = c.classroom_id WHERE jcu.user_id = ?");
+                    $stmtClassroom = $con->prepare("SELECT * FROM junction_classroom_user AS jcu JOIN classroom AS c ON jcu.classroom_id = c.classroom_id WHERE jcu.user_id = ? ORDER BY c.name ASC");
                     $stmtClassroom->bind_param("s", $user_id);
                     $stmtClassroom->execute();
                     $result = $stmtClassroom->get_result();
