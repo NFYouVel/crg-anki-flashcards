@@ -28,12 +28,12 @@
                     deleteParentsUser($deckID);
                     // mysqli_query($con, "DELETE FROM junction_deck_user WHERE deck_id = '$deckID' AND user_id = '$studentID'");
 
-                    mysqli_query($con, "
-                        UPDATE card_progress cp
-                        JOIN junction_deck_card jdc ON cp.card_id = jdc.card_id
-                        SET cp.is_assigned = 0
-                        WHERE jdc.deck_id = '$deckID' AND cp.user_id = '$userID'
-                    ");
+                    // mysqli_query($con, "
+                    //     UPDATE card_progress cp
+                    //     JOIN junction_deck_card jdc ON cp.card_id = jdc.card_id
+                    //     SET cp.is_assigned = 0
+                    //     WHERE jdc.deck_id = '$deckID' AND cp.user_id = '$userID'
+                    // ");
                 }
 
                 // Recursively delete children

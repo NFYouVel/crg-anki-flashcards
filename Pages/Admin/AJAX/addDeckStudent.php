@@ -57,9 +57,9 @@
                             $query .= "('$userID', $cardID), ";
                             $count++;
                         }
-                        else {
-                            mysqli_query($con, "UPDATE card_progress SET is_assigned = 1 WHERE user_id = '$userID' AND card_id = $cardID AND is_assigned = 0");
-                        }
+                        // else {
+                        //     mysqli_query($con, "UPDATE card_progress SET is_assigned = 1 WHERE user_id = '$userID' AND card_id = $cardID AND is_assigned = 0");
+                        // }
                     }
                     if ($count > 1 && substr_count($query, "(") > 0) {
                         $query = substr($query, 0, -2);
