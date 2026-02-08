@@ -213,19 +213,6 @@
                         $cardID = $sheet->getCell("B$index")->getValue() ?? ""; 
                         $priority = $sheet->getCell("A$index")->getValue();
     
-                        // echo "
-                        // <tr>
-                        //     <td>" . $id++ . "</td>
-                        //     <td>" . $cardInfo["card_id"] . "</td>
-                        //     <td>" . $cardInfo["chinese_tc"] . "</td>
-                        //     <td>" . $cardInfo["chinese_sc"] . "</td>
-                        //     <td>" . $cardInfo["priority"] . "</td>
-                        //     <td>" . $cardInfo["pinyin"] . "</td>
-                        //     <td>" . $cardInfo["word_class"] . "</td>
-                        //     <td class = 'long'>" . $cardInfo["meaning_eng"] . "</td>
-                        //     <td class = 'long'>" . $cardInfo["meaning_ina"] . "</td>
-                        // </tr>";
-    
                         $reason = "";
                         echo "<script>console.log('$cardID')</script>";
                         //check if card id exists
