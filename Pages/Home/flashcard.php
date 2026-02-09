@@ -36,6 +36,27 @@ if (!isset($_GET['deck_id'])) {
     $deckID = $_GET['deck_id'];
 }
 
+$stmt = $con->prepare("SELECT is_leaf FROM decks WHERE deck_id = ?");
+$stmt->bind_param("i", $deckID);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($row = $result->fetch_assoc()) {
+    if ($row['is_leaf'] == 1) {
+        // Check if mapping already exists
+        $stmt = $con->prepare("SELECT * FROM leaf_deck_map WHERE deck_id = ? AND leaf_deck_id = ?");
+        $stmt->bind_param("ii", $deckID, $deckID);
+        $stmt->execute();
+
+        if ($stmt->get_result()->num_rows == 0) {
+            // Insert new mapping
+            $stmt = $con->prepare("INSERT INTO leaf_deck_map (deck_id, leaf_deck_id) VALUES (?, ?)");
+            $stmt->bind_param("ii", $deckID, $deckID);
+            $stmt->execute();
+        }
+    }
+}
+
 $_SESSION['temp_deck_id'] = $deckID;
 
 // Blue Green Red Count
@@ -445,8 +466,8 @@ if ($green !== 0) {
         } else {
             if ($currentStage == 1) {
                 $forgotDetails = -1;
-            } 
-            
+            }
+
             if ($currentStage == 18) {
                 $rememberDetails = 0;
             }
