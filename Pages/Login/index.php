@@ -1,36 +1,37 @@
 <?php
+session_start();
 include "../../SQL_Queries/connection.php";
 
-$name = 'Herodian Petro Marlim';
-$email = 'herodianpm@gmail.com';
-$role = 1;
-$user_status = 'active';
-$character_set = 'simplified';
+// $name = 'Herodian Petro Marlim';
+// $email = 'herodianpm@gmail.com';
+// $role = 1;
+// $user_status = 'active';
+// $character_set = 'simplified';
 
-// 1. Cek dulu, apakah user dengan email ini udah ada?
-$check = $con->prepare("SELECT email FROM users WHERE email = ?");
-$check->bind_param("s", $email);
-$check->execute();
-$check->store_result();
+// // 1. Cek dulu, apakah user dengan email ini udah ada?
+// $check = $con->prepare("SELECT email FROM users WHERE email = ?");
+// $check->bind_param("s", $email);
+// $check->execute();
+// $check->store_result();
 
-if ($check->num_rows == 0) {
-    // User belum ada, lanjut buat password hash dan insert
-    $pw = password_hash('Bloomingwordpress8!', PASSWORD_BCRYPT);
+// if ($check->num_rows == 0) {
+//     // User belum ada, lanjut buat password hash dan insert
+//     $pw = password_hash('Bloomingwordpress8!', PASSWORD_BCRYPT);
 
-    $stmt = $con->prepare("INSERT INTO users(name,email,password_hash,role,user_status,character_set,created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-    $stmt->bind_param("sssiss", $name, $email, $pw, $role, $user_status, $character_set);
+//     $stmt = $con->prepare("INSERT INTO users(name,email,password_hash,role,user_status,character_set,created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+//     $stmt->bind_param("sssiss", $name, $email, $pw, $role, $user_status, $character_set);
     
-    if ($stmt->execute()) {
-        echo "User inserted successfully!";
-    } else {
-        echo "Error inserting user: " . $stmt->error;
-    }
+//     if ($stmt->execute()) {
+//         echo "User inserted successfully!";
+//     } else {
+//         echo "Error inserting user: " . $stmt->error;
+//     }
     
-    $stmt->close();
-}
+//     $stmt->close();
+// }
 
-$check->close();
-$con->close();
+// $check->close();
+// $con->close();
 
 ?>
 <!DOCTYPE html>
@@ -51,7 +52,6 @@ $con->close();
     <!-- Form -->
     <?php
     // Save email
-    include "../../SQL_Queries/connection.php";
     if (isset($_POST['email'])) {
         $_SESSION['sv_email'] = $_POST['email'];
     }
@@ -83,22 +83,33 @@ $con->close();
 
             <!-- Script PHP -->
             <?php
-            session_start();
-
             // Kalo ada cookie
             if (isset($_COOKIE['user_id'])) {
                 $_SESSION['user_id'] = $_COOKIE['user_id'];
                 $user_id = $_SESSION['user_id'];
-                $result = mysqli_query($con, "SELECT * FROM users WHERE user_id = '$user_id'");
-                $row = mysqli_fetch_assoc($result);
-                if ($row['role'] == 2) {
-                    header("Location: ../Home/home_page.php");
-                } else if ($row['role'] == 1) {
-                    header("Location: ../Admin/index.php");
+
+                // CHANGED: use prepared statement + handle missing user to prevent redirect loop
+                $stmt = $con->prepare("SELECT role FROM users WHERE user_id = ?");
+                $stmt->bind_param("s", $user_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $row = $result->fetch_assoc();
+                $stmt->close();
+
+                if (!$row) {
+                    // CHANGED: clear bad cookie instead of blindly redirecting
+                    setcookie('user_id', '', time() - 3600, '/');
+                    unset($_COOKIE['user_id']);
                 } else {
-                    header("Location: ../Home/home_page_students.php");
+                    if ($row['role'] == 2) {
+                        header("Location: ../Home/home_page.php");
+                    } else if ($row['role'] == 1) {
+                        header("Location: ../Admin/index.php");
+                    } else {
+                        header("Location: ../Home/home_page_students.php");
+                    }
+                    exit;
                 }
-                exit;
             }
             // Kalo cookie brute force is set
             date_default_timezone_set('Asia/Jakarta');
@@ -159,7 +170,8 @@ $con->close();
                             $stmtUser->execute();
                             $result = $stmtUser->get_result();
                             if ($result->num_rows > 0) {
-                                $line = $result->fetch_array();
+                                // CHANGED: use $classInfo instead of $line to avoid overwriting user_status
+                                $classInfo = $result->fetch_array();
                                 $isInClass = true;
                             } else {
                                 $isInClass = false;

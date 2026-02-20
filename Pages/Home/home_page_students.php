@@ -5,6 +5,7 @@ include "../../SQL_Queries/connection.php";
 // INITIALIZE SESSION
 if (!isset($_COOKIE["user_id"])) {
     header("Location: ../Login");
+    exit;
 }
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = $_COOKIE['user_id'];
@@ -30,12 +31,13 @@ $user_status = $line['user_status'];
 $roleName = $line['role_name'];
 
 // ==== ACCESS CONTROL ====
-if (isset($_SESSION["rolePage"])) {
-    $_SESSION["rolePage"] = "Student";
-} else if ($roleId != 3) {
+if ($roleId != 3) {
     header("Location: ../Login");
     exit;
 }
+
+$_SESSION["rolePage"] = "Student";
+
 if (isset($line["user_status"]) && $line["user_status"] === "pending") {
     header("Location: setting.php");
     exit;
