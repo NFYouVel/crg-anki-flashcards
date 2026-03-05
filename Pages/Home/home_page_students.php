@@ -36,7 +36,9 @@ if ($roleId != 3 && $roleId != 2 && $roleId != 1 ) {
     exit;
 }
 
-$_SESSION["rolePage"] = "Student";
+if ($roleId == 2) {
+    $_SESSION["rolePage"] = "Student";
+}
 
 if (isset($line["user_status"]) && $line["user_status"] === "pending") {
     header("Location: setting.php");
