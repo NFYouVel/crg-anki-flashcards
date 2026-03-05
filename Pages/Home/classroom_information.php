@@ -114,7 +114,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
         </div>
         <script>
             function Mode() {
-                window.location.href = "home_page_teacher_student.php";
+                window.location.href = "home_page_students.php";
             }
         </script>
 

@@ -31,7 +31,7 @@ $user_status = $line['user_status'];
 $roleName = $line['role_name'];
 
 // ==== ACCESS CONTROL ====
-if ($roleId != 3) {
+if ($roleId != 3 && $roleId != 2 && $roleId != 1 ) {
     header("Location: ../Login");
     exit;
 }
