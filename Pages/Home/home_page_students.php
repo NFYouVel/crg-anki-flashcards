@@ -58,42 +58,6 @@ $stmtMain->execute();
 $countMain = $stmtMain->get_result()->fetch_assoc();
 $stmtMain->close();
 
-// ==== QUERY : RGB COUNTS FOR ALL DECKS AT ONCE ====
-// Replaces the N+1 countRGB() calls — one query, then O(1) lookups
-$stmtRGB = $con->prepare("
-    WITH RECURSIVE deck_tree AS (
-        SELECT deck_id AS root_deck_id, deck_id, parent_deck_id, is_leaf
-        FROM decks
-        WHERE deck_id IN (
-            SELECT deck_id FROM junction_deck_user WHERE user_id = ?
-        )
-
-        UNION ALL
-
-        SELECT dt.root_deck_id, d.deck_id, d.parent_deck_id, d.is_leaf
-        FROM decks AS d
-        JOIN deck_tree AS dt ON d.parent_deck_id = dt.deck_id
-    )
-    SELECT
-        dt.root_deck_id AS deck_id,
-        SUM(CASE WHEN cp.current_stage = 0                             THEN 1 ELSE 0 END) AS blue,
-        SUM(CASE WHEN cp.current_stage != 0 AND cp.review_due <= NOW() THEN 1 ELSE 0 END) AS green,
-        SUM(CASE WHEN cp.review_due > NOW()                            THEN 1 ELSE 0 END) AS red
-    FROM deck_tree AS dt
-    JOIN junction_deck_card AS jdc ON jdc.deck_id = dt.deck_id AND dt.is_leaf = 1
-    JOIN card_progress      AS cp  ON cp.card_id  = jdc.card_id AND cp.user_id = ?
-    GROUP BY dt.root_deck_id
-");
-$stmtRGB->bind_param("ss", $user_id, $user_id);
-$stmtRGB->execute();
-$rgbRows = $stmtRGB->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmtRGB->close();
-
-$rgbMap = [];
-foreach ($rgbRows as $row) {
-    $rgbMap[$row['deck_id']] = $row;
-}
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -134,12 +98,11 @@ foreach ($rgbRows as $row) {
 
     <!-- Main Deck -->
     <?php
-    // Kept original — used only for session/compat, not for RGB anymore
     $query = "SELECT * FROM users WHERE user_id = '$user_id'";
     $result = mysqli_query($con, $query);
     $line = mysqli_fetch_array($result);
 
-    // Original getRoot() — untouched
+    // ==== Original getRoot() — untouched ====
     $rootDecks = [];
     function getRoot($parentID = null)
     {
@@ -164,7 +127,43 @@ foreach ($rgbRows as $row) {
     }
     getRoot();
 
-    // showDecks() — same structure, but uses $rgbMap instead of countRGB()
+    // ==== BULK RGB QUERY — seeded from $rootDecks, not junction_deck_user ====
+    // This matches the original per-deck query exactly:
+    // for each deck in $rootDecks, expand downward to leaf decks and sum card_progress
+    $rgbMap = [];
+    if (!empty($rootDecks)) {
+        $escaped   = array_map(fn($id) => "'" . mysqli_real_escape_string($con, $id) . "'", $rootDecks);
+        $inClause  = implode(',', $escaped);
+
+        $rgbResult = mysqli_query($con, "
+            WITH RECURSIVE subtree AS (
+                SELECT deck_id AS root_deck_id, deck_id, is_leaf
+                FROM decks
+                WHERE deck_id IN ($inClause)
+
+                UNION ALL
+
+                SELECT st.root_deck_id, d.deck_id, d.is_leaf
+                FROM decks AS d
+                JOIN subtree AS st ON d.parent_deck_id = st.deck_id
+            )
+            SELECT
+                st.root_deck_id AS deck_id,
+                SUM(CASE WHEN cp.current_stage = 0                             THEN 1 ELSE 0 END) AS blue,
+                SUM(CASE WHEN cp.current_stage != 0 AND cp.review_due <= NOW() THEN 1 ELSE 0 END) AS green,
+                SUM(CASE WHEN cp.review_due > NOW()                            THEN 1 ELSE 0 END) AS red
+            FROM subtree AS st
+            JOIN junction_deck_card AS jdc ON jdc.deck_id = st.deck_id AND st.is_leaf = 1
+            JOIN card_progress      AS cp  ON cp.card_id  = jdc.card_id AND cp.user_id = '$user_id'
+            GROUP BY st.root_deck_id
+        ");
+
+        while ($row = mysqli_fetch_assoc($rgbResult)) {
+            $rgbMap[$row['deck_id']] = $row;
+        }
+    }
+
+    // ==== showDecks() — original structure, $rgbMap lookup instead of countRGB() ====
     function showDecks($parentID = null)
     {
         global $con, $user_id, $rootDecks, $rgbMap;
@@ -176,7 +175,6 @@ foreach ($rgbRows as $row) {
         while ($deck = mysqli_fetch_assoc($getDecks)) {
             $deckID = $deck["deck_id"];
             if (in_array($deckID, $rootDecks)) {
-                // ✅ O(1) map lookup instead of a DB query
                 $rgb   = $rgbMap[$deckID] ?? ['red' => 0, 'green' => 0, 'blue' => 0];
                 $green = $rgb["green"];
                 $red   = $rgb["red"];
