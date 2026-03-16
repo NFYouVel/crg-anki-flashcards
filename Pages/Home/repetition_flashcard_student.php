@@ -1,5 +1,5 @@
 <?php
-if($deckID = "main") {
+if($deckID == "main") {
     $query_flashcard_rbg_count = mysqli_query($con, "
     SELECT
         SUM(CASE 
