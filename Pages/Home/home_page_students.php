@@ -149,6 +149,8 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
                                 getRoot($deck['deck_id']);
                             }
 
+                            $rootDecksSet = array_flip($rootDecks);
+
                             // ==== STEP 3: Batch RGB query ====
                             $rgbCounts = [];
                             if (!empty($rootDecks)) {
