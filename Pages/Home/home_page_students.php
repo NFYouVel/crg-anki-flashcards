@@ -118,31 +118,38 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
 
                         <div class="subdeck">
                             <?php
+                            // ==== STEP 1: Load ALL decks for tree structure — 1 query ====
+                            $allDecks = [];
+                            $decksByParent = [];
+                            $allDecksResult = mysqli_query($con, "SELECT deck_id, parent_deck_id, name FROM decks ORDER BY name");
+                            while ($deck = mysqli_fetch_assoc($allDecksResult)) {
+                                $allDecks[$deck['deck_id']] = $deck;
+                                $decksByParent[$deck['parent_deck_id'] ?? 'root'][] = $deck['deck_id'];
+                            }
+
+                            // ==== STEP 2: Load user-assigned decks + trace to root — 1 query ====
                             $rootDecks = [];
-                            function getRoot($parentID = null)
+                            $userDecksResult = mysqli_query($con, "
+    SELECT deck.deck_id, deck.parent_deck_id
+    FROM junction_deck_user AS deck_user
+    JOIN decks AS deck ON deck_user.deck_id = deck.deck_id
+    WHERE deck_user.user_id = '$user_id'
+");
+                            function getRoot($deckID)
                             {
-                                global $con, $user_id, $rootDecks;
-                                if ($parentID == null) {
-                                    $getDecks = mysqli_query($con, "SELECT deck.deck_id, deck.parent_deck_id
-                                                                FROM junction_deck_user AS deck_user
-                                                                JOIN decks AS deck 
-                                                                ON deck_user.deck_id = deck.deck_id
-                                                                WHERE deck_user.user_id = '$user_id' ORDER BY deck.name");
-                                } else {
-                                    $getDecks = mysqli_query($con, "SELECT deck_id, parent_deck_id FROM decks WHERE deck_id = '$parentID' ORDER BY name");
-                                }
-                                while ($deck = mysqli_fetch_assoc($getDecks)) {
-                                    if (!in_array($deck["deck_id"], $rootDecks)) {
-                                        $rootDecks[] = $deck["deck_id"];
-                                    }
-                                    if ($deck["parent_deck_id"] !== null) {
-                                        getRoot($deck["parent_deck_id"]);
-                                    }
+                                global $allDecks, $rootDecks;
+                                if (in_array($deckID, $rootDecks)) return;
+                                $rootDecks[] = $deckID;
+                                $parentID = $allDecks[$deckID]['parent_deck_id'] ?? null;
+                                if ($parentID !== null && isset($allDecks[$parentID])) {
+                                    getRoot($parentID);
                                 }
                             }
-                            getRoot();
+                            while ($deck = mysqli_fetch_assoc($userDecksResult)) {
+                                getRoot($deck['deck_id']);
+                            }
 
-                            // ==== STEP 2: Batch RGB query — exact same logic as repetition_flashcard.php else branch ====
+                            // ==== STEP 3: Batch RGB query ====
                             $rgbCounts = [];
                             if (!empty($rootDecks)) {
                                 $deckIdList = implode(',', array_map(function ($id) use ($con) {
@@ -150,67 +157,64 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
                                 }, $rootDecks));
 
                                 $batchRGB = mysqli_query($con, "
-                            SELECT
-                                ldm.deck_id,
-                                COUNT(DISTINCT cp.card_id) AS blue,
-                                COUNT(DISTINCT CASE WHEN cp.current_stage != 0 THEN cp.card_id END) AS green,
-                                COUNT(DISTINCT CASE WHEN cp.review_due <= NOW() AND cp.review_due != cp.review_first THEN cp.card_id END) AS red
-                            FROM card_progress cp
-                            INNER JOIN junction_deck_card jdc ON cp.card_id = jdc.card_id
-                            INNER JOIN junction_deck_user jdu ON jdu.deck_id = jdc.deck_id
-                            INNER JOIN leaf_deck_map ldm ON ldm.leaf_deck_id = jdu.deck_id
-                            WHERE cp.user_id = '$user_id' AND jdu.user_id = '$user_id'
-                            AND ldm.deck_id IN ($deckIdList)
-                            GROUP BY ldm.deck_id
-                        ");
-
+        SELECT
+            ldm.deck_id,
+            COUNT(DISTINCT cp.card_id) AS blue,
+            COUNT(DISTINCT CASE WHEN cp.current_stage != 0 THEN cp.card_id END) AS green,
+            COUNT(DISTINCT CASE WHEN cp.review_due <= NOW() AND cp.review_due != cp.review_first THEN cp.card_id END) AS red
+        FROM card_progress cp
+        INNER JOIN junction_deck_card jdc ON cp.card_id = jdc.card_id
+        INNER JOIN junction_deck_user jdu ON jdu.deck_id = jdc.deck_id
+        INNER JOIN leaf_deck_map ldm ON ldm.leaf_deck_id = jdu.deck_id
+        WHERE cp.user_id = '$user_id' AND jdu.user_id = '$user_id'
+        AND ldm.deck_id IN ($deckIdList)
+        GROUP BY ldm.deck_id
+    ");
                                 while ($row = mysqli_fetch_assoc($batchRGB)) {
                                     $rgbCounts[$row['deck_id']] = $row;
                                 }
                             }
 
-                            // ==== STEP 3: Batch hasChild query ====
+                            // ==== STEP 4: hasChild from memory — no query ====
                             $decksWithChildren = [];
-                            if (!empty($rootDecks)) {
-                                $deckIdList = implode(',', array_map(function ($id) use ($con) {
-                                    return "'" . mysqli_real_escape_string($con, $id) . "'";
-                                }, $rootDecks));
-
-                                $childCheck = mysqli_query($con, "SELECT DISTINCT parent_deck_id FROM decks WHERE parent_deck_id IN ($deckIdList)");
-                                while ($row = mysqli_fetch_assoc($childCheck)) {
-                                    $decksWithChildren[$row['parent_deck_id']] = true;
+                            foreach ($allDecks as $deck) {
+                                if ($deck['parent_deck_id'] !== null) {
+                                    $decksWithChildren[$deck['parent_deck_id']] = true;
                                 }
                             }
 
+                            // ==== STEP 5: showDecks from memory — no queries ====
                             function showDecks($parentID = null)
                             {
-                                global $con, $user_id, $rootDecks, $rgbCounts, $decksWithChildren;
-                                if ($parentID == null) {
-                                    $getDecks = mysqli_query($con, "SELECT name, deck_id FROM decks WHERE parent_deck_id IS NULL ORDER BY name");
-                                } else {
-                                    $getDecks = mysqli_query($con, "SELECT name, deck_id FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name");
-                                }
-                                while ($deck = mysqli_fetch_assoc($getDecks)) {
-                                    $deckID = $deck["deck_id"];
+                                global $rootDecks, $rgbCounts, $decksWithChildren, $decksByParent, $allDecks;
+                                $key = $parentID ?? 'root';
+                                if (!isset($decksByParent[$key])) return;
+
+                                $children = $decksByParent[$key];
+                                usort($children, fn($a, $b) => strcmp($allDecks[$a]['name'], $allDecks[$b]['name']));
+
+                                foreach ($children as $deckID) {
                                     if (in_array($deckID, $rootDecks)) {
                                         $countRGB = $rgbCounts[$deckID] ?? ['green' => 0, 'red' => 0, 'blue' => 0];
                                         $green = $countRGB["green"];
-                                        $red = $countRGB["red"];
-                                        $blue = $countRGB["blue"];
+                                        $red   = $countRGB["red"];
+                                        $blue  = $countRGB["blue"];
+                                        $name  = htmlspecialchars($allDecks[$deckID]['name']);
+
                                         echo "<li class='contain' data-id='$deckID'>";
                                         echo "<div class='container-deck'>";
                                         if (!isset($decksWithChildren[$deckID])) {
                                             echo "<div class='md5qdw8dq' style='width: 30px; display: flex; align-items: center;'></div>";
                                         } else {
-                                            echo "<div class='plus'><i class='bx  bxs-caret-down bx-flip-horizontal' style='color:#8e8e8e;font-size: 24px'></i> </div>";
+                                            echo "<div class='plus'><i class='bx bxs-caret-down bx-flip-horizontal' style='color:#8e8e8e;font-size: 24px'></i> </div>";
                                         }
                                         echo "<div class='title-to-review-second' onclick=\"window.location.href='flashcard.php?deck_id=$deckID'\">";
-                                        echo "<span class='title-second'>" . htmlspecialchars($deck['name']) . "</span>";
+                                        echo "<span class='title-second'>$name</span>";
                                         echo "<div class='to-review'>
-                                        <span class='red'>$red</span>
-                                        <span class='green'>$green</span>
-                                        <span class='blue' style = 'color: #8497B0;'>/$blue</span>
-                                    </div>";
+                    <span class='red'>$red</span>
+                    <span class='green'>$green</span>
+                    <span class='blue' style='color: #8497B0;'>/$blue</span>
+                  </div>";
                                         echo "</div>";
                                         echo "</div>";
                                         echo "<div class='line'></div>";
