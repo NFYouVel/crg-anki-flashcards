@@ -193,8 +193,10 @@ include "../../SQL_Queries/connection.php";
                             $_SESSION["user_id"] = $line['user_id'];
                             if (filter_input(INPUT_POST, 'cookie', FILTER_UNSAFE_RAW)) { // Kalo remember me dichecklist
                                 setcookie('user_id', $line['user_id'], time() + (86400 * 30), '/', '', false, true);
-                            } else { // Kalo remember me ga dichecklist
+                                setcookie('loginAt', time(), time() + (86400 * 30), '/', '', false, true);
+                                } else { // Kalo remember me ga dichecklist
                                 setcookie('user_id', $line['user_id'], time() + (86400), '/', '', false, true);
+                                setcookie('loginAt', time(), time() + (86400), '/', '', false, true);
                             }
 
                             if ($line['role'] == 2) {
