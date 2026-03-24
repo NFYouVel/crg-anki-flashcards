@@ -42,7 +42,7 @@
         
                         if ($password == $password_confirmation) {
                             $password_confirmation = password_hash($password_confirmation, PASSWORD_BCRYPT);
-                            $query = "UPDATE users SET password_hash = '$password_confirmation' WHERE email = '$email'";
+                            $query = "UPDATE users SET password_hash = '$password_confirmation', updatedPasswordAt = NOW() WHERE email = '$email'";
                             $query2 = "UPDATE users SET user_status = 'active' WHERE email = '$email'";
                             $result = mysqli_query($con, $query);
                             $result2 = mysqli_query($con, $query2);
