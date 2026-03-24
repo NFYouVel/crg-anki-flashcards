@@ -191,10 +191,11 @@ include "../../SQL_Queries/connection.php";
                         } else { // Kalo berhasil
                             $_SESSION['count_brute_force'] = 0;
                             $_SESSION["user_id"] = $line['user_id'];
+                            date_default_timezone_set('Asia/Jakarta');
                             if (filter_input(INPUT_POST, 'cookie', FILTER_UNSAFE_RAW)) { // Kalo remember me dichecklist
                                 setcookie('user_id', $line['user_id'], time() + (86400 * 30), '/', '', false, true);
                                 setcookie('loginAt', time(), time() + (86400 * 30), '/', '', false, true);
-                                } else { // Kalo remember me ga dichecklist
+                            } else { // Kalo remember me ga dichecklist
                                 setcookie('user_id', $line['user_id'], time() + (86400), '/', '', false, true);
                                 setcookie('loginAt', time(), time() + (86400), '/', '', false, true);
                             }
