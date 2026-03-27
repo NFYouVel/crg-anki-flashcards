@@ -133,8 +133,229 @@ $role = $line2['role_name'];
                 align-items: center;
                 justify-content: center;
             }
+        }
 
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
 
+        body {
+            background-color: #143D59;
+            user-select: none;
+        }
+
+        .cardSwiperWrapper {
+            width: 100%;
+            height: calc(100% - 9.65vh);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cardSwiper {
+            padding: 24px;
+            position: relative;
+            border-inline: 1px solid white;
+            overflow: hidden;
+            width: 450px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .progress {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .progressBar {
+            width: 100%;
+            height: 4px;
+            background-color: #E7E6E6;
+            display: flex;
+        }
+
+        .progressBarFill {
+            height: 100%;
+            width: 0%;
+            background-color: #FFA500;
+        }
+
+        .progressText {
+            color: white;
+            font-family: 'Nunito', sans-serif;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .card {
+            width: 100%;
+            margin-top: 24px;
+            height: calc(100% - 24px);
+            height: 75%;
+            position: relative;
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .card-inner.flipped {
+            transform: rotateY(180deg);
+            transition: transform 0.6s;
+        }
+
+        .card-face {
+            border-radius: 8px;
+            position: absolute;
+            background-color: white;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .back {
+            transform: rotateY(180deg);
+        }
+
+        .finish {
+            padding: 12px 24px;
+            justify-content: space-evenly;
+        }
+
+        .finish-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .button {
+            border: none;
+            padding: 10px 16px;
+            width: 100%;
+            font-size: 17px;
+            cursor: pointer;
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+        }
+
+        .continue {
+            background-color: rgb(255, 165, 5);
+            color: white;
+        }
+
+        .restart {
+            background-color: white;
+        }
+
+        .front :last-child {
+            padding-bottom: 32px;
+        }
+
+        .back :last-child {
+            padding-bottom: 32px;
+        }
+
+        .hanzi {
+            font-size: 69px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .pinyin,
+        .meaning {
+            font-size: 18px;
+            color: black;
+            text-align: center;
+            width: 80%;
+        }
+
+        .actions {
+            position: relative;
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            width: calc(100% + 48px);
+        }
+
+        .action-buttons {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            gap: 4px;
+            width: 100px;
+            cursor: pointer;
+        }
+
+        .action img {
+            width: 48px;
+            height: 48px;
+        }
+
+        .counter {
+            height: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 50px;
+            padding-inline: 12px;
+            font-size: 14px;
+        }
+
+        .counter span {
+            letter-spacing: 0.8px;
+        }
+
+        .forgot {
+            background-color: #FD5D5D;
+            color: white;
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .remember {
+            background-color: #E2F0D9;
+            color: #548235;
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .cardSwiper {
+                padding: 12px 24px
+            }
+
+            .card {
+                height: 420px;
+            }
+
+            .counter {
+                height: 42px;
+            }
         }
     </style>
 </head>
@@ -205,7 +426,32 @@ $role = $line2['role_name'];
     } else if ($rolePage == "Student" && $role == "Teacher") {
         $userRole = "BackHome()";
     }
+    ?>
 
+    <?php
+    $deckId = $_GET["deckId"];
+    if ($deckId == "main") {
+        $getCards = mysqli_query($con, "
+            SELECT DISTINCT jdc.card_id
+            FROM junction_deck_user jdu
+            INNER JOIN decks d ON jdu.deck_id = d.deck_id
+            INNER JOIN junction_deck_card jdc ON jdu.deck_id = jdc.deck_id
+            WHERE jdu.user_id = '$user_id' AND d.is_leaf = 1
+        ");
+    } else {
+        $getCards = mysqli_query($con, "
+            SELECT DISTINCT jdc.card_id
+            FROM junction_deck_card jdc
+            INNER JOIN leaf_deck_map ldm ON jdc.deck_id = ldm.leaf_deck_id
+            WHERE ldm.deck_id = '$deckId'
+        ");
+    }
+
+    $cards = array();
+    while ($card = mysqli_fetch_array($getCards)) {
+        $cards[] = $card["card_id"];
+    }
+    echo "<script>const cards = " . json_encode($cards) . ";</script>";
     ?>
     <div class="wrapper-header">
         <!-- Untuk Logo di atas (header) -->
@@ -263,7 +509,7 @@ $role = $line2['role_name'];
                     </div>
                     <div class="card-face finish">
                         <h1 style="font-size: 22px;">Congratulations!</h1>
-                        <h2 class="finish-text" style="text-align: center; font-size: 16px;">You just studied <span class="studied">18</span> terms in this session! Continue reviewing to learn the remaining <span class="to-learn">4</span></h2>
+                        <h2 class="finish-text" style="text-align: center; font-size: 16px;">You just studied <span class="studied">0</span> terms in this session! Continue reviewing to learn the remaining <span class="to-learn">0</span></h2>
                         <div class="finish-actions">
                             <button class="button continue">Continue Review</button>
                             <button class="button restart">Restart Flashcard</button>
@@ -271,7 +517,7 @@ $role = $line2['role_name'];
                     </div>
                 </div>
             </div>
-            <card class="actions">
+            <div class="actions">
                 <div class="counter forgot"><span class="forgot-number">0</span></div>
                 <div class="action-buttons">
                     <div class="action wrong">
@@ -284,229 +530,9 @@ $role = $line2['role_name'];
                     </div>
                 </div>
                 <div class="counter remember"><span class="remember-number">0</span></div>
-            </card>
+            </div>
         </div>
 </body>
-
-<style>
-    * {
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-        background-color: #143D59;
-        user-select: none;
-    }
-
-    .cardSwiperWrapper {
-        width: 100%;
-        height: calc(100% - 9.65vh);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .cardSwiper {
-        padding: 24px;
-        position: relative;
-        border-inline: 1px solid white;
-        overflow: hidden;
-        width: 450px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .progress {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .progressBar {
-        width: 100%;
-        height: 4px;
-        background-color: #E7E6E6;
-        display: flex;
-    }
-
-    .progressBarFill {
-        height: 100%;
-        width: 0%;
-        background-color: #FFA500;
-    }
-
-    .progressText {
-        color: white;
-        font-family: 'Nunito', sans-serif;
-        font-size: 18px;
-        font-weight: bold;
-        text-align: center;
-    }
-
-    .card {
-        width: 100%;
-        height: 450px;
-        position: relative;
-    }
-
-    .card-inner {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        transform-style: preserve-3d;
-    }
-
-    .card-inner.flipped {
-        transform: rotateY(180deg);
-        transition: transform 0.6s;
-    }
-
-    .card-face {
-        border-radius: 8px;
-        position: absolute;
-        background-color: white;
-        width: 100%;
-        height: 100%;
-        backface-visibility: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .back {
-        transform: rotateY(180deg);
-    }
-
-    .finish {
-        padding: 12px 24px;
-        justify-content: space-evenly;
-    }
-
-    .finish-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .button {
-        border: none;
-        padding: 10px 16px;
-        width: 100%;
-        font-size: 17px;
-        cursor: pointer;
-        border-radius: 8px;
-        text-align: center;
-        display: flex;
-        justify-content: center;
-    }
-
-    .continue {
-        background-color: rgb(255, 165, 5);
-        color: white;
-    }
-
-    .restart {
-        background-color: white;
-    }
-
-    .front :last-child {
-        padding-bottom: 32px;
-    }
-
-    .back :last-child {
-        padding-bottom: 32px;
-    }
-
-    .hanzi {
-        font-size: 69px;
-        margin: 0;
-        padding: 0;
-    }
-
-    .pinyin,
-    .meaning {
-        font-size: 18px;
-        color: black;
-    }
-
-    .actions {
-        position: relative;
-        display: flex;
-        justify-content: space-between;
-        align-items: end;
-        width: calc(100% + 48px);
-    }
-
-    .action-buttons {
-        position: absolute;
-        left: 50%;
-        transform: translate(-50%);
-        display: flex;
-        gap: 8px;
-    }
-
-    .action {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        color: white;
-        gap: 4px;
-        width: 100px;
-        cursor: pointer;
-    }
-
-    .action img {
-        width: 48px;
-        height: 48px;
-    }
-
-    .counter {
-        height: 48px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-width: 50px;
-        padding-inline: 12px;
-        font-size: 14px;
-    }
-
-    .counter span {
-        letter-spacing: 0.8px;
-    }
-
-    .forgot {
-        background-color: #FD5D5D;
-        color: white;
-        border-top-right-radius: 12px;
-        border-bottom-right-radius: 12px;
-    }
-
-    .remember {
-        background-color: #E2F0D9;
-        color: #548235;
-        border-top-left-radius: 12px;
-        border-bottom-left-radius: 12px;
-    }
-
-    @media screen and (max-width: 768px) {
-        .cardSwiper {
-            padding: 12px 24px
-        }
-
-        .card {
-            height: 420px;
-        }
-
-        .counter {
-            height: 42px;
-        }
-    }
-</style>
 
 <script>
     const card = document.querySelector(".card");
@@ -521,13 +547,16 @@ $role = $line2['role_name'];
 
     let currentX = 0;
     let isDragging = false;
-    let count = 1;
+    let count = 0;
+    const total = cards.length;
 
     var isDone = false;
 
     let isFlipped = false;
 
     $(document).ready(function() {
+        nextCard();
+
         $(".finish").hide();
 
         $(".wrong").click(function() {
@@ -584,10 +613,33 @@ $role = $line2['role_name'];
     }
 
     function nextCard(direction) {
-        count++;
-        updateProgress(count, 10);
+        $.ajax({
+            url: "AJAX/getCardData.php",
+            type: "POST",
+            data: {
+                cardId: cards[count++]
+            },
+            dataType: "json",
+            success: function(data) {
+                $(".hanzi").text(data.chinese_sc);
+                $(".pinyin").text(data.pinyin);
+                $(".meaning").text(data.meaning_eng);
 
-        cardInner.classList.remove("flipped");
+                $(".hanzi").css("opacity", 1);
+                $(".pinyin").css("opacity", 1);
+                $(".meaning").css("opacity", 1);
+
+                updateProgress(count, total);
+
+                if (!isFlipped) {
+                    $(".card-inner").css("transition", "none");
+                }
+                cardInner.classList.remove("flipped");
+                setTimeout(() => {
+                    $(".card-inner").css("transition", "transform 0.6s");
+                }, 50)
+            }
+        });
     }
 
     function animateOut(direction) {
@@ -604,6 +656,10 @@ $role = $line2['role_name'];
             card.style.transform = "";
             card.style.opacity = 1;
 
+            $(".hanzi").css("opacity", 0);
+            $(".pinyin").css("opacity", 0);
+            $(".meaning").css("opacity", 0);
+
             nextCard(direction);
         }, 300);
     }
@@ -614,19 +670,22 @@ $role = $line2['role_name'];
 
     hammer.on("panmove", function(ev) {
         if (!isDone && isFlipped) {
-            currentX = ev.deltaX;
 
-            const opacity = 1 - Math.min(Math.abs(currentX) / 300, 1);
+            const maxSwipe = 300; // limit swipe distance
+            currentX = Math.max(-maxSwipe, Math.min(maxSwipe, ev.deltaX));
+
+            const opacity = 1 - Math.min(Math.abs(currentX) / maxSwipe, 1);
 
             card.style.transform = `
-                translateX(${currentX}px)
-                rotate(${currentX * 0.05}deg)
-            `;
+            translateX(${currentX}px)
+            rotate(${currentX * 0.05}deg)
+        `;
             card.style.opacity = opacity;
         }
     });
 
     hammer.on("panend", function(ev) {
+        isDragging = false;
         if (!isDone && isFlipped) {
             const threshold = 120;
 
@@ -645,9 +704,10 @@ $role = $line2['role_name'];
     });
 
     hammer.on("tap", function() {
-        if (!isDragging || !isDone) {
-            flipCard();
+        if (isDone) {
+            return;
         }
+        flipCard();
     });
 </script>
 
