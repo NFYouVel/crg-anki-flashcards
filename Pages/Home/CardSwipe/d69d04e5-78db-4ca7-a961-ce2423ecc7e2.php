@@ -430,6 +430,11 @@ $role = $line2['role_name'];
 
     <?php
     $deckId = $_GET["deckId"];
+    if(!isset($deckId)) {
+        echo "<script>alert('Error fetching deck')</script>";
+        echo "<script>window.location.href = '../../Login/'</script>";
+        exit();
+    }
     if ($deckId == "main") {
         $getCards = mysqli_query($con, "
             SELECT DISTINCT jdc.card_id
@@ -451,7 +456,7 @@ $role = $line2['role_name'];
     while ($card = mysqli_fetch_array($getCards)) {
         $cards[] = $card["card_id"];
     }
-    echo "<script>const cards = " . json_encode($cards) . ";</script>";
+    echo "<script>const cardIds = " . json_encode($cards) . ";</script>";
     ?>
     <div class="wrapper-header">
         <!-- Untuk Logo di atas (header) -->
@@ -535,6 +540,13 @@ $role = $line2['role_name'];
 </body>
 
 <script>
+    const cardList = cardIds.map(card => {
+        return {
+            cardId: card,
+            status: "unseen"
+        }
+    })
+
     const card = document.querySelector(".card");
     const cardInner = document.querySelector(".card-inner");
     const swiper = document.querySelector(".card");
@@ -548,7 +560,7 @@ $role = $line2['role_name'];
     let currentX = 0;
     let isDragging = false;
     let count = 0;
-    const total = cards.length;
+    const total = cardList.length;
 
     var isDone = false;
 
@@ -572,6 +584,7 @@ $role = $line2['role_name'];
         animateOut("left");
         $(".forgot-number").text(parseInt($(".forgot-number").text()) + 1);
         isFlipped = false;
+        cardList[count - 1].status = "forgot";
     }
 
     function remember() {
@@ -579,6 +592,7 @@ $role = $line2['role_name'];
         animateOut("right");
         $(".remember-number").text(parseInt($(".remember-number").text()) + 1);
         isFlipped = false;
+        cardList[count - 1].status = "remember";
     }
 
     function finishSession() {
@@ -590,6 +604,11 @@ $role = $line2['role_name'];
             $(".studied").text($(".remember-number").text());
             $(".to-learn").text($(".forgot-number").text());
         }
+
+        cardInner.classList.remove("flipped");
+
+        $(".front").hide();
+        $(".back").hide();
         $(".finish").show();
         $(".wrong").css("opacity", 0);
         $(".correct").css("opacity", 0);
@@ -613,11 +632,16 @@ $role = $line2['role_name'];
     }
 
     function nextCard(direction) {
+        if (count >= total) {
+            isDone = true;
+            finishSession();
+            return;
+        }
         $.ajax({
             url: "AJAX/getCardData.php",
             type: "POST",
             data: {
-                cardId: cards[count++]
+                cardId: cardList[count].cardId
             },
             dataType: "json",
             success: function(data) {
@@ -628,6 +652,8 @@ $role = $line2['role_name'];
                 $(".hanzi").css("opacity", 1);
                 $(".pinyin").css("opacity", 1);
                 $(".meaning").css("opacity", 1);
+
+                count++;
 
                 updateProgress(count, total);
 
