@@ -381,7 +381,7 @@ $role = $line2['role_name'];
     $line = $result->fetch_array();
 
     $passwordUpdatedAt = strtotime($line['updatedPasswordAt']);
-    $loginAt = (int)$_COOKIE['loginAt'];
+    $loginAt = (int) $_COOKIE['loginAt'];
 
     if (!isset($_COOKIE['loginAt']) || ($loginAt < $passwordUpdatedAt)) {
         session_start();
@@ -430,39 +430,130 @@ $role = $line2['role_name'];
 
     <?php
     $deckId = $_GET["deckId"];
-    if(!isset($deckId)) {
+    if (!isset($deckId)) {
         echo "<script>alert('Error fetching deck')</script>";
         echo "<script>window.location.href = '../../Login/'</script>";
         exit();
     }
-    if ($deckId == "main") {
-        $getCards = mysqli_query($con, "
-            SELECT DISTINCT jdc.card_id
-            FROM junction_deck_user jdu
-            INNER JOIN decks d ON jdu.deck_id = d.deck_id
-            INNER JOIN junction_deck_card jdc ON jdu.deck_id = jdc.deck_id
-            WHERE jdu.user_id = '$user_id' AND d.is_leaf = 1
+
+    //check if is available session
+    $checkSession = mysqli_query($con, "SELECT card_swipe_id, session_started_at FROM card_swipe_session WHERE user_id = '$user_id' AND deck_id = '$deckId'");
+    if (mysqli_num_rows($checkSession) > 0) {
+        $session = mysqli_fetch_assoc($checkSession);
+        $cardSwipeId = $session['card_swipe_id'];
+
+        if (strtotime($session["session_started_at"]) < strtotime('-3 days')) {
+    ?>
+            <script>
+                alert('Session has expired. Please start a new session.');
+                $.ajax({
+                    url: "AJAX/resetSession.php",
+                    type: "POST",
+                    data: {
+                        cardSwipeId: '<?php echo $cardSwipeId ?>'
+                    },
+                    dataType: "json",
+                    success: function(data) {
+                        location.reload();
+                    }
+                });
+            </script>
+    <?php
+            exit();
+        }
+
+        //update session
+        $updateSession = mysqli_query($con, "
+            UPDATE card_swipe_session 
+            SET session_started_at = NOW() 
+            WHERE card_swipe_id = '$cardSwipeId'
         ");
+
+        $getCards = mysqli_query($con, "
+            SELECT card_id, status FROM card_swipe_progress csp
+            WHERE card_swipe_id = '$cardSwipeId'
+        ");
+
+        $cards = array();
+        while ($row = mysqli_fetch_assoc($getCards)) {
+            $cards[] = array(
+                'cardId' => $row['card_id'],
+                'status' => $row['status']
+            );
+        }
+
+        echo "<script>const hasSession = true;</script>";
     } else {
-        $getCards = mysqli_query($con, "
-            SELECT DISTINCT jdc.card_id
-            FROM junction_deck_card jdc
-            INNER JOIN leaf_deck_map ldm ON jdc.deck_id = ldm.leaf_deck_id
-            WHERE ldm.deck_id = '$deckId'
+        //create new session
+        $cardSwipeId = sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff)
+        );
+
+        $insertSession = mysqli_query($con, "
+            INSERT INTO card_swipe_session 
+            (card_swipe_id, user_id, deck_id, session_started_at) 
+            VALUES 
+            ('$cardSwipeId', '$user_id', '$deckId', NOW())
         ");
+
+        if ($deckId == "main") {
+            $getCards = mysqli_query($con, "
+                SELECT DISTINCT jdc.card_id
+                FROM junction_deck_user jdu
+                INNER JOIN decks d ON jdu.deck_id = d.deck_id
+                INNER JOIN junction_deck_card jdc ON jdu.deck_id = jdc.deck_id
+                WHERE jdu.user_id = '$user_id' AND d.is_leaf = 1
+            ");
+        } else {
+            $getCards = mysqli_query(
+                $con,
+                "
+                SELECT DISTINCT jdc.card_id
+                FROM junction_deck_card jdc
+                INNER JOIN leaf_deck_map ldm ON jdc.deck_id = ldm.leaf_deck_id
+                WHERE ldm.deck_id = '$deckId'"
+            );
+        }
+
+        $cards = array();
+        while ($card = mysqli_fetch_array($getCards)) {
+            $cards[] = array(
+                'cardId' => $card['card_id'],
+                'status' => 'unseen'
+            );
+        }
+
+        mysqli_query(
+            $con,
+            "INSERT IGNORE INTO card_swipe_progress (card_swipe_id, card_id, status) VALUES " .
+                implode(", ", array_map(function ($card) use ($cardSwipeId) {
+                    return "('$cardSwipeId', '{$card['cardId']}', 'unseen')";
+                }, $cards))
+        );
+
+        echo "<script>const hasSession = false;</script>";
     }
 
-    $cards = array();
-    while ($card = mysqli_fetch_array($getCards)) {
-        $cards[] = $card["card_id"];
-    }
-    echo "<script>const cardIds = " . json_encode($cards) . ";</script>";
+    echo "<script>
+        const cards = " . json_encode($cards) . ";
+        const cardSwipeId = '$cardSwipeId';
+        const deckId = '$deckId';
+    </script>";
     ?>
     <div class="wrapper-header">
         <!-- Untuk Logo di atas (header) -->
         <div class="header">
             <div class="logo">
-                <img src="../../../Logo/1080.png" alt="CRG Logo" style="cursor: pointer;" onclick="<?php echo $userRole; ?>">
+                <img src="../../../Logo/1080.png" alt="CRG Logo" style="cursor: pointer;"
+                    onclick="<?php echo $userRole; ?>">
             </div>
 
             <script>
@@ -495,7 +586,7 @@ $role = $line2['role_name'];
     <div class="cardSwiperWrapper">
         <div class="cardSwiper">
             <div class="progress">
-                <h3 class="progressText">1/10</h3>
+                <h3 class="progressText"></h3>
                 <div class="progressBar">
                     <div class="progressBarFill"></div>
                 </div>
@@ -514,7 +605,9 @@ $role = $line2['role_name'];
                     </div>
                     <div class="card-face finish">
                         <h1 style="font-size: 22px;">Congratulations!</h1>
-                        <h2 class="finish-text" style="text-align: center; font-size: 16px;">You just studied <span class="studied">0</span> terms in this session! Continue reviewing to learn the remaining <span class="to-learn">0</span></h2>
+                        <h2 class="finish-text" style="text-align: center; font-size: 16px;">You just studied <span
+                                class="studied">0</span> terms in this session! Continue reviewing to learn the
+                            remaining <span class="to-learn">0</span></h2>
                         <div class="finish-actions">
                             <button class="button continue">Continue Review</button>
                             <button class="button restart">Restart Flashcard</button>
@@ -540,12 +633,13 @@ $role = $line2['role_name'];
 </body>
 
 <script>
-    const cardList = cardIds.map(card => {
-        return {
-            cardId: card,
-            status: "unseen"
-        }
-    })
+    const useShuffle = localStorage.getItem('useShuffle') === 'true';
+
+    let cardList = cards.filter(card => card.status === "forgot" || card.status === "unseen");
+
+    if (useShuffle) {
+        cardList = cardList.sort(() => Math.random() - 0.5);
+    }
 
     const card = document.querySelector(".card");
     const cardInner = document.querySelector(".card-inner");
@@ -560,13 +654,38 @@ $role = $line2['role_name'];
     let currentX = 0;
     let isDragging = false;
     let count = 0;
-    const total = cardList.length;
+    const total = cards.length;
+    const cardListTotal = cardList.length;
+    const progressOffSet = cards.length - cardList.length;
 
     var isDone = false;
 
     let isFlipped = false;
 
     $(document).ready(function() {
+        $(".restart").click(function() {
+            $.ajax({
+                url: "AJAX/resetSession.php",
+                type: "POST",
+                data: {
+                    cardSwipeId: cardSwipeId
+                },
+                dataType: "json",
+                success: function(data) {
+                    location.reload();
+                }
+            });
+        })
+
+        $(".continue").click(function() {
+            location.reload();
+        })
+
+        if (cardList.length === 0) {
+            finishSession();
+            return;
+        }
+
         nextCard();
 
         $(".finish").hide();
@@ -581,18 +700,44 @@ $role = $line2['role_name'];
 
     function forgot() {
         if (isDone || !isFlipped) return;
-        animateOut("left");
-        $(".forgot-number").text(parseInt($(".forgot-number").text()) + 1);
-        isFlipped = false;
-        cardList[count - 1].status = "forgot";
+
+        $.ajax({
+            url: "AJAX/updateProgress.php",
+            type: "POST",
+            data: {
+                cardId: cardList[count - 1].cardId,
+                cardSwipeId: cardSwipeId,
+                status: "forgot"
+            },
+            dataType: "json",
+            success: function(data) {
+                animateOut("left");
+                $(".forgot-number").text(parseInt($(".forgot-number").text()) + 1);
+                isFlipped = false;
+                cardList[count - 1].status = "forgot";
+            }
+        });
     }
 
     function remember() {
         if (isDone || !isFlipped) return;
-        animateOut("right");
-        $(".remember-number").text(parseInt($(".remember-number").text()) + 1);
-        isFlipped = false;
-        cardList[count - 1].status = "remember";
+
+        $.ajax({
+            url: "AJAX/updateProgress.php",
+            type: "POST",
+            data: {
+                cardId: cardList[count - 1].cardId,
+                cardSwipeId: cardSwipeId,
+                status: "remember"
+            },
+            dataType: "json",
+            success: function(data) {
+                animateOut("right");
+                $(".remember-number").text(parseInt($(".remember-number").text()) + 1);
+                isFlipped = false;
+                cardList[count - 1].status = "remember";
+            }
+        });
     }
 
     function finishSession() {
@@ -600,6 +745,10 @@ $role = $line2['role_name'];
         if ($(".forgot-number").text() === "0") {
             $(".finish-text").text("You have studied all of them! Continue to Smart Review Mode for more in-depth learning.")
             $(".continue").text("Continue to Smart Review")
+
+            $(".continue").click(function() {
+                window.location.href = "../flashcard.php?deckId=" + deckId;
+            })
         } else {
             $(".studied").text($(".remember-number").text());
             $(".to-learn").text($(".forgot-number").text());
@@ -620,19 +769,19 @@ $role = $line2['role_name'];
     }
 
     async function updateProgress(progress, total) {
-        if (progress > total) {
+        if (progress + progressOffSet > total) {
             isDone = true;
             finishSession();
             return;
         }
         $(".progressBarFill").animate({
-            width: (progress / total) * 100 + "%"
+            width: ((progress + progressOffSet) / total) * 100 + "%"
         });
-        $(".progressText").text(progress + "/" + total);
+        $(".progressText").text(progress + progressOffSet + "/" + total);
     }
 
     function nextCard(direction) {
-        if (count >= total) {
+        if (count >= cardListTotal) {
             isDone = true;
             finishSession();
             return;
@@ -645,7 +794,7 @@ $role = $line2['role_name'];
             },
             dataType: "json",
             success: function(data) {
-                $(".hanzi").text(data.chinese_sc);
+                $(".hanzi").text(data.hanzi);
                 $(".pinyin").text(data.pinyin);
                 $(".meaning").text(data.meaning_eng);
 
