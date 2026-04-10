@@ -35,9 +35,9 @@ $role = $line2['role_name'];
     <title>Welcome <?php echo $line['name'] ?></title>
     <link rel="icon" href="../../Assets/Icons/1080.png">
     <link rel="stylesheet" href="../../Pages/Home/CSS/home_page.css">
-    <link rel="stylesheet" href="../../Pages/Home/CSS/notification.css">
+    <!-- <link rel="stylesheet" href="../../Pages/Home/CSS/notification.css"> -->
     <link rel="stylesheet" href="../../Pages/Home/CSS/setting.css">
-    <script src="../../Pages/Home/jQuery/notification.js"></script>
+    <!-- <script src="../../Pages/Home/jQuery/notification.js"></script> -->
 
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -96,14 +96,39 @@ $role = $line2['role_name'];
                         <td>******</td>
                         <td class="right"><a href="../Login/newpassword.php?email=<?php echo $email; ?>">change password</a></td>
                     </tr>
-                    <!-- <tr>
-                        <td>Card Meaning</td>
-                        <td>:</td>
-                        <td>Indonesia, English</td>
-                        <td class="right"><a href="#">edit</a></td>
-                    </tr> -->
                 </table>
             </div>
+
+            <div class="information">
+                <h2 class="title-setting-information">Study Mode: Flashcard Swipe</h2>
+                <table>
+                    <tr>
+                        <td>Shuffle Cards</td>
+                        <td style="text-align: right;">
+                            <label class="switch">
+                                <input type="checkbox" id="useShuffle"
+                                    onchange="localStorage.setItem('useShuffle', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Skip Tutorial</td>
+                        <td style="text-align: right;">
+                            <label class="switch">
+                                <input type="checkbox" id="skipTutorial"
+                                    onchange="localStorage.setItem('skipTutorial', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <script>
+                document.getElementById("useShuffle").checked = localStorage.getItem("useShuffle") === "true";
+                document.getElementById("skipTutorial").checked = localStorage.getItem("skipTutorial") === "true";
+            </script>
 
             <script>
                 function changeCharacterSet() {

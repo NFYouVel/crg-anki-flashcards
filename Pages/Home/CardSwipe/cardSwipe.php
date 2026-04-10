@@ -344,6 +344,51 @@ $role = $line2['role_name'];
             border-bottom-left-radius: 12px;
         }
 
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            background-color: #ccc;
+            border-radius: 34px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transition: 0.4s;
+        }
+
+        .slider:before {
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 3px;
+            background-color: white;
+            position: absolute;
+            border-radius: 50%;
+            transition: 0.4s;
+        }
+
+        input:checked+.slider {
+            background-color: orange;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+
         @media screen and (max-width: 768px) {
             .cardSwiper {
                 padding: 12px 24px
@@ -392,7 +437,7 @@ $role = $line2['role_name'];
         setcookie('user_id', '', time() - (86400 * 30), '/', '', false, true);
         setcookie('loginAt', '', time() - (86400 * 30), '/', '', false, true);
 
-        header("Location: ../../Login/");
+        header("Location: ../../../Login/");
         exit();
     }
     $stmtCheckPassword->close();
@@ -432,7 +477,7 @@ $role = $line2['role_name'];
     $deckId = $_GET["deckId"];
     if (!isset($deckId)) {
         echo "<script>alert('Error fetching deck')</script>";
-        echo "<script>window.location.href = '../../Login/'</script>";
+        echo "<script>window.location.href = '../../../Login/'</script>";
         exit();
     }
 
@@ -445,7 +490,7 @@ $role = $line2['role_name'];
         if (strtotime($session["session_started_at"]) < strtotime('-3 days')) {
     ?>
             <script>
-                alert('Session has expired. Please start a new session.');
+                alert('It has been 3 days since you last reviewed, please start a new session.');
                 $.ajax({
                     url: "AJAX/resetSession.php",
                     type: "POST",
@@ -471,7 +516,7 @@ $role = $line2['role_name'];
 
         $getCards = mysqli_query($con, "
             SELECT card_id, status FROM card_swipe_progress csp
-            WHERE card_swipe_id = '$cardSwipeId'
+            WHERE card_swipe_id = '$cardSwipeId' AND status != 'inactive'
         ");
 
         $cards = array();
@@ -558,11 +603,11 @@ $role = $line2['role_name'];
 
             <script>
                 function BackHome() {
-                    window.location.href = "home_page_students.php"
+                    window.location.href = "../home_page_students.php"
                 }
 
                 function BackHomeTeacher() {
-                    window.location.href = "home_page.php"
+                    window.location.href = "../home_page.php"
                 }
             </script>
 
@@ -586,11 +631,25 @@ $role = $line2['role_name'];
     <div class="cardSwiperWrapper">
         <div class="cardSwiper">
             <div class="progress">
-                <h3 class="progressText"></h3>
+                <div style="display: flex; align-items: center; position: relative;">
+                    <h3 class="progressText" style="flex: 1; text-align: center;">0/0</h3>
+                    <div style="position: absolute; right: 0; display: flex; align-items: center; gap: 6px;">
+                        <span style="color: white; font-family: 'Nunito', sans-serif; font-size: 13px;">Shuffle Cards</span>
+                        <label class="switch">
+                            <input type="checkbox" id="shuffleToggle"
+                                onchange="localStorage.setItem('useShuffle', this.checked); location.reload();">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
                 <div class="progressBar">
                     <div class="progressBarFill"></div>
                 </div>
             </div>
+
+            <script>
+                document.getElementById("shuffleToggle").checked = localStorage.getItem("useShuffle") === "true";
+            </script>
             <div class="card">
                 <div class="card-inner">
                     <div class="card-face front">
@@ -634,6 +693,8 @@ $role = $line2['role_name'];
 
 <script>
     const useShuffle = localStorage.getItem('useShuffle') === 'true';
+
+    console.log(cards)
 
     let cardList = cards.filter(card => card.status === "forgot" || card.status === "unseen");
 

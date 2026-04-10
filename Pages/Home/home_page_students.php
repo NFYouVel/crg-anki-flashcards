@@ -237,6 +237,158 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
         </div>
     </div>
 
+    <!-- ==== FAB ==== -->
+    <div class="fab-container">
+        <div class="fab-options" id="fabOptions">
+            <div class="fab-option" onclick="window.location.href='home_page_card_swipe.php'">
+                <span class="fab-label">Flashcard Swipe</span>
+                <div class="fab-icon"><img src="../../Assets/Icons/flashcard-logo.png" alt=""></div>
+            </div>
+            <div class="fab-option" onclick="window.location.href='home_page_students.php'">
+                <span class="fab-label">SRS Review</span>
+                <div class="fab-icon"><img src="../../Assets/Icons/srs-logo.png" alt=""></div>
+            </div>
+        </div>
+
+        <div class="fab-main-row">
+            <span class="fab-mode-label" id="fabModeLabel">Current Mode:<br><b>SRS Review</b></span>
+            <div class="fab-main" id="fabMain" onclick="toggleFab()">
+                <div id="fab-icon" style="display: flex; align-items: center; justify-content: center;">
+                    <img id="fabImg" src="../../Assets/Icons/srs-logo.png" style="max-width: 75%; max-height: 75%" alt="">
+                    <span id="fabX" style="display:none; color:white; font-size:22px;">&#10005;</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .fab-container {
+            position: fixed;
+            bottom: 32px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            z-index: 999;
+        }
+
+        .fab-main-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .fab-mode-label {
+            background-color: #ffe699;
+            color: #1c3a50;
+            padding: 8px 20px 8px 14px;
+            padding-right: 50px;
+            margin-right: -30px;
+            /* border-radius: 30px 0 0 30px; */
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .fab-main {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #FFA500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.2s;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .fab-main:hover {
+            background-color: #e69500;
+        }
+
+        #fabIcon {
+            color: white;
+            font-size: 20px;
+        }
+
+        .fab-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-end;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.35s ease, opacity 0.25s ease;
+        }
+
+        .fab-options.open {
+            max-height: 300px;
+            opacity: 1;
+        }
+
+        .fab-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .fab-label {
+            background-color: #ffe699;
+            color: #1c3a50;
+            padding: 6px 12px;
+            /* border-radius: 20px; */
+            padding-right: 30px;
+            margin-right: -30px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: bold;
+            font-size: 14px;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .fab-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #FFA500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            flex-shrink: 0;
+        }
+
+        .fab-icon img {
+            max-width: 75%;
+            max-height: 75%;
+            /* width: 26px;
+            height: 26px;
+            filter: brightness(0) invert(1); */
+        }
+    </style>
+
+    <script>
+        let fabOpen = false;
+
+        function toggleFab() {
+            fabOpen = !fabOpen;
+            document.getElementById("fabOptions").classList.toggle("open", fabOpen);
+            document.getElementById("fabMain").style.backgroundColor = fabOpen ? "#c0392b" : "#FFA500";
+            document.getElementById("fabModeLabel").style.display = fabOpen ? "none" : "inline-block";
+            document.getElementById("fabImg").style.display = fabOpen ? "none" : "block";
+            document.getElementById("fabX").style.display = fabOpen ? "block" : "none";
+        }
+    </script>
+
     <!-- ==== SCRIPT ==== -->
     <script>
         function Mode() {
