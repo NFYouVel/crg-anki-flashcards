@@ -481,7 +481,7 @@ $role = $line2['role_name'];
         setcookie('user_id', '', time() - (86400 * 30), '/', '', false, true);
         setcookie('loginAt', '', time() - (86400 * 30), '/', '', false, true);
 
-        header("Location: ../../Login/");
+        header("Location: ../../../Login/");
         exit();
     }
     $stmtCheckPassword->close();
@@ -531,11 +531,11 @@ $role = $line2['role_name'];
 
             <script>
                 function BackHome() {
-                    window.location.href = "home_page_students.php"
+                    window.location.href = "../home_page_students.php"
                 }
 
                 function BackHomeTeacher() {
-                    window.location.href = "home_page.php"
+                    window.location.href = "../home_page.php"
                 }
             </script>
 
@@ -552,8 +552,8 @@ $role = $line2['role_name'];
         </div>
     </div>
     <div class="account-logout">
-        <a href="setting.php" class="account">Settings</a>
-        <a href="exit.php" class="logout">Logout</a>
+        <a href="../setting.php" class="account">Settings</a>
+        <a href="../exit.php" class="logout">Logout</a>
     </div>
 
     <div class="cardSwiperWrapper">
