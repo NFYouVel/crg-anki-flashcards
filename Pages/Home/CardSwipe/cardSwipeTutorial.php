@@ -381,9 +381,21 @@ $role = $line2['role_name'];
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
+        .tutorial-finger-wrapper {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .tutorial-finger {
             font-size: 44px;
             display: inline-block;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
             animation: tutorialBounce 1s infinite;
         }
 
@@ -395,53 +407,43 @@ $role = $line2['role_name'];
             animation: tutorialSwipeLeft 0.8s infinite;
         }
 
-        .tutorial-arrow {
-            font-size: 28px;
-            display: none;
-            margin-top: -12px;
-        }
-
-        .tutorial-arrow.show {
-            display: inline-block;
-        }
-
         @keyframes tutorialBounce {
 
             0%,
             100% {
-                transform: translateY(0);
+                transform: translateX(-50%) translateY(0);
             }
 
             50% {
-                transform: translateY(-8px);
+                transform: translateX(-50%) translateY(-8px);
             }
         }
 
         @keyframes tutorialSwipeRight {
             0% {
-                transform: translateX(0);
+                transform: translateX(-50%);
             }
 
             99% {
-                transform: translateX(64px);
+                transform: translateX(calc(-50% + 64px));
             }
 
             100% {
-                transform: translateX(0);
+                transform: translateX(-50%);
             }
         }
 
         @keyframes tutorialSwipeLeft {
             0% {
-                transform: translateX(0);
+                transform: translateX(-50%);
             }
 
             99% {
-                transform: translateX(-64px);
+                transform: translateX(calc(-50% - 64px));
             }
 
             100% {
-                transform: translateX(0);
+                transform: translateX(-50%);
             }
         }
     </style>
@@ -589,10 +591,8 @@ $role = $line2['role_name'];
                     </div>
                 </div>
                 <div class="tutorial-tooltip" id="tutorialTooltip" style="display:none;">
-                    <div style="display:flex; align-items:flex-start ; gap:8px;">
-                        <span class="tutorial-arrow left-arrow">&lt;------</span>
+                    <div class="tutorial-finger-wrapper">
                         <span class="tutorial-finger">👆</span>
-                        <span class="tutorial-arrow right-arrow">------&gt;</span>
                     </div>
                     <span class="tutorial-message"></span>
                 </div>
@@ -879,16 +879,11 @@ $role = $line2['role_name'];
         finger.textContent = t.finger;
         finger.classList.remove("swipe-right", "swipe-left");
 
-        document.querySelector(".left-arrow").classList.remove("show");
-        document.querySelector(".right-arrow").classList.remove("show");
-
         if (step === 1) {
             finger.classList.add("swipe-right");
-            document.querySelector(".right-arrow").classList.add("show");
         }
         if (step === 3) {
             finger.classList.add("swipe-left");
-            document.querySelector(".left-arrow").classList.add("show");
         }
 
         document.querySelector(".tutorial-message").textContent = t.message;
