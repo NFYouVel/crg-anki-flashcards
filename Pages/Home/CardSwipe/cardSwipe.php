@@ -808,7 +808,7 @@ $role = $line2['role_name'];
             $(".continue").text("Continue to Smart Review")
 
             $(".continue").click(function() {
-                window.location.href = "../flashcard.php?deckId=" + deckId;
+                window.location.href = "../flashcard.php?deck_id=" + deckId;
             })
         } else {
             $(".studied").text($(".remember-number").text());
