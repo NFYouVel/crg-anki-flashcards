@@ -804,7 +804,7 @@ $role = $line2['role_name'];
     hammer.on("panmove", function(ev) {
         if (!isDone && isFlipped) {
 
-            const maxSwipe = 300; // limit swipe distance
+            const maxSwipe = 150; // limit swipe distance
             currentX = Math.max(-maxSwipe, Math.min(maxSwipe, ev.deltaX));
 
             const opacity = 1 - Math.min(Math.abs(currentX) / maxSwipe, 1);
@@ -820,7 +820,7 @@ $role = $line2['role_name'];
     hammer.on("panend", function(ev) {
         isDragging = false;
         if (!isDone && isFlipped) {
-            const threshold = 120;
+            const threshold = 20;
 
             setTimeout(() => isDragging = false, 0);
 
