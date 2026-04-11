@@ -855,6 +855,7 @@ $role = $line2['role_name'];
             },
             dataType: "json",
             success: function(data) {
+                console.log(data);
                 $(".hanzi").text(data.hanzi);
                 $(".pinyin").text(data.pinyin);
                 $(".meaning").text(data.meaning_eng);
