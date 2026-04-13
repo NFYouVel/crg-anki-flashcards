@@ -324,6 +324,7 @@ $role = $line2['role_name'];
             min-width: 50px;
             padding-inline: 12px;
             font-size: 14px;
+            transition: background-color 0.1s, color 0.1s;
         }
 
         .counter span {
@@ -603,11 +604,11 @@ $role = $line2['role_name'];
 
             <script>
                 function BackHome() {
-                    window.location.href = "../home_page_students.php"
+                    window.location.href = "../home_page_card_swipe.php"
                 }
 
                 function BackHomeTeacher() {
-                    window.location.href = "../home_page.php"
+                    window.location.href = "../home_page_card_swipe.php"
                 }
             </script>
 
@@ -653,9 +654,8 @@ $role = $line2['role_name'];
             <div class="card">
                 <div class="card-inner">
                     <div class="card-face front">
-                        <span class="hanzi">
-                            我
-                        </span>
+                        <span class="hanzi">我</span>
+                        <span style="font-size: 13px; color: #aaa; position: absolute; bottom: 20px;">Tap to reveal</span>
                     </div>
                     <div class="card-face back">
                         <span class="hanzi">我</span>
@@ -675,7 +675,7 @@ $role = $line2['role_name'];
                 </div>
             </div>
             <div class="actions">
-                <div class="counter forgot"><span class="forgot-number">0</span></div>
+                <div class="counter forgot"><span class="forgot-number" data-count="0">0</span></div>
                 <div class="action-buttons">
                     <div class="action wrong">
                         <span>Study Again</span>
@@ -686,7 +686,7 @@ $role = $line2['role_name'];
                         <img src="../../../Logo/check-icon.png" alt="">
                     </div>
                 </div>
-                <div class="counter remember"><span class="remember-number">0</span></div>
+                <div class="counter remember"><span class="remember-number" data-count="0">0</span></div>
             </div>
         </div>
 </body>
@@ -715,9 +715,7 @@ $role = $line2['role_name'];
     let currentX = 0;
     let isDragging = false;
     let count = 0;
-    const total = cards.length;
     const cardListTotal = cardList.length;
-    const progressOffSet = cards.length - cardList.length;
 
     var isDone = false;
 
@@ -759,6 +757,20 @@ $role = $line2['role_name'];
         })
     })
 
+    function updateCounters() {
+        $(".remember-number").attr("data-count", $(".remember-number").text());
+        $(".forgot-number").attr("data-count", $(".forgot-number").text());
+    }
+
+    function resetCounterHighlight() {
+        $(".counter.remember").css("background-color", "");
+        $(".counter.remember").css("color", "");
+        $(".counter.forgot").css("background-color", "");
+        $(".counter.forgot").css("color", "");
+        $(".remember-number").text($(".remember-number").attr("data-count") || "0");
+        $(".forgot-number").text($(".forgot-number").attr("data-count") || "0");
+    }
+
     function forgot() {
         if (isDone || !isFlipped) return;
 
@@ -773,7 +785,8 @@ $role = $line2['role_name'];
             dataType: "json",
             success: function(data) {
                 animateOut("left");
-                $(".forgot-number").text(parseInt($(".forgot-number").text()) + 1);
+                $(".forgot-number").text(parseInt($(".forgot-number").attr("data-count")) + 1);
+                updateCounters();
                 isFlipped = false;
                 cardList[count - 1].status = "forgot";
             }
@@ -794,7 +807,8 @@ $role = $line2['role_name'];
             dataType: "json",
             success: function(data) {
                 animateOut("right");
-                $(".remember-number").text(parseInt($(".remember-number").text()) + 1);
+                $(".remember-number").text(parseInt($(".remember-number").attr("data-count")) + 1);
+                updateCounters();
                 isFlipped = false;
                 cardList[count - 1].status = "remember";
             }
@@ -803,7 +817,7 @@ $role = $line2['role_name'];
 
     function finishSession() {
         isDone = true;
-        if ($(".forgot-number").text() === "0") {
+        if ($(".forgot-number").attr("data-count") === "0") {
             $(".finish-text").text("You have studied all of them! Continue to Smart Review Mode for more in-depth learning.")
             $(".continue").text("Continue to Smart Review")
 
@@ -811,8 +825,8 @@ $role = $line2['role_name'];
                 window.location.href = "../flashcard.php?deck_id=" + deckId;
             })
         } else {
-            $(".studied").text($(".remember-number").text());
-            $(".to-learn").text($(".forgot-number").text());
+            $(".studied").text($(".remember-number").attr("data-count"));
+            $(".to-learn").text($(".forgot-number").attr("data-count"));
         }
 
         cardInner.classList.remove("flipped");
@@ -830,15 +844,15 @@ $role = $line2['role_name'];
     }
 
     async function updateProgress(progress, total) {
-        if (progress + progressOffSet > total) {
+        if (progress > total) {
             isDone = true;
             finishSession();
             return;
         }
         $(".progressBarFill").animate({
-            width: ((progress + progressOffSet) / total) * 100 + "%"
+            width: (progress / total) * 100 + "%"
         });
-        $(".progressText").text(progress + progressOffSet + "/" + total);
+        $(".progressText").text(progress + "/" + total);
     }
 
     function nextCard(direction) {
@@ -855,7 +869,6 @@ $role = $line2['role_name'];
             },
             dataType: "json",
             success: function(data) {
-                console.log(data);
                 $(".hanzi").text(data.hanzi);
                 $(".pinyin").text(data.pinyin);
                 $(".meaning").text(data.meaning_eng);
@@ -866,7 +879,7 @@ $role = $line2['role_name'];
 
                 count++;
 
-                updateProgress(count, total);
+                updateProgress(count, cardListTotal);
 
                 if (!isFlipped) {
                     $(".card-inner").css("transition", "none");
@@ -879,6 +892,17 @@ $role = $line2['role_name'];
         });
     }
 
+    function resetCardStyles() {
+        card.style.transition = "none";
+        card.style.transform = "";
+        card.style.opacity = 1;
+        document.querySelector(".card-face.front").style.backgroundColor = "";
+        document.querySelector(".card-face.back").style.backgroundColor = "";
+        document.querySelector(".card-face.front").style.border = "";
+        document.querySelector(".card-face.back").style.border = "";
+        document.querySelectorAll(".card-face .hanzi, .card-face .pinyin, .card-face .meaning").forEach(el => el.style.color = "");
+    }
+
     function animateOut(direction) {
         const moveX = direction === "right" ? 500 : -500;
 
@@ -889,9 +913,8 @@ $role = $line2['role_name'];
         `;
 
         setTimeout(() => {
-            card.style.transition = "none";
-            card.style.transform = "";
-            card.style.opacity = 1;
+            resetCardStyles();
+            resetCounterHighlight();
 
             $(".hanzi").css("opacity", 0);
             $(".pinyin").css("opacity", 0);
@@ -912,6 +935,49 @@ $role = $line2['role_name'];
             currentX = Math.max(-maxSwipe, Math.min(maxSwipe, ev.deltaX));
 
             const opacity = 1 - Math.min(Math.abs(currentX) / maxSwipe, 1);
+            const progress = Math.abs(currentX) / maxSwipe;
+
+            const r = currentX > 0 ? Math.round(255 - (255 - 130) * progress) : 255;
+            const g = currentX > 0 ? 255 : Math.round(255 - (255 - 93) * progress);
+            const b = currentX > 0 ? Math.round(255 - (255 - 130) * progress) : Math.round(255 - (255 - 93) * progress);
+
+            const activeFace = isFlipped ?
+                document.querySelector(".card-face.back") :
+                document.querySelector(".card-face.front");
+            activeFace.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+
+            const textColor = currentX > 0 ?
+                `rgb(${Math.round(60 * progress)}, 180, ${Math.round(60 * progress)})` :
+                `rgb(220, ${Math.round(60 * progress)}, ${Math.round(60 * progress)})`;
+            activeFace.querySelectorAll(".hanzi, .pinyin, .meaning").forEach(el => el.style.color = textColor);
+
+            // activeFace.style.border = currentX > 0 ?
+            //     `3px solid rgb(${Math.round(60 * progress)}, 220, ${Math.round(60 * progress)})` :
+            //     `3px solid rgb(220, ${Math.round(60 * progress)}, ${Math.round(60 * progress)})`;
+
+            if (currentX > 0) {
+                $(".counter.remember").css({
+                    "background-color": "white",
+                    "color": "#548235"
+                });
+                $(".remember-number").text("+1");
+                $(".counter.forgot").css({
+                    "background-color": "",
+                    "color": ""
+                });
+                $(".forgot-number").text($(".forgot-number").attr("data-count") || "0");
+            } else if (currentX < 0) {
+                $(".counter.forgot").css({
+                    "background-color": "white",
+                    "color": "#FD5D5D"
+                });
+                $(".forgot-number").text("+1");
+                $(".counter.remember").css({
+                    "background-color": "",
+                    "color": ""
+                });
+                $(".remember-number").text($(".remember-number").attr("data-count") || "0");
+            }
 
             card.style.transform = `
             translateX(${currentX}px)
@@ -936,6 +1002,8 @@ $role = $line2['role_name'];
                 card.style.transition = "transform 0.3s";
                 card.style.transform = "";
                 card.style.opacity = 1;
+                resetCardStyles();
+                resetCounterHighlight();
             }
         }
     });

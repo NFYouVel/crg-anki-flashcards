@@ -324,6 +324,7 @@ $role = $line2['role_name'];
             min-width: 50px;
             padding-inline: 12px;
             font-size: 14px;
+            transition: background-color 0.1s, color 0.1s;
         }
 
         .counter span {
@@ -422,28 +423,44 @@ $role = $line2['role_name'];
         @keyframes tutorialSwipeRight {
             0% {
                 transform: translateX(-50%);
+                opacity: 1;
+            }
+
+            70% {
+                transform: translateX(calc(-50% + 64px));
+                opacity: 1;
             }
 
             99% {
                 transform: translateX(calc(-50% + 64px));
+                opacity: 0;
             }
 
             100% {
                 transform: translateX(-50%);
+                opacity: 0;
             }
         }
 
         @keyframes tutorialSwipeLeft {
             0% {
                 transform: translateX(-50%);
+                opacity: 1;
+            }
+
+            70% {
+                transform: translateX(calc(-50% - 64px));
+                opacity: 1;
             }
 
             99% {
                 transform: translateX(calc(-50% - 64px));
+                opacity: 0;
             }
 
             100% {
                 transform: translateX(-50%);
+                opacity: 0;
             }
         }
     </style>
@@ -451,7 +468,6 @@ $role = $line2['role_name'];
 
 <body>
     <!-- Header -->
-
 
     <?php
     date_default_timezone_set('Asia/Jakarta');
@@ -477,7 +493,6 @@ $role = $line2['role_name'];
         session_unset();
         session_destroy();
 
-        // Hapus kedua cookie-nya
         setcookie('user_id', '', time() - (86400 * 30), '/', '', false, true);
         setcookie('loginAt', '', time() - (86400 * 30), '/', '', false, true);
 
@@ -522,7 +537,6 @@ $role = $line2['role_name'];
     ?>
 
     <div class="wrapper-header">
-        <!-- Untuk Logo di atas (header) -->
         <div class="header">
             <div class="logo">
                 <img src="../../../Logo/1080.png" alt="CRG Logo" style="cursor: pointer;"
@@ -531,11 +545,11 @@ $role = $line2['role_name'];
 
             <script>
                 function BackHome() {
-                    window.location.href = "../home_page_students.php"
+                    window.location.href = "../home_page_card_swipe.php"
                 }
 
                 function BackHomeTeacher() {
-                    window.location.href = "../home_page.php"
+                    window.location.href = "../home_page_card_swipe.php"
                 }
             </script>
 
@@ -568,9 +582,8 @@ $role = $line2['role_name'];
                 <div class="card-inner">
                     <div class="card-face front">
                         <span>Card Swipe Tutorial</span>
-                        <span class="hanzi">
-                            我
-                        </span>
+                        <span class="hanzi">我</span>
+                        <span style="font-size: 13px; color: #aaa; position: absolute; bottom: 20px;">Tap to reveal</span>
                     </div>
                     <div class="card-face back">
                         <span>Card Swipe Tutorial</span>
@@ -598,7 +611,7 @@ $role = $line2['role_name'];
                 </div>
             </div>
             <div class="actions">
-                <div class="counter forgot"><span class="forgot-number">0</span></div>
+                <div class="counter forgot"><span class="forgot-number" data-count="0">0</span></div>
                 <div class="action-buttons">
                     <div class="action wrong">
                         <span>Study Again</span>
@@ -609,31 +622,18 @@ $role = $line2['role_name'];
                         <img src="../../../Logo/check-icon.png" alt="">
                     </div>
                 </div>
-                <div class="counter remember"><span class="remember-number">0</span></div>
+                <div class="counter remember"><span class="remember-number" data-count="0">0</span></div>
             </div>
         </div>
 </body>
 
 <script>
-    // const cardList = cards.filter(card => card.status === "forgot" || card.status === "unseen");
     const cardList = [{
             "cardId": 1,
             "status": "unseen"
         },
         {
-            "cardId": 2,
-            "status": "unseen"
-        },
-        {
-            "cardId": 3,
-            "status": "unseen"
-        },
-        {
-            "cardId": 4,
-            "status": "unseen"
-        },
-        {
-            "cardId": 5,
+            "cardId": 1543,
             "status": "unseen"
         },
     ]
@@ -675,8 +675,8 @@ $role = $line2['role_name'];
             if (isDone) return;
             forgot();
             if (tutorialStep === 3) {
+                hideTutorialTooltip();
                 tutorialStep = 4;
-                setTimeout(() => showTutorialTooltip(4), 400);
             }
         })
         $(".correct").click(function() {
@@ -689,11 +689,26 @@ $role = $line2['role_name'];
         })
     })
 
+    function updateCounters() {
+        $(".remember-number").attr("data-count", $(".remember-number").text());
+        $(".forgot-number").attr("data-count", $(".forgot-number").text());
+    }
+
+    function resetCounterHighlight() {
+        $(".counter.remember").css("background-color", "");
+        $(".counter.remember").css("color", "");
+        $(".counter.forgot").css("background-color", "");
+        $(".counter.forgot").css("color", "");
+        $(".remember-number").text($(".remember-number").attr("data-count") || "0");
+        $(".forgot-number").text($(".forgot-number").attr("data-count") || "0");
+    }
+
     function forgot() {
         if (isDone || !isFlipped) return;
 
         animateOut("left");
-        $(".forgot-number").text(parseInt($(".forgot-number").text()) + 1);
+        $(".forgot-number").text(parseInt($(".forgot-number").attr("data-count")) + 1);
+        updateCounters();
         isFlipped = false;
         cardList[count - 1].status = "forgot";
     }
@@ -702,7 +717,8 @@ $role = $line2['role_name'];
         if (isDone || !isFlipped) return;
 
         animateOut("right");
-        $(".remember-number").text(parseInt($(".remember-number").text()) + 1);
+        $(".remember-number").text(parseInt($(".remember-number").attr("data-count")) + 1);
+        updateCounters();
         isFlipped = false;
         cardList[count - 1].status = "remember";
     }
@@ -775,6 +791,17 @@ $role = $line2['role_name'];
         });
     }
 
+    function resetCardStyles() {
+        card.style.transition = "none";
+        card.style.transform = "";
+        card.style.opacity = 1;
+        document.querySelector(".card-face.front").style.backgroundColor = "";
+        document.querySelector(".card-face.back").style.backgroundColor = "";
+        document.querySelector(".card-face.front").style.border = "";
+        document.querySelector(".card-face.back").style.border = "";
+        document.querySelectorAll(".card-face .hanzi, .card-face .pinyin, .card-face .meaning").forEach(el => el.style.color = "");
+    }
+
     function animateOut(direction) {
         const moveX = direction === "right" ? 500 : -500;
 
@@ -785,9 +812,8 @@ $role = $line2['role_name'];
         `;
 
         setTimeout(() => {
-            card.style.transition = "none";
-            card.style.transform = "";
-            card.style.opacity = 1;
+            resetCardStyles();
+            resetCounterHighlight();
 
             $(".hanzi").css("opacity", 0);
             $(".pinyin").css("opacity", 0);
@@ -804,10 +830,49 @@ $role = $line2['role_name'];
     hammer.on("panmove", function(ev) {
         if (!isDone && isFlipped) {
 
-            const maxSwipe = 150; // limit swipe distance
+            const maxSwipe = 150;
             currentX = Math.max(-maxSwipe, Math.min(maxSwipe, ev.deltaX));
 
             const opacity = 1 - Math.min(Math.abs(currentX) / maxSwipe, 1);
+            const progress = Math.abs(currentX) / maxSwipe;
+
+            const r = currentX > 0 ? Math.round(255 - (255 - 130) * progress) : 255;
+            const g = currentX > 0 ? 255 : Math.round(255 - (255 - 93) * progress);
+            const b = currentX > 0 ? Math.round(255 - (255 - 130) * progress) : Math.round(255 - (255 - 93) * progress);
+
+            const activeFace = isFlipped ?
+                document.querySelector(".card-face.back") :
+                document.querySelector(".card-face.front");
+            activeFace.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+
+            const textColor = currentX > 0 ?
+                `rgb(${Math.round(60 * progress)}, 180, ${Math.round(60 * progress)})` :
+                `rgb(220, ${Math.round(60 * progress)}, ${Math.round(60 * progress)})`;
+            activeFace.querySelectorAll(".hanzi, .pinyin, .meaning").forEach(el => el.style.color = textColor);
+
+            if (currentX > 0) {
+                $(".counter.remember").css({
+                    "background-color": "white",
+                    "color": "#548235"
+                });
+                $(".remember-number").text("+1");
+                $(".counter.forgot").css({
+                    "background-color": "",
+                    "color": ""
+                });
+                $(".forgot-number").text($(".forgot-number").attr("data-count") || "0");
+            } else if (currentX < 0) {
+                $(".counter.forgot").css({
+                    "background-color": "white",
+                    "color": "#FD5D5D"
+                });
+                $(".forgot-number").text("+1");
+                $(".counter.remember").css({
+                    "background-color": "",
+                    "color": ""
+                });
+                $(".remember-number").text($(".remember-number").attr("data-count") || "0");
+            }
 
             card.style.transform = `
             translateX(${currentX}px)
@@ -832,6 +897,8 @@ $role = $line2['role_name'];
                 card.style.transition = "transform 0.3s";
                 card.style.transform = "";
                 card.style.opacity = 1;
+                resetCardStyles();
+                resetCounterHighlight();
             }
         }
     });
@@ -862,10 +929,6 @@ $role = $line2['role_name'];
         {
             finger: "👆",
             message: "Swipe left if you need to study it again"
-        },
-        {
-            finger: "🎯",
-            message: "Finish this deck to complete the tutorial!"
         },
     ];
 
@@ -911,7 +974,6 @@ $role = $line2['role_name'];
         }
     });
 
-    // Swipe: step 1 → 2 (must swipe right), step 3 → 4 (must swipe left)
     hammer.on("panend", function(ev) {
         if (isDone) return;
         const threshold = 120;
@@ -919,8 +981,8 @@ $role = $line2['role_name'];
             tutorialStep = 2;
             setTimeout(() => showTutorialTooltip(2), 400);
         } else if (ev.deltaX < -threshold && tutorialStep === 3) {
+            hideTutorialTooltip();
             tutorialStep = 4;
-            setTimeout(() => showTutorialTooltip(4), 400);
         }
     });
 </script>

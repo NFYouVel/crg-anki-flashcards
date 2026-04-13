@@ -111,14 +111,28 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
                         <!-- To Review Green Red Blue-->
                         <div class="to-review">
                             <?php
-                            $getCount = mysqli_query($con, "SELECT COUNT(*) AS card_count
+                            $getCount = mysqli_query($con, "
+                                SELECT COUNT(*) AS card_count
                                 FROM card_swipe_session css
                                 INNER JOIN card_swipe_progress csp
                                     ON css.card_swipe_id = csp.card_swipe_id
-                                WHERE css.deck_id = 'Main' AND user_id = '$user_id' AND csp.status != 'inactive'
+                                WHERE css.deck_id = 'Main' AND css.user_id = '$user_id' AND csp.status != 'inactive'
                             ");
                             $cardCount = mysqli_fetch_assoc($getCount);
                             $cardCount = $cardCount['card_count'];
+
+                            if ($cardCount == 0) {
+                                $getFallback = mysqli_query($con, "
+                                    SELECT COUNT(DISTINCT jdc.card_id) AS card_count
+                                    FROM junction_deck_user jdu
+                                    INNER JOIN decks d ON jdu.deck_id = d.deck_id
+                                    INNER JOIN junction_deck_card jdc ON jdu.deck_id = jdc.deck_id
+                                    WHERE jdu.user_id = '$user_id' AND d.is_leaf = 1
+                                ");
+                                $fallback = mysqli_fetch_assoc($getFallback);
+                                $cardCount = $fallback['card_count'];
+                            }
+
                             echo "<span class='count-cards' style='color: #8e8e8e; width: 100px; text-align: right;'>$cardCount cards</span>";
                             ?>
                         </div>
