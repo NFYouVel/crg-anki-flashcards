@@ -239,6 +239,7 @@ $role = $line2['role_name'];
             display: flex;
             flex-direction: column;
             gap: 4px;
+            width: 80%;
         }
 
         .button {
@@ -357,6 +358,10 @@ $role = $line2['role_name'];
             .counter {
                 height: 42px;
             }
+
+            .finish-actions {
+                width: 100%;
+            }
         }
 
         .tutorial-tooltip {
@@ -407,6 +412,8 @@ $role = $line2['role_name'];
         .tutorial-finger.swipe-left {
             animation: tutorialSwipeLeft 0.8s infinite;
         }
+
+
 
         @keyframes tutorialBounce {
 
@@ -600,6 +607,26 @@ $role = $line2['role_name'];
                                 <span>Skip tutorial on future sessions</span>
                             </div>
                             <button class="button continue" onclick="window.location.href = 'cardSwipe.php?deckId=<?php echo $deckId ?>'">Start Swiping</button>
+                            <p style="text-align: center; font-family: 'Nunito', sans-serif; font-size: 15px; color: #143D59;">
+                                Show the meaning in:
+                                <span style="color: #FFA500; font-weight: bold; cursor: pointer;" onclick="toggleLanguage()">
+                                    <span id="langLabel">Indonesian</span>
+                                    <span style="font-size: 18px;">⇄</span>
+                                </span>
+                            </p>
+
+                            <script>
+                                function toggleLanguage() {
+                                    const current = localStorage.getItem("cardSwipeMeaningLanguage") || "meaning_ina";
+                                    const next = current === "meaning_ina" ? "meaning_eng" : "meaning_ina";
+                                    localStorage.setItem("cardSwipeMeaningLanguage", next);
+                                    document.getElementById("langLabel").textContent = next === "meaning_ina" ? "Indonesian" : "English";
+                                }
+
+                                // Set initial label on load
+                                const saved = localStorage.getItem("cardSwipeMeaningLanguage") || "meaning_ina";
+                                document.getElementById("langLabel").textContent = saved === "meaning_ina" ? "Indonesian" : "English";
+                            </script>
                         </div>
                     </div>
                 </div>
@@ -656,6 +683,8 @@ $role = $line2['role_name'];
     var isDone = false;
 
     let isFlipped = false;
+    let hasRevealed = false;
+    let wasDragging = false;
 
     $(document).ready(function() {
         $(".restart").click(function() {
@@ -704,22 +733,24 @@ $role = $line2['role_name'];
     }
 
     function forgot() {
-        if (isDone || !isFlipped) return;
+        if (isDone || !hasRevealed) return;
 
         animateOut("left");
         $(".forgot-number").text(parseInt($(".forgot-number").attr("data-count")) + 1);
         updateCounters();
         isFlipped = false;
+        hasRevealed = false;
         cardList[count - 1].status = "forgot";
     }
 
     function remember() {
-        if (isDone || !isFlipped) return;
+        if (isDone || !hasRevealed) return;
 
         animateOut("right");
         $(".remember-number").text(parseInt($(".remember-number").attr("data-count")) + 1);
         updateCounters();
         isFlipped = false;
+        hasRevealed = false;
         cardList[count - 1].status = "remember";
     }
 
@@ -738,8 +769,8 @@ $role = $line2['role_name'];
     }
 
     function flipCard() {
-        cardInner.classList.toggle("flipped");
-        isFlipped = true;
+        isFlipped = cardInner.classList.toggle("flipped");
+        if (isFlipped) hasRevealed = true;
     }
 
     async function updateProgress(progress, total) {
@@ -770,7 +801,7 @@ $role = $line2['role_name'];
             success: function(data) {
                 $(".hanzi").text(data.hanzi);
                 $(".pinyin").text(data.pinyin);
-                $(".meaning").text(data.meaning_eng);
+                $(".meaning").text(localStorage.getItem("cardSwipeMeaningLanguage") === "meaning_ina" ? data.meaning_ina : data.meaning_eng);
 
                 $(".hanzi").css("opacity", 1);
                 $(".pinyin").css("opacity", 1);
@@ -780,9 +811,9 @@ $role = $line2['role_name'];
 
                 updateProgress(count, total);
 
-                if (!isFlipped) {
-                    $(".card-inner").css("transition", "none");
-                }
+                isFlipped = false;
+                hasRevealed = false;
+                $(".card-inner").css("transition", "none");
                 cardInner.classList.remove("flipped");
                 setTimeout(() => {
                     $(".card-inner").css("transition", "transform 0.6s");
@@ -825,10 +856,11 @@ $role = $line2['role_name'];
 
     hammer.on("panstart", function() {
         isDragging = true;
+        wasDragging = true;
     });
 
     hammer.on("panmove", function(ev) {
-        if (!isDone && isFlipped) {
+        if (!isDone && hasRevealed) {
 
             const maxSwipe = 150;
             currentX = Math.max(-maxSwipe, Math.min(maxSwipe, ev.deltaX));
@@ -884,10 +916,9 @@ $role = $line2['role_name'];
 
     hammer.on("panend", function(ev) {
         isDragging = false;
-        if (!isDone && isFlipped) {
+        setTimeout(() => wasDragging = false, 50);
+        if (!isDone && hasRevealed) {
             const threshold = 20;
-
-            setTimeout(() => isDragging = false, 0);
 
             if (ev.deltaX > threshold) {
                 remember();
@@ -904,7 +935,7 @@ $role = $line2['role_name'];
     });
 
     hammer.on("tap", function() {
-        if (isDone) {
+        if (isDone || wasDragging) {
             return;
         }
         flipCard();
