@@ -122,15 +122,26 @@ $role = $line2['role_name'];
                             </label>
                         </td>
                     </tr>
+                    <tr>
+                        <td>Show word meaning in: <span id="word-meaning"></span></td>
+                        <td class="right" onclick="changeCardSwipeMeaningLanguage()" style="cursor: pointer; text-align: right;">switch</td>
+                    </tr>
                 </table>
             </div>
 
             <script>
                 document.getElementById("useShuffle").checked = localStorage.getItem("useShuffle") === "true";
                 document.getElementById("skipTutorial").checked = localStorage.getItem("skipTutorial") === "true";
-            </script>
 
-            <script>
+                $("#word-meaning").text(localStorage.getItem("cardSwipeMeaningLanguage") === "meaning_ina" ? "Indonesian" : "English");
+
+                function changeCardSwipeMeaningLanguage() {
+                    const current = localStorage.getItem("cardSwipeMeaningLanguage") || "meaning_ina";
+                    const next = current === "meaning_ina" ? "meaning_eng" : "meaning_ina";
+                    localStorage.setItem("cardSwipeMeaningLanguage", next);
+                    document.getElementById("word-meaning").textContent = next === "meaning_ina" ? "Indonesian" : "English";
+                }
+
                 function changeCharacterSet() {
                     const xhr = new XMLHttpRequest();
                     xhr.open("GET", "jQuery/ajax.php", true);
