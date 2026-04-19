@@ -390,6 +390,19 @@ $role = $line2['role_name'];
             transform: translateX(16px);
         }
 
+        .swipe-label {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 900;
+            font-family: 'Nunito', sans-serif;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+
         @media screen and (max-width: 768px) {
             .cardSwiper {
                 padding: 12px 24px
@@ -577,13 +590,15 @@ $role = $line2['role_name'];
             );
         }
 
-        mysqli_query(
-            $con,
-            "INSERT IGNORE INTO card_swipe_progress (card_swipe_id, card_id, status) VALUES " .
-                implode(", ", array_map(function ($card) use ($cardSwipeId) {
-                    return "('$cardSwipeId', '{$card['cardId']}', 'unseen')";
-                }, $cards))
-        );
+        if (!empty($cards)) {
+            mysqli_query(
+                $con,
+                "INSERT IGNORE INTO card_swipe_progress (card_swipe_id, card_id, status) VALUES " .
+                    implode(", ", array_map(function ($card) use ($cardSwipeId) {
+                        return "('$cardSwipeId', '{$card['cardId']}', 'unseen')";
+                    }, $cards))
+            );
+        }
 
         echo "<script>const hasSession = false;</script>";
     }
@@ -673,6 +688,7 @@ $role = $line2['role_name'];
                         </div>
                     </div>
                 </div>
+                <div class="swipe-label" id="swipeLabel"></div>
             </div>
             <div class="actions">
                 <div class="counter forgot"><span class="forgot-number" data-count="0">0</span></div>
@@ -720,6 +736,8 @@ $role = $line2['role_name'];
     var isDone = false;
 
     let isFlipped = false;
+    let hasRevealed = false;
+    let wasDragging = false;
 
     $(document).ready(function() {
         $(".restart").click(function() {
@@ -772,7 +790,7 @@ $role = $line2['role_name'];
     }
 
     function forgot() {
-        if (isDone || !isFlipped) return;
+        if (isDone || !hasRevealed) return;
 
         $.ajax({
             url: "AJAX/updateProgress.php",
@@ -788,13 +806,14 @@ $role = $line2['role_name'];
                 $(".forgot-number").text(parseInt($(".forgot-number").attr("data-count")) + 1);
                 updateCounters();
                 isFlipped = false;
+                hasRevealed = false;
                 cardList[count - 1].status = "forgot";
             }
         });
     }
 
     function remember() {
-        if (isDone || !isFlipped) return;
+        if (isDone || !hasRevealed) return;
 
         $.ajax({
             url: "AJAX/updateProgress.php",
@@ -810,6 +829,7 @@ $role = $line2['role_name'];
                 $(".remember-number").text(parseInt($(".remember-number").attr("data-count")) + 1);
                 updateCounters();
                 isFlipped = false;
+                hasRevealed = false;
                 cardList[count - 1].status = "remember";
             }
         });
@@ -839,8 +859,8 @@ $role = $line2['role_name'];
     }
 
     function flipCard() {
-        cardInner.classList.toggle("flipped");
-        isFlipped = true;
+        isFlipped = cardInner.classList.toggle("flipped");
+        if (isFlipped) hasRevealed = true;
     }
 
     async function updateProgress(progress, total) {
@@ -871,7 +891,7 @@ $role = $line2['role_name'];
             success: function(data) {
                 $(".hanzi").text(data.hanzi);
                 $(".pinyin").text(data.pinyin);
-                $(".meaning").text(data.meaning_eng);
+                $(".meaning").text(localStorage.getItem("cardSwipeMeaningLanguage") === "meaning_ina" ? data.meaning_ina : data.meaning_eng);
 
                 $(".hanzi").css("opacity", 1);
                 $(".pinyin").css("opacity", 1);
@@ -881,9 +901,9 @@ $role = $line2['role_name'];
 
                 updateProgress(count, cardListTotal);
 
-                if (!isFlipped) {
-                    $(".card-inner").css("transition", "none");
-                }
+                isFlipped = false;
+                hasRevealed = false;
+                $(".card-inner").css("transition", "none");
                 cardInner.classList.remove("flipped");
                 setTimeout(() => {
                     $(".card-inner").css("transition", "transform 0.6s");
@@ -901,6 +921,7 @@ $role = $line2['role_name'];
         document.querySelector(".card-face.front").style.border = "";
         document.querySelector(".card-face.back").style.border = "";
         document.querySelectorAll(".card-face .hanzi, .card-face .pinyin, .card-face .meaning").forEach(el => el.style.color = "");
+        $("#swipeLabel").css("opacity", 0);
     }
 
     function animateOut(direction) {
@@ -926,10 +947,11 @@ $role = $line2['role_name'];
 
     hammer.on("panstart", function() {
         isDragging = true;
+        wasDragging = true;
     });
 
     hammer.on("panmove", function(ev) {
-        if (!isDone && isFlipped) {
+        if (!isDone && hasRevealed) {
 
             const maxSwipe = 150;
             currentX = Math.max(-maxSwipe, Math.min(maxSwipe, ev.deltaX));
@@ -951,11 +973,12 @@ $role = $line2['role_name'];
                 `rgb(220, ${Math.round(60 * progress)}, ${Math.round(60 * progress)})`;
             activeFace.querySelectorAll(".hanzi, .pinyin, .meaning").forEach(el => el.style.color = textColor);
 
-            // activeFace.style.border = currentX > 0 ?
-            //     `3px solid rgb(${Math.round(60 * progress)}, 220, ${Math.round(60 * progress)})` :
-            //     `3px solid rgb(220, ${Math.round(60 * progress)}, ${Math.round(60 * progress)})`;
-
             if (currentX > 0) {
+                $("#swipeLabel").text("Remember").css({
+                    color: "#6ca944",
+                    opacity: 1,
+                    fontWeight: "lighter"
+                });
                 $(".counter.remember").css({
                     "background-color": "white",
                     "color": "#548235"
@@ -967,6 +990,11 @@ $role = $line2['role_name'];
                 });
                 $(".forgot-number").text($(".forgot-number").attr("data-count") || "0");
             } else if (currentX < 0) {
+                $("#swipeLabel").text("Study Again").css({
+                    color: "#FD5D5D",
+                    opacity: 1,
+                    fontWeight: "lighter"
+                });
                 $(".counter.forgot").css({
                     "background-color": "white",
                     "color": "#FD5D5D"
@@ -989,10 +1017,9 @@ $role = $line2['role_name'];
 
     hammer.on("panend", function(ev) {
         isDragging = false;
-        if (!isDone && isFlipped) {
+        setTimeout(() => wasDragging = false, 50);
+        if (!isDone && hasRevealed) {
             const threshold = 20;
-
-            setTimeout(() => isDragging = false, 0);
 
             if (ev.deltaX > threshold) {
                 remember();
@@ -1009,7 +1036,7 @@ $role = $line2['role_name'];
     });
 
     hammer.on("tap", function() {
-        if (isDone) {
+        if (isDone || wasDragging) {
             return;
         }
         flipCard();
