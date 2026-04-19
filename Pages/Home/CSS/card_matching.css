@@ -1,0 +1,443 @@
+ @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+
+ * {
+ 	margin: 0;
+ 	padding: 0;
+ 	box-sizing: border-box;
+ }
+
+ html,
+ body {
+ 	height: 100%;
+ 	background-color: rgb(20, 61, 89);
+ }
+
+ .wrapper-header {
+ 	display: flex;
+ 	position: relative;
+ }
+
+ .wrapper-header .header {
+ 	display: flex;
+ 	background-color: rgb(255, 165, 5);
+ 	width: 100%;
+ 	height: 9.65vh;
+ 	align-items: center;
+ 	justify-content: space-between;
+ }
+
+ .logo {
+ 	display: flex;
+ 	height: 90%;
+ 	align-items: center;
+ 	margin: 8px 0 8px 0.6%;
+ }
+
+ .wrapper-header .header .logo img {
+ 	object-fit: cover;
+ 	height: 87%;
+
+ 	filter:
+ 		drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white);
+ }
+
+ .right-bar {
+ 	display: flex;
+ 	height: 90%;
+ 	width: auto;
+ }
+
+ .right-bar span {
+ 	color: rgb(20, 61, 89);
+ 	font-size: 2.7vh;
+ 	text-align: right;
+ 	font-family: 'Nunito', sans-serif;
+ 	font-weight: bold;
+ }
+
+ .right-bar .account-info {
+ 	display: flex;
+ 	flex-direction: column;
+ 	justify-content: center;
+ }
+
+ .navbar {
+ 	display: flex;
+ 	width: 13vh;
+ 	align-items: center;
+ 	justify-content: center;
+ }
+
+ .navbar .icon {
+ 	font-size: 6.65vh;
+ 	cursor: pointer;
+ }
+
+
+ .fab-container {
+ 	position: fixed;
+ 	bottom: 32px;
+ 	right: 24px;
+ 	display: flex;
+ 	flex-direction: column;
+ 	align-items: flex-end;
+ 	gap: 12px;
+ 	z-index: 999;
+ }
+
+ .fab-main-row {
+ 	display: flex;
+ 	align-items: center;
+ 	gap: 0;
+ }
+
+ .fab-mode-label {
+ 	background-color: #ffe699;
+ 	color: #1c3a50;
+ 	padding: 8px 20px 8px 14px;
+ 	padding-right: 50px;
+ 	margin-right: -30px;
+ 	/* border-radius: 30px 0 0 30px; */
+ 	font-family: 'Nunito', sans-serif;
+ 	font-size: 13px;
+ 	line-height: 1.4;
+ 	white-space: nowrap;
+ 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+ }
+
+ .fab-main {
+ 	width: 56px;
+ 	height: 56px;
+ 	border-radius: 50%;
+ 	background-color: #FFA500;
+ 	display: flex;
+ 	align-items: center;
+ 	justify-content: center;
+ 	cursor: pointer;
+ 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+ 	transition: background-color 0.2s;
+ 	flex-shrink: 0;
+ 	position: relative;
+ 	z-index: 1;
+ }
+
+ .fab-main:hover {
+ 	background-color: #e69500;
+ }
+
+ #fabIcon {
+ 	color: white;
+ 	font-size: 20px;
+ }
+
+ .fab-options {
+ 	display: flex;
+ 	flex-direction: column;
+ 	gap: 12px;
+ 	align-items: flex-end;
+ 	overflow: hidden;
+ 	max-height: 0;
+ 	opacity: 0;
+ 	transition: max-height 0.35s ease, opacity 0.25s ease;
+ }
+
+ .fab-options.open {
+ 	max-height: 300px;
+ 	opacity: 1;
+ }
+
+ .fab-option {
+ 	display: flex;
+ 	align-items: center;
+ 	gap: 10px;
+ 	cursor: pointer;
+ }
+
+ .fab-label {
+ 	background-color: #ffe699;
+ 	color: #1c3a50;
+ 	padding: 6px 12px;
+ 	/* border-radius: 20px; */
+ 	padding-right: 30px;
+ 	margin-right: -30px;
+ 	font-family: 'Nunito', sans-serif;
+ 	font-weight: bold;
+ 	font-size: 14px;
+ 	white-space: nowrap;
+ 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+ }
+
+ .fab-icon {
+ 	width: 48px;
+ 	height: 48px;
+ 	border-radius: 50%;
+ 	background-color: #FFA500;
+ 	display: flex;
+ 	align-items: center;
+ 	justify-content: center;
+ 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+ 	flex-shrink: 0;
+ }
+
+ .fab-icon img {
+ 	max-width: 75%;
+ 	max-height: 75%;
+ 	/* width: 26px;
+            height: 26px;
+            filter: brightness(0) invert(1); */
+ }
+
+ /* Card Matching Tutorial */
+ .wrapper-card-matching-tutorial {
+ 	background-color: rgb(20, 61, 89);
+ 	width: 100%;
+ 	height: 100%;
+ 	display: flex;
+ 	color: white;
+ 	justify-content: center;
+ }
+
+ .wrapper-tutorial {
+ 	display: flex;
+ 	align-items: center;
+ 	justify-content: center;
+ 	width: 90%;
+ 	height: 95%;
+ 	flex-direction: column;
+ 	gap: 30px;
+ }
+
+ .wrapper-instruction {
+ 	display: flex;
+ 	align-items: center;
+ 	justify-content: center;
+ 	flex-direction: column;
+ 	margin-bottom: 5%;
+ 	gap: 15px;
+ }
+
+ .title-instruction {
+ 	font-size: 4.5vh;
+ 	font-weight: bold;
+ 	text-align: center;
+ }
+
+ .content-instruction {
+ 	font-size: 3vh;
+ 	text-align: center;
+ }
+
+ .wrapper-shuffle {
+ 	display: flex;
+ 	align-items: center;
+ 	justify-content: center;
+ 	width: 100%;
+ 	text-align: center;
+ 	position: relative;
+ }
+
+ .wrapper-shuffle span {
+ 	width: 100%;
+ 	font-size: 20px;
+ }
+
+ .wrapper-shuffle img {
+ 	width: 32px;
+ 	height: 32px;
+ 	position: absolute;
+ 	cursor: pointer;
+ }
+
+ .language {
+ 	color: rgb(255, 165, 5);
+ 	font-weight: bold;
+ }
+
+ .wrapper-button-start {
+ 	display: flex;
+ 	align-items: center;
+ 	justify-content: center;
+ 	width: 100%;
+ }
+
+ .wrapper-button-start button {
+ 	background-color: rgb(255, 165, 5);
+ 	border: 1px solid rgba(255, 217, 102);
+ 	padding: 10px 20px;
+ 	font-size: 24px;
+ 	cursor: pointer;
+ 	border-radius: 27px;
+ 	color: white;
+ 	font-weight: bold;
+ 	width: 50%;
+ }
+
+
+ /* Card Matching */
+ .wrapper-card-matching {
+ 	width: 100%;
+ 	height: 80vh;
+ 	display: flex;
+ 	color: white;
+ 	justify-content: center;
+	display: none;
+ }
+
+ .wrapper-timer {
+ 	display: flex;
+ 	justify-content: space-between;
+ 	align-items: center;
+ 	width: 100%;
+ 	padding: 10px 25px;
+ }
+
+ .close,
+ .reset {
+ 	height: 30px;
+ 	width: 30px;
+ 	cursor: pointer;
+ }
+
+ .reset {
+ 	width: 40px;
+ 	height: 40px;
+ }
+
+ .stopwatch {
+ 	font-size: 30px;
+ 	font-weight: bold;
+ }
+
+ .wrapper-decks {
+ 	display: flex;
+ 	align-items: center;
+ 	width: 40%;
+ 	height: 100%;
+ 	flex-direction: column;
+ }
+
+ table.card-matching {
+ 	margin: 0;
+ 	border-spacing: 30px;
+ 	margin-top: 16px;
+ }
+
+ tr.cards {
+ 	height: 100px;
+ }
+
+ tr.cards td {
+ 	border: none;
+ 	width: 20%;
+ 	background-color: rgb(31, 78, 121);
+ 	cursor: pointer;
+ 	padding: 10px;
+ 	font-size: 18px;
+ 	text-align: center;
+	border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.25);
+    border-radius: 3px;
+ }
+
+ tr.cards td:nth-child(1) {
+ 	letter-spacing: 4px;
+ 	font-size: 20px;
+ }
+
+ @media screen and (max-width: 768px) {
+ 	.navbar .icon {
+ 		font-size: 4vh;
+ 	}
+
+ 	.right-bar span {
+ 		font-size: 1.7vh;
+ 	}
+
+ 	.logo {
+ 		height: 62%;
+ 		margin-left: 10px;
+ 	}
+
+ 	.navbar {
+ 		display: flex;
+ 		width: 8vh;
+ 		align-items: center;
+ 		justify-content: center;
+ 	}
+
+ 	.title-instruction {
+ 		font-size: 3.7vh;
+ 		font-weight: bold;
+ 		text-align: center;
+ 	}
+
+ 	.content-instruction {
+ 		font-size: 2.3vh;
+ 		text-align: center;
+ 	}
+
+ 	.wrapper-button-start button {
+ 		width: 100%;
+ 	}
+
+ 	.wrapper-tutorial {
+ 		height: 90%;
+ 	}
+
+	.wrapper-shuffle {
+		margin-left: 15px;
+		text-align: left;
+	}
+
+ 	.wrapper-shuffle img {
+ 		width: 40px;
+ 		height: 40px;
+ 		top: -5px;
+ 		margin-left: 10px;
+ 	}
+
+ 	.stopwatch {
+ 		font-size: 30px;
+ 		font-weight: bold;
+ 	}
+
+ 	.wrapper-card-matching {
+ 		width: 100%;
+ 		height: auto;
+ 		display: flex;
+ 		color: white;
+ 		justify-content: center;
+ 	}
+
+ 	.wrapper-decks {
+ 		display: flex;
+ 		align-items: center;
+ 		justify-content: center;
+ 		width: 100%;
+ 		height: 100%;
+ 		flex-direction: column;
+ 	}
+
+ 	table.card-matching {
+ 		margin: 0;
+ 		border-spacing: 16px;
+ 	}
+
+ 	caption {
+ 		margin: 16px 0;
+ 	}
+
+ 	tr.cards td {
+ 		border: none;
+ 		background-color: rgb(31, 78, 121);
+ 		cursor: pointer;
+ 		padding: 10px;
+ 		font-size: 14px;
+ 		text-align: center;
+ 	}
+
+ 	tr.cards td:nth-child(1) {
+ 		letter-spacing: 4px;
+ 		font-size: 16px;
+ 	}
+ }

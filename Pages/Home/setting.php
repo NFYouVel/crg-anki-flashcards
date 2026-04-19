@@ -125,6 +125,16 @@ $role = $line2['role_name'];
                 </table>
             </div>
 
+            <div class="information">
+                <h2 class="title-setting-information">Study Mode: Card Matching</h2>
+                <table>
+                    <tr>
+                        <td>Show word meaning in:&nbsp;<span id="meaningMatching"></p></td>
+                        <td class="right" style="text-align:right; cursor: pointer;" onClick="changeMeaning()">switch</td>
+                    </tr>
+                </table>
+            </div>
+
             <script>
                 document.getElementById("useShuffle").checked = localStorage.getItem("useShuffle") === "true";
                 document.getElementById("skipTutorial").checked = localStorage.getItem("skipTutorial") === "true";
@@ -134,7 +144,6 @@ $role = $line2['role_name'];
                 function changeCharacterSet() {
                     const xhr = new XMLHttpRequest();
                     xhr.open("GET", "jQuery/ajax.php", true);
-
                     xhr.onload = function() {
                         if (xhr.status == 200) {
                             // alert("You Have Change Your Character Set!")
@@ -143,9 +152,21 @@ $role = $line2['role_name'];
                             alert("Failed to change Character Set");
                         }
                     };
-
                     xhr.send();
                 }
+
+                function changeMeaning() {
+                    if (localStorage.getItem("meaning") == "Indonesia") {
+                        localStorage.setItem("meaning", "English")
+                        document.getElementById("meaningMatching").innerHTML = "English";
+                    } else {
+                        localStorage.setItem("meaning", "Indonesia")
+                        document.getElementById("meaningMatching").innerHTML = "Indonesia";
+                    }
+                }
+
+                let meaning = localStorage.getItem("meaning");
+                document.getElementById("meaningMatching").innerHTML = meaning;
             </script>
 
             <!-- <div class="notification">

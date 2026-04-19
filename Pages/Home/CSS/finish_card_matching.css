@@ -1,0 +1,398 @@
+ @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+ }
+
+ html,
+ body {
+     height: 100%;
+     background: #143d59;
+
+ }
+
+ .wrapper-header {
+     display: flex;
+     position: relative;
+ }
+
+ .wrapper-header .header {
+     display: flex;
+     background-color: rgb(255, 165, 5);
+     width: 100%;
+     height: 9.65vh;
+     align-items: center;
+     justify-content: space-between;
+ }
+
+ .logo {
+     display: flex;
+     height: 90%;
+     align-items: center;
+     margin: 8px 0 8px 0.6%;
+ }
+
+ .wrapper-header .header .logo img {
+     object-fit: cover;
+     height: 87%;
+
+     filter:
+         drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white);
+ }
+
+ .right-bar {
+     display: flex;
+     height: 90%;
+     width: auto;
+ }
+
+ .right-bar span {
+     color: rgb(20, 61, 89);
+     font-size: 2.7vh;
+     text-align: right;
+     font-family: 'Nunito', sans-serif;
+     font-weight: bold;
+ }
+
+ .right-bar .account-info {
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+ }
+
+ .navbar {
+     display: flex;
+     width: 13vh;
+     align-items: center;
+     justify-content: center;
+ }
+
+ .navbar .icon {
+     font-size: 6.65vh;
+     cursor: pointer;
+ }
+
+ /* =========================
+   WRAPPER MAIN
+========================= */
+ .container-finish {
+     display: flex;
+     margin-top: 60px;
+ }
+
+ .wrapper-finish {
+     width: 100%;
+     height: auto;
+
+     display: flex;
+     justify-content: center;
+     align-items: center;
+ }
+
+ /* =========================
+   CARD
+========================= */
+ .finish-card {
+     width: 420px;
+     max-width: 95%;
+     color: white;
+
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     gap: 18px;
+ }
+
+ /* =========================
+   HEADER TEXT
+========================= */
+ .finish-header {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     gap: 14px;
+     text-align: center;
+ }
+
+ .finish-header h1 {
+     font-size: 18px;
+     line-height: 1.5;
+     font-weight: bold;
+ }
+
+ .finish-time {
+     font-size: 54px;
+     font-weight: bold;
+ }
+
+ /* =========================
+   INFO DECK
+========================= */
+ .finish-deck {
+     width: 100%;
+     display: flex;
+     justify-content: flex-start;
+     font-size: 15px;
+     font-weight: bold;
+ }
+
+ /* =========================
+   BUTTON WORDS
+========================= */
+ .btn-words {
+     width: 100%;
+     height: 48px;
+     border: none;
+     background: #ffab00;
+     color: #143d59;
+     font-size: 16px;
+     font-weight: bold;
+     cursor: pointer;
+
+     display: flex;
+     justify-content: center;
+     align-items: center;
+ }
+
+ /* =========================
+   LEADERBOARD
+========================= */
+ .leaderboard-section {
+     width: 100%;
+
+     display: flex;
+     flex-direction: column;
+     gap: 10px;
+ }
+
+ .leaderboard-section h2 {
+     font-size: 15px;
+     color: white;
+ }
+
+ .leaderboard-table {
+     width: 100%;
+
+     display: flex;
+     flex-direction: column;
+     gap: 1px;
+ }
+
+ .leaderboard-table tr {
+     background: #e8e8e8;
+     color: #143d59;
+
+     display: flex;
+     width: 100%;
+     /* min-height: 48px; */
+ }
+
+ .leaderboard-table td {
+     padding: 10px;
+
+     display: flex;
+     align-items: center;
+ }
+
+ .rank {
+     width: 45px;
+     justify-content: center;
+     background: #ffab00;
+     flex-shrink: 0;
+ }
+
+ .score {
+     width: 80px;
+     justify-content: flex-end;
+     flex-shrink: 0;
+ }
+
+ .leaderboard-table td:nth-child(2) {
+     flex: 1;
+ }
+
+ .you {
+     background: #e7ddb8 !important;
+ }
+
+ /* =========================
+   PLAY BUTTON
+========================= */
+ .btn-play {
+     width: 65%;
+     height: 54px;
+     border: none;
+     border-radius: 10px;
+     background: #ffab00;
+     color: white;
+     font-size: 20px;
+     font-weight: bold;
+     cursor: pointer;
+
+     display: flex;
+     justify-content: center;
+     align-items: center;
+ }
+
+ /* =========================
+   BACK MENU
+========================= */
+ .back-menu {
+     color: white;
+     text-decoration: none;
+     font-size: 16px;
+     font-weight: bold;
+
+     display: flex;
+     justify-content: center;
+     align-items: center;
+ }
+
+ /* =========================
+   POPUP WRAPPER
+========================= */
+ .popup-words {
+     position: fixed;
+     inset: 0;
+     z-index: 9999;
+
+     display: none;
+     justify-content: center;
+     align-items: center;
+ }
+
+ /* Blur Background */
+ .popup-overlay {
+     position: absolute;
+     inset: 0;
+     background: rgba(0, 0, 0, 0.25);
+     backdrop-filter: blur(6px);
+ }
+
+ /* Box Tengah */
+ .popup-box {
+     position: relative;
+     z-index: 2;
+
+     width: 900px;
+     max-width: 95%;
+     max-height: 90vh;
+
+     background: white;
+     border-radius: 10px;
+     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+
+     animation: popupShow 0.25s ease;
+ }
+
+ /* Close */
+ /* Tombol X */
+ .popup-close {
+     position: absolute;
+     top: -21px;
+     right: -16px;
+
+     width: 34px;
+     height: 34px;
+
+     display: flex;
+     justify-content: center;
+     align-items: center;
+
+     font-size: 28px;
+     font-weight: bold;
+     cursor: pointer;
+
+     border-radius: 50%;
+     border: 1px solid black;
+     background: white;
+     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+
+     transition: 0.2s;
+ }
+
+ /* Table */
+ .popup-table {
+     width: 100%;
+     border-collapse: collapse;
+ }
+
+ .popup-table th {
+     background: #ffab00;
+     padding: 14px;
+     font-size: 18px;
+ }
+
+ .popup-table td {
+     padding: 14px;
+     border: 1px solid #ddd;
+     font-size: 16px;
+ }
+
+ .popup-table tr.wrong {
+     background: #ff5c5c;
+     color: black;
+     font-weight: bold;
+ }
+
+ /* Animasi */
+ @keyframes popupShow {
+     from {
+         transform: scale(0.9);
+         opacity: 0;
+     }
+
+     to {
+         transform: scale(1);
+         opacity: 1;
+     }
+ }
+
+
+ /* =========================
+   RESPONSIVE
+========================= */
+ @media (max-width:768px) {
+     .navbar .icon {
+         font-size: 4vh;
+     }
+
+     .right-bar span {
+         font-size: 1.7vh;
+     }
+
+     .logo {
+         height: 62%;
+         margin-left: 10px;
+     }
+
+     .navbar {
+         display: flex;
+         width: 8vh;
+         align-items: center;
+         justify-content: center;
+     }
+
+     .container-finish {
+         margin-top: 30px;
+     }
+
+     .wrapper-finish {
+         padding: 15px;
+     }
+
+     .finish-card {
+         width: 100%;
+     }
+
+     .finish-time {
+         font-size: 42px;
+     }
+
+     .btn-play {
+         width: 100%;
+     }
+
+ }
