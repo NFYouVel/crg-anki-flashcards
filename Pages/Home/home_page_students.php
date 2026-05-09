@@ -248,10 +248,10 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
                 <span class="fab-label">SRS Review</span>
                 <div class="fab-icon"><img src="../../Assets/Icons/srs-logo.png" alt=""></div>
             </div>
-            <div class="fab-option" onclick="window.location.href='home_page_card_matching.php'">
+            <!-- <div class="fab-option" onclick="window.location.href='home_page_card_matching.php'">
                 <span class="fab-label">Matching Game</span>
                 <div class="fab-icon"><img src="../../Assets/Icons/srs-logo.png" alt=""></div>
-            </div>
+            </div> -->
         </div>
 
         <div class="fab-main-row">
@@ -382,6 +382,7 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
 
     <script>
         let fabOpen = false;
+
         function toggleFab() {
             fabOpen = !fabOpen;
             document.getElementById("fabOptions").classList.toggle("open", fabOpen);

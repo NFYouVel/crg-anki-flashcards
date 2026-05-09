@@ -129,7 +129,7 @@ $role = $line2['role_name'];
                 </table>
             </div>
 
-            <div class="information">
+            <!-- <div class="information">
                 <h2 class="title-setting-information">Study Mode: Card Matching</h2>
                 <table>
                     <tr>
@@ -137,7 +137,7 @@ $role = $line2['role_name'];
                         <td class="right" style="text-align:right; cursor: pointer;" onClick="changeMeaning()">switch</td>
                     </tr>
                 </table>
-            </div>
+            </div> -->
 
             <script>
                 document.getElementById("useShuffle").checked = localStorage.getItem("useShuffle") === "true";
