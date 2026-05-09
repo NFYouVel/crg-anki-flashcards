@@ -20,13 +20,13 @@ include "../../SQL_Queries/connection.php";
 
 //     $stmt = $con->prepare("INSERT INTO users(name,email,password_hash,role,user_status,character_set,created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
 //     $stmt->bind_param("sssiss", $name, $email, $pw, $role, $user_status, $character_set);
-    
+
 //     if ($stmt->execute()) {
 //         echo "User inserted successfully!";
 //     } else {
 //         echo "Error inserting user: " . $stmt->error;
 //     }
-    
+
 //     $stmt->close();
 // }
 
@@ -61,13 +61,12 @@ include "../../SQL_Queries/connection.php";
             <span class="h2">Login</span>
             <span class="description">Login in to your account</span>
             <form method="post">
-                <input type="email" name="email" placeholder="Email"
-                    <?php
-                    if (isset($_SESSION['sv_email'])) {
-                        $temp_email = $_SESSION['sv_email'];
-                        echo 'value="' . $temp_email . '"';
-                    }
-                    ?>> <br>
+                <input type="email" name="email" placeholder="Email" <?php
+                if (isset($_SESSION['sv_email'])) {
+                    $temp_email = $_SESSION['sv_email'];
+                    echo 'value="' . $temp_email . '"';
+                }
+                ?>> <br>
                 <input type="password" name="password" placeholder="Password" required> <br>
                 <div class="remember">
                     <div class="in-remember">
@@ -78,7 +77,8 @@ include "../../SQL_Queries/connection.php";
                 </div>
                 <input type="submit" value="Log In" name="submit" class="submit" id="submit">
             </form>
-            <span class='alert' id="error" style='visibility: hidden;'>Wrong email or password. Please contact our admin</span>
+            <span class='alert' id="error" style='visibility: hidden;'>Wrong email or password. Please contact our
+                admin</span>
             <a href="forgetpassword.php">Reset Password</a>
 
             <!-- Script PHP -->
@@ -152,13 +152,13 @@ include "../../SQL_Queries/connection.php";
                 }
 
                 //
-        
+            
                 if ($line = mysqli_fetch_array($result)) {
                     // ==== MODEL : USER INFO ====
                     $userIdLogin = $line['user_id'];
                     $role = $line['role'];
                     // ==== MODEL : USER INFO ====
-
+            
                     if (password_verify($password_raw, $line["password_hash"])) {
 
                         // ==== LOGIC IF USER ISN'T IN A CLASS ====
@@ -195,9 +195,11 @@ include "../../SQL_Queries/connection.php";
                             if (filter_input(INPUT_POST, 'cookie', FILTER_UNSAFE_RAW)) { // Kalo remember me dichecklist
                                 setcookie('user_id', $line['user_id'], time() + (86400 * 30), '/', '', false, true);
                                 setcookie('loginAt', time(), time() + (86400 * 30), '/', '', false, true);
+                                echo "<script>localStorage.setItem('meaning', 'Indonesia');</script>";
                             } else { // Kalo remember me ga dichecklist
                                 setcookie('user_id', $line['user_id'], time() + (86400), '/', '', false, true);
                                 setcookie('loginAt', time(), time() + (86400), '/', '', false, true);
+                                echo "<script>localStorage.setItem('meaning', 'Indonesia');</script>";
                             }
 
                             if ($line['role'] == 2) {

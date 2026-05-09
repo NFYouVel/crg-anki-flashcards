@@ -165,18 +165,17 @@ if ($role == "Student") {
 
 ?>
 <div class="wrapper-header">
-    <!-- Untuk Logo di atas (header) -->
     <div class="header">
         <div class="logo">
-            <img src="../../Logo/1080.png" alt="CRG Logo" style="cursor: pointer;" onclick="<?php echo $userRole; ?>">
+            <img src="../../../Logo/1080.png" alt="CRG Logo" style="cursor: pointer;" onclick="<?php echo $userRole; ?>">
         </div>
 
         <script>
             function BackHome() {
-                window.location.href = "home_page_students.php"
+                window.location.href = "../home_page_card_matching.php"
             }
 
             function BackHomeTeacher() {
-                window.location.href = "home_page.php"
+                window.location.href = "../home_page.php"
             }
         </script>
