@@ -62,11 +62,11 @@ include "../../SQL_Queries/connection.php";
             <span class="description">Login in to your account</span>
             <form method="post">
                 <input type="email" name="email" placeholder="Email" <?php
-                if (isset($_SESSION['sv_email'])) {
-                    $temp_email = $_SESSION['sv_email'];
-                    echo 'value="' . $temp_email . '"';
-                }
-                ?>> <br>
+                                                                        if (isset($_SESSION['sv_email'])) {
+                                                                            $temp_email = $_SESSION['sv_email'];
+                                                                            echo 'value="' . $temp_email . '"';
+                                                                        }
+                                                                        ?>> <br>
                 <input type="password" name="password" placeholder="Password" required> <br>
                 <div class="remember">
                     <div class="in-remember">
@@ -152,13 +152,13 @@ include "../../SQL_Queries/connection.php";
                 }
 
                 //
-            
+
                 if ($line = mysqli_fetch_array($result)) {
                     // ==== MODEL : USER INFO ====
                     $userIdLogin = $line['user_id'];
                     $role = $line['role'];
                     // ==== MODEL : USER INFO ====
-            
+
                     if (password_verify($password_raw, $line["password_hash"])) {
 
                         // ==== LOGIC IF USER ISN'T IN A CLASS ====
