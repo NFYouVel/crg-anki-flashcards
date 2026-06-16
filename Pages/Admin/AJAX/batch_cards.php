@@ -1,130 +1,34 @@
 <?php
 session_start();
 include "../../../SQL_Queries/connection.php";
-$count = 0;
 
 mysqli_begin_transaction($con);
-$success = true;
 
-try {
-    if (mysqli_num_rows(mysqli_query($con, "SELECT * FROM cards")) > 0) {
-        if (!mysqli_query($con, "DELETE FROM cards")) {
-            throw new Exception("Gagal menghapus data lama: " . mysqli_error($con));
-        }
-    }
-
-    $query = "INSERT INTO cards (card_id, chinese_tc, chinese_sc, priority, pinyin, word_class, meaning_eng, meaning_ina) VALUES ";
-    foreach ($_SESSION["validCards"] as $key => $value) {
-        $cardID = mysqli_real_escape_string($con, $value["cardID"]);
-        $traditional = mysqli_real_escape_string($con, $value["traditional"]);
-        $simplified = mysqli_real_escape_string($con, $value["simplified"]);
-        $priority = mysqli_real_escape_string($con, $value["priority"]);
-        $pinyin = mysqli_real_escape_string($con, $value["pinyin"]);
-        $class = mysqli_real_escape_string($con, $value["class"]);
-        $english = mysqli_real_escape_string($con, $value["english"]);
-        $indo = mysqli_real_escape_string($con, $value["indo"]);
-
-        if ($count == 35) {
-            $count = 0;
-            $query = substr($query, 0, -2);
-            if (!mysqli_query($con, $query)) {
-                throw new Exception("Gagal insert batch: " . mysqli_error($con));
-            }
-            $query = "INSERT INTO cards (card_id, chinese_tc, chinese_sc, priority, pinyin, word_class, meaning_eng, meaning_ina) VALUES ";
-        }
-        $count++;
-
-        $query .= "($cardID, '$traditional', '$simplified', $priority, '$pinyin', '$class', '$english', '$indo'), ";
-    }
-
-    if ($count > 0) {
-        $query = substr($query, 0, -2);
-        if (!mysqli_query($con, $query)) {
-            throw new Exception("Gagal insert sisa: " . mysqli_error($con));
-        }
-    }
-
-    mysqli_commit($con);
-} catch (Exception $e) {
-    mysqli_rollback($con);
-    $success = false;
-    echo "<script>console.error(" . json_encode($e->getMessage()) . ");</script>";
+// Test DELETE
+if (!mysqli_query($con, "DELETE FROM cards")) {
+    die("DELETE failed: " . mysqli_error($con));
 }
-?>
+echo "DELETE OK<br>";
 
-<?php if ($success) {
-    $countAll = count($_SESSION["allCards"]);
-    $countValid = count($_SESSION["validCards"]);
-    $countInvalid = count($_SESSION["invalidCards"]);
+// Test just the first card insert
+$first = reset($_SESSION["validCards"]);
+$cardID = mysqli_real_escape_string($con, $first["cardID"]);
+$traditional = mysqli_real_escape_string($con, $first["traditional"]);
+$simplified = mysqli_real_escape_string($con, $first["simplified"]);
+$priority = mysqli_real_escape_string($con, $first["priority"]);
+$pinyin = mysqli_real_escape_string($con, $first["pinyin"]);
+$class = mysqli_real_escape_string($con, $first["class"]);
+$english = mysqli_real_escape_string($con, $first["english"]);
+$indo = mysqli_real_escape_string($con, $first["indo"]);
 
-    unset($_SESSION["allCards"]);
-    unset($_SESSION["validCards"]);
-    unset($_SESSION["invalidCards"]);
-    unset($_SESSION["filePath"]);
-?>
-    <table id="valid">
-        <caption style="background-color: green;">Cards Successfully Uploaded</caption>
-        <tr>
-            <th>ID</th>
-            <th>Traditional</th>
-            <th>Simplified</th>
-            <th>Priority</th>
-            <th>Pinyin</th>
-            <th>Word Class</th>
-            <th>English</th>
-            <th>Indo</th>
-            <th>Sentence Count</th>
-        </tr>
+$query = "INSERT INTO cards (card_id, chinese_tc, chinese_sc, priority, pinyin, word_class, meaning_eng, meaning_ina) VALUES ($cardID, '$traditional', '$simplified', $priority, '$pinyin', '$class', '$english', '$indo')";
 
-        <?php
-        $cards = mysqli_query($con, "SELECT * FROM cards");
-        while ($card = mysqli_fetch_array($cards)) {
-            echo "<tr>";
-            echo "<td>" . $card["card_id"] . "</td>";
-            echo "<td>" . $card["chinese_tc"] . "</td>";
-            echo "<td>" . $card["chinese_sc"] . "</td>";
-            echo "<td>" . $card["priority"] . "</td>";
-            echo "<td>" . $card["pinyin"] . "</td>";
-            echo "<td>" . $card["word_class"] . "</td>";
-            echo "<td id='long'>" . $card["meaning_eng"] . "</td>";
-            echo "<td id='long'>" . $card["meaning_ina"] . "</td>";
-            echo "<td>0</td>";
-            echo "</tr>";
-        }
-        ?>
-    </table>
+echo "Query: " . $query . "<br>";
 
-    <table id="invalid">
-        <caption style="background-color: red;">Invalid Cards</caption>
-        <tr>
-            <th>ID</th>
-            <th>Traditional</th>
-            <th>Simplified</th>
-            <th>Priority</th>
-            <th>Pinyin</th>
-            <th>Word Class</th>
-            <th>English</th>
-            <th>Indo</th>
-            <th>Sentence Count</th>
-            <th>Reason</th>
-        </tr>
-        <?php
-        foreach ($_SESSION["invalidCards"] as $key => $value) {
-            echo "<tr>";
-            echo "<td>" . $value["cardID"] . "</td>";
-            echo "<td>" . $value["traditional"] . "</td>";
-            echo "<td>" . $value["simplified"] . "</td>";
-            echo "<td>" . $value["priority"] . "</td>";
-            echo "<td>" . $value["pinyin"] . "</td>";
-            echo "<td>" . $value["class"] . "</td>";
-            echo "<td id='long'>" . $value["english"] . "</td>";
-            echo "<td id='long'>" . $value["indo"] . "</td>";
-            echo "<td>0</td>";
-            echo "<td>" . $value["reason"] . "</td>";
-            echo "</tr>";
-        }
-        ?>
-    </table>
-<?php } else {
-    echo "<h1>Upload Failed</h1>";
-} ?>
+if (!mysqli_query($con, $query)) {
+    die("INSERT failed: " . mysqli_error($con));
+}
+echo "INSERT OK<br>";
+
+mysqli_rollback($con);
+die("DEBUG STOP");
