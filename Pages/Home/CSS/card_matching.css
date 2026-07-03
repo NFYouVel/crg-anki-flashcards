@@ -343,6 +343,67 @@
  	letter-spacing: 4px;
  	font-size: 20px;
  }
+/* ===== TAMBAHIN KE card_matching.css ===== */
+
+/* Default state */
+.col-chinese, .col-pinyin, .col-meaning {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 15px;
+    border-radius: 8px;
+    user-select: none;
+}
+
+/* Orange = lagi dipencet/selected */
+.selected {
+    background-color: rgb(255, 165, 5) !important;
+    color: white !important;
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255, 165, 5, 0.5);
+}
+
+/* Green = correct match (sebentar doang sebelum dihapus) */
+.correct {
+    background-color: rgb(112, 173, 71) !important;
+    color: white !important;
+    transform: scale(1.1);
+}
+
+/* Red = wrong match */
+.incorrect {
+    background-color: rgb(211, 47, 47) !important;
+    color: white !important;
+}
+
+/* Hidden = udah matched (di-remove dari board) */
+.hidden {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+/* Shake animation */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Shake animation */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
 
  @media screen and (max-width: 768px) {
  	.navbar .icon {
