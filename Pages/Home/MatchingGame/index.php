@@ -1,7 +1,7 @@
 <?php
 session_start();
 include "../../../SQL_Queries/connection.php";
-include "../../Admin/convertPinyin.php";
+include "./newConvertPinyin.php";
 
 // INITIALIZE SESSION
 if (!isset($_COOKIE["user_id"])) {
@@ -152,7 +152,10 @@ $stmtCards->close();
                 <caption>
                     <div class="wrapper-timer">
                         <img src="../../../Assets/Icons/x icon.png" class="close" onclick="stopMatchingCard()">
-                        <span class="stopwatch">0.00s</span>
+                        <div class="timer-display">
+                            <span class="stopwatch">0.00s</span>
+                            <span class="penalty-display"></span>
+                        </div>
                         <img src="../../../Assets/Icons/reset icon.png" class="reset" onClick="resetMatchingCard()">
                     </div>
                 </caption>
@@ -170,8 +173,8 @@ $stmtCards->close();
         console.log('Random 5 Cards:', cardsData);
 
         // Ambil preference user
-        const charSet = localStorage.getItem('characterSet') || 'simplified';
-        const meaningLang = localStorage.getItem('meaning') || 'Indonesia';
+        let charSet = localStorage.getItem('characterSet') || 'simplified';
+        let meaningLang = localStorage.getItem('meaning') || 'Indonesia';
 
         // ===== GAME STATE =====
         let selectedItems = { chinese: null, pinyin: null, meaning: null };
@@ -201,7 +204,7 @@ $stmtCards->close();
             });
             return map;
         }
-        const cardMap = buildCardMap();
+        let cardMap = buildCardMap();
 
         // ===== GENERATE TABLE =====
         function generateTable() {
@@ -302,19 +305,22 @@ $stmtCards->close();
             matchedCount++;
             console.log(`✅ Correct! ${matchedCount}/5 matched`);
 
-            // Delay 300ms baru hide (biar keliatan warna hijau)
-            setTimeout(() => {
-                selectedItems.chinese.classList.add('hidden');
-                selectedItems.pinyin.classList.add('hidden');
-                selectedItems.meaning.classList.add('hidden');
+            // Simpan referensi ke element yang mau di-hide
+            const toHide = [selectedItems.chinese, selectedItems.pinyin, selectedItems.meaning];
 
-                selectedItems = { chinese: null, pinyin: null, meaning: null };
-            }, 300);
+            // LANGSUNG reset selectedItems biar user bisa klik item lain
+            selectedItems = { chinese: null, pinyin: null, meaning: null };
+
+            // Delay hide tetep jalan di background
+            setTimeout(() => {
+                toHide.forEach(el => el.classList.add('hidden'));
+            }, 500);
 
             if (matchedCount === 5) {
-                setTimeout(() => handleGameComplete(), 300);
+                setTimeout(() => handleGameComplete(), 50);
             }
         }
+
 
         // ===== INCORRECT MATCH =====
         function handleIncorrectMatch() {
@@ -324,17 +330,36 @@ $stmtCards->close();
             selectedItems.meaning.classList.add('incorrect');
 
             penalty += 1;
-            console.log(`❌ Wrong! Penalty: +1s (total: ${penalty}s)`);
+            const currentTime = time + penalty;
+            document.querySelector(".stopwatch").innerText = currentTime.toFixed(2) + "s";
 
-            // Delay 300ms baru reset (biar keliatan warna merah)
+            showPenaltyText();
+
+            // Simpan referensi ke element yang mau di-reset
+            const toReset = [selectedItems.chinese, selectedItems.pinyin, selectedItems.meaning];
+
+            // LANGSUNG reset selectedItems biar user bisa klik item lain
+            selectedItems = { chinese: null, pinyin: null, meaning: null };
+
+            // Delay reset warna tetep jalan di background
             setTimeout(() => {
-                [selectedItems.chinese, selectedItems.pinyin, selectedItems.meaning].forEach(el => {
-                    el.classList.remove('incorrect', 'selected');
-                });
-                selectedItems = { chinese: null, pinyin: null, meaning: null };
+                toReset.forEach(el => el.classList.remove('incorrect', 'selected'));
             }, 300);
         }
 
+        function showPenaltyText() {
+            const penaltyDisplay = document.querySelector('.penalty-display');
+            penaltyDisplay.textContent = '+1s';
+
+            // Reset animasi
+            penaltyDisplay.style.animation = 'none';
+            void penaltyDisplay.offsetWidth;
+            penaltyDisplay.style.animation = 'penaltyFade 0.8s ease-out forwards';
+
+            setTimeout(() => {
+                penaltyDisplay.textContent = '';
+            }, 800);
+        }
 
         // ===== GAME COMPLETE =====
         function handleGameComplete() {
@@ -379,10 +404,11 @@ $stmtCards->close();
             time = 0;
             interval = setInterval(() => {
                 time += 0.01;
-                document.querySelector(".stopwatch").innerText = time.toFixed(2) + "s";
+                const displayTime = time + penalty;
+                document.querySelector(".stopwatch").innerText = displayTime.toFixed(2) + "s";
             }, 10);
         }
-
+        
         function resetMatchingCard() {
             clearInterval(interval);
             time = 0;
@@ -393,6 +419,7 @@ $stmtCards->close();
             generateTable();
             interval = setInterval(() => {
                 time += 0.01;
+                const displayTime = time + penalty;
                 document.querySelector(".stopwatch").innerText = time.toFixed(2) + "s";
             }, 10);
         }
@@ -405,15 +432,26 @@ $stmtCards->close();
 
         // ===== TOGGLE MEANING =====
         function changeMeaning() {
-            const current = document.querySelector('.language').textContent;
-            if (current === 'English') {
+            if (meaningLang === 'English') {
+                meaningLang = 'Indonesia';
                 localStorage.setItem('meaning', 'Indonesia');
                 document.querySelector('.language').textContent = 'Indonesia';
             } else {
+                meaningLang = 'English';
                 localStorage.setItem('meaning', 'English');
                 document.querySelector('.language').textContent = 'English';
             }
-            if (document.querySelector('.wrapper-card-matching').style.display === 'flex') {
+
+            // Rebuild cardMap dengan meaning baru
+            cardMap = buildCardMap();
+
+            // Regenerate table kalo game lagi jalan
+            const gameVisible = document.querySelector('.wrapper-card-matching').style.display === 'flex';
+            if (gameVisible) {
+                // Reset selection state
+                selectedItems = { chinese: null, pinyin: null, meaning: null };
+
+                // Regenerate table dengan meaning baru
                 generateTable();
             }
         }

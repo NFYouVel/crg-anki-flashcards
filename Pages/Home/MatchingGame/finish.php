@@ -104,18 +104,6 @@ if ($result->num_rows > 0) {
 }
 $checkStmt->close();
 
-// ==== SAVE LOGS MATCHING ATTEMPTS ====
-if (!empty($cardsData)) {
-    $logStmt = $con->prepare("INSERT INTO logs_matching_attempts (user_id, deck_id, card_id, session_time) VALUES (?, ?, ?, ?)");
-    
-    foreach ($cardsData as $card) {
-        $cardId = (int)$card['card_id'];
-        $logStmt->bind_param("ssid", $user_id, $deckId, $cardId, $finalTime);
-        $logStmt->execute();
-    }
-    $logStmt->close();
-}
-
 // ==== GET LEADERBOARD ====
 $sqlLeaderboard = "SELECT 
     ml.best_time,
@@ -126,7 +114,7 @@ FROM matching_leaderboard ml
 JOIN users u ON ml.user_id = u.user_id
 WHERE ml.deck_id = ?
 ORDER BY ml.best_time ASC
-LIMIT 10";
+LIMIT 5";
 
 $stmtLb = $con->prepare($sqlLeaderboard);
 $stmtLb->bind_param("s", $deckId);
@@ -183,6 +171,8 @@ if ($userRank === null) {
     <link rel="stylesheet" href="../../../Pages/Home/CSS/home_page.css">
     <link rel="stylesheet" href="../../../Pages/Home/CSS/finish_card_matching.css">
     <link href='https://cdn.boxicons.com/3.0.7/fonts/basic/boxicons.min.css' rel='stylesheet'>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../../Home/jQuery/script.js"></script>
 </head>
 
 <body>

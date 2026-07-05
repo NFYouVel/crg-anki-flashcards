@@ -201,7 +201,7 @@
  	display: flex;
  	align-items: center;
  	justify-content: center;
- 	width: 90%;
+ 	width: 95%;
  	height: 95%;
  	flex-direction: column;
  	gap: 30px;
@@ -237,8 +237,13 @@
  }
 
  .wrapper-shuffle span {
+	position: relative;
  	width: 100%;
  	font-size: 20px;
+ }
+
+ .wrapper-shuffle span span.language{
+ 	width: 6vw;
  }
 
  .wrapper-shuffle img {
@@ -390,6 +395,37 @@
     20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
+.timer-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;       /* anchor buat absolute child */
+}
+
+.stopwatch {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.penalty-display {
+    position: absolute;
+    left: calc(100% + 8px);   /* ← di kanan stopwatch, jarak 8px */
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgb(255, 165, 5);
+    font-size: 24px;
+    font-weight: bold;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+}
+
+@keyframes penaltyFade {
+    0%   { opacity: 1; transform: translateY(-50%) translateX(0); }
+    50%  { opacity: 1; transform: translateY(-50%) translateX(3px); }
+    100% { opacity: 0; transform: translateY(-50%) translateX(5px); }
+}
+
 .shake {
     animation: shake 0.5s ease-in-out;
 }
@@ -442,11 +478,11 @@
  	}
 
  	.wrapper-tutorial {
- 		height: 90%;
+ 		height: 95%;
  	}
 
 	.wrapper-shuffle {
-		margin-left: 15px;
+		width: 90%;
 		text-align: left;
 	}
 
@@ -454,6 +490,7 @@
  		width: 40px;
  		height: 40px;
  		top: -5px;
+		right: 0;
  		margin-left: 10px;
  	}
 
