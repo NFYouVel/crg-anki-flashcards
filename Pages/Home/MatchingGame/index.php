@@ -61,9 +61,10 @@ $sqlCard = "SELECT
             c.word_class,
             c.meaning_eng,
             c.meaning_ina
-        FROM cards c
-        INNER JOIN junction_deck_card jdc ON c.card_id = jdc.card_id
-        WHERE jdc.deck_id = ?
+        FROM junction_deck_card jdc
+        INNER JOIN leaf_deck_map ldm ON jdc.deck_id = ldm.leaf_deck_id
+        INNER JOIN cards c ON jdc.card_id = c.card_id
+        WHERE ldm.deck_id = ?
         ORDER BY RAND()
         LIMIT 5";
 
@@ -177,7 +178,11 @@ $stmtCards->close();
         let meaningLang = localStorage.getItem('meaning') || 'Indonesia';
 
         // ===== GAME STATE =====
-        let selectedItems = { chinese: null, pinyin: null, meaning: null };
+        let selectedItems = {
+            chinese: null,
+            pinyin: null,
+            meaning: null
+        };
         let matchedCount = 0;
         let penalty = 0;
         let cardAttempts = {}; // card_id -> attempt count
@@ -210,7 +215,11 @@ $stmtCards->close();
         function generateTable() {
             const tbody = document.getElementById('matching-table-body');
             tbody.innerHTML = '';
-            selectedItems = { chinese: null, pinyin: null, meaning: null };
+            selectedItems = {
+                chinese: null,
+                pinyin: null,
+                meaning: null
+            };
             matchedCount = 0;
             cardAttempts = {};
 
@@ -309,7 +318,11 @@ $stmtCards->close();
             const toHide = [selectedItems.chinese, selectedItems.pinyin, selectedItems.meaning];
 
             // LANGSUNG reset selectedItems biar user bisa klik item lain
-            selectedItems = { chinese: null, pinyin: null, meaning: null };
+            selectedItems = {
+                chinese: null,
+                pinyin: null,
+                meaning: null
+            };
 
             // Delay hide tetep jalan di background
             setTimeout(() => {
@@ -339,7 +352,11 @@ $stmtCards->close();
             const toReset = [selectedItems.chinese, selectedItems.pinyin, selectedItems.meaning];
 
             // LANGSUNG reset selectedItems biar user bisa klik item lain
-            selectedItems = { chinese: null, pinyin: null, meaning: null };
+            selectedItems = {
+                chinese: null,
+                pinyin: null,
+                meaning: null
+            };
 
             // Delay reset warna tetep jalan di background
             setTimeout(() => {
@@ -408,7 +425,7 @@ $stmtCards->close();
                 document.querySelector(".stopwatch").innerText = displayTime.toFixed(2) + "s";
             }, 10);
         }
-        
+
         function resetMatchingCard() {
             clearInterval(interval);
             time = 0;
@@ -449,7 +466,11 @@ $stmtCards->close();
             const gameVisible = document.querySelector('.wrapper-card-matching').style.display === 'flex';
             if (gameVisible) {
                 // Reset selection state
-                selectedItems = { chinese: null, pinyin: null, meaning: null };
+                selectedItems = {
+                    chinese: null,
+                    pinyin: null,
+                    meaning: null
+                };
 
                 // Regenerate table dengan meaning baru
                 generateTable();
