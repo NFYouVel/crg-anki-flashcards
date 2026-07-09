@@ -12,6 +12,10 @@
  	background-color: rgb(20, 61, 89);
  }
 
+ .wrapper-main {
+	background-color: white;
+ }
+
  .wrapper-header {
  	display: flex;
  	position: relative;
@@ -191,10 +195,11 @@
  .wrapper-card-matching-tutorial {
  	background-color: rgb(20, 61, 89);
  	width: 100%;
- 	height: 100%;
+ 	height: 90.35vh;
  	display: flex;
  	color: white;
  	justify-content: center;
+	overflow: hidden;
  }
 
  .wrapper-tutorial {
@@ -327,20 +332,21 @@
  	margin-top: 16px;
  }
 
- tr.cards {
- 	height: 100px;
- }
-
  tr.cards td {
  	border: none;
+	height: 100px;       
+    overflow: hidden;
  	width: 20%;
  	background-color: rgb(31, 78, 121);
  	cursor: pointer;
- 	padding: 10px;
  	font-size: 18px;
  	text-align: center;
 	border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 4px 0 rgba(0,0,0,0.25);
+    /* box-shadow: 0 4px 0 rgba(0,0,0,0.25); */
+	box-shadow: none;
+	background-clip: padding-box;
+	-webkit-background-clip: padding-box;
+
     border-radius: 3px;
  }
 
@@ -353,10 +359,16 @@
 /* Default state */
 .col-chinese, .col-pinyin, .col-meaning {
     cursor: pointer;
-    transition: all 0.2s ease;
-    padding: 15px;
+    transition: background-color .2s, transform .2s, color .2s;
+    padding: 0 10px;
     border-radius: 8px;
     user-select: none;
+
+	transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 /* Orange = lagi dipencet/selected */
@@ -388,13 +400,6 @@
     transition: all 0.3s ease;
 }
 
-/* Shake animation */
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
-}
-
 .timer-display {
     display: flex;
     align-items: center;
@@ -424,10 +429,6 @@
     0%   { opacity: 1; transform: translateY(-50%) translateX(0); }
     50%  { opacity: 1; transform: translateY(-50%) translateX(3px); }
     100% { opacity: 0; transform: translateY(-50%) translateX(5px); }
-}
-
-.shake {
-    animation: shake 0.5s ease-in-out;
 }
 
 /* Shake animation */
@@ -529,13 +530,12 @@
  		border: none;
  		background-color: rgb(31, 78, 121);
  		cursor: pointer;
- 		padding: 10px;
- 		font-size: 14px;
+ 		font-size: 16px;
  		text-align: center;
  	}
 
  	tr.cards td:nth-child(1) {
- 		letter-spacing: 4px;
- 		font-size: 16px;
+ 		letter-spacing: 1px;
+ 		font-size: 22px;
  	}
  }
