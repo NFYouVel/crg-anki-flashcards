@@ -16,7 +16,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_COOKIE["user_id"];
 
 // ==== QUERY : USER INFO ====
-$stmtUser = $con->prepare("SELECT u.name, u.role, u.user_status, ur.role_name FROM users AS u
+$stmtUser = $con->prepare("SELECT u.name, u.role, u.user_status, u.character_set, ur.role_name FROM users AS u
     JOIN user_role AS ur ON u.role = ur.role_id
     WHERE u.user_id = ?");
 $stmtUser->bind_param("s", $user_id);
@@ -147,7 +147,7 @@ $stmtCards->close();
         </div>
     </div>
 
-    <div class="wrapper-card-matching">
+    <div class="wrapper-card-matching" style="display: none">
         <div class="wrapper-decks">
             <table class="card-matching">
                 <caption>
@@ -170,11 +170,13 @@ $stmtCards->close();
     <script>
         // ===== DATA DARI PHP =====
         const cardsData = <?php echo json_encode($cards); ?>;
+
+        console.log(cardsData);
         const deckId = '<?php echo $deckId; ?>';
         console.log('Random 5 Cards:', cardsData);
 
         // Ambil preference user
-        let charSet = localStorage.getItem('characterSet') || 'simplified';
+        let charSet = '<?php echo $line['character_set']; ?>';
         let meaningLang = localStorage.getItem('meaning') || 'Indonesia';
 
         // ===== GAME STATE =====
@@ -197,20 +199,6 @@ $stmtCards->close();
             return arr;
         }
 
-        // ===== LOOKUP TABLE =====
-        function buildCardMap() {
-            const map = new Map();
-            cardsData.forEach(card => {
-                const chinese = charSet === 'traditional' ? card.chinese_tc : card.chinese_sc;
-                const meaning = meaningLang === 'English' ? card.meaning_eng : card.meaning_ina;
-                map.set(`chinese:${chinese}`, card.card_id);
-                map.set(`pinyin:${card.pinyin}`, card.card_id);
-                map.set(`meaning:${meaning}`, card.card_id);
-            });
-            return map;
-        }
-        let cardMap = buildCardMap();
-
         // ===== GENERATE TABLE =====
         function generateTable() {
             const tbody = document.getElementById('matching-table-body');
@@ -223,29 +211,72 @@ $stmtCards->close();
             matchedCount = 0;
             cardAttempts = {};
 
-            const chineseList = cardsData.map(c => charSet === 'traditional' ? c.chinese_tc : c.chinese_sc);
-            const pinyinList = cardsData.map(c => c.pinyin);
-            const meaningList = cardsData.map(c => meaningLang === 'English' ? c.meaning_eng : c.meaning_ina);
+            const chineseList = shuffle(cardsData.map(card => ({
+                id: card.card_id,
+                text: charSet === 'traditional' ? card.chinese_tc : card.chinese_sc
+            })));
 
-            const shuffledChinese = shuffle(chineseList);
-            const pinyinListShuffled = shuffle(pinyinList);
-            const meaningListShuffled = shuffle(meaningList);
+            const pinyinList = shuffle(cardsData.map(card => ({
+                id: card.card_id,
+                text: card.pinyin
+            })));
 
-            console.log('=== GENERATE TABLE ===');
+            const meaningList = shuffle(cardsData.map(card => ({
+                id: card.card_id,
+                text: meaningLang === 'English'
+                    ? card.meaning_eng
+                    : card.meaning_ina
+            })));
+
+            // const shuffledChinese = shuffle(chineseList);
+            // const pinyinListShuffled = shuffle(pinyinList);
+            // const meaningListShuffled = shuffle(meaningList);
+
             for (let i = 0; i < 5; i++) {
-                console.log(`Row ${i}: Chinese=${shuffledChinese[i]}, Pinyin=${pinyinListShuffled[i]}, Meaning=${meaningListShuffled[i]}`);
+                console.log(
+                    `Row ${i}: Chinese=${chineseList[i].text}, Pinyin=${pinyinList[i].text}, Meaning=${meaningList[i].text}`
+                );
             }
 
             for (let i = 0; i < 5; i++) {
                 const tr = document.createElement('tr');
                 tr.className = 'cards';
+
                 tr.innerHTML = `
-                    <td class="col-chinese" data-value="${shuffledChinese[i]}" data-type="chinese" onclick="handleClick(this)">${shuffledChinese[i]}</td>
-                    <td class="col-pinyin" data-value="${pinyinListShuffled[i]}" data-type="pinyin" onclick="handleClick(this)">${pinyinListShuffled[i]}</td>
-                    <td class="col-meaning" data-value="${meaningListShuffled[i]}" data-type="meaning" onclick="handleClick(this)">${meaningListShuffled[i]}</td>
-                `;
+        <td
+            class="col-chinese"
+            data-id="${chineseList[i].id}"
+            data-text="${chineseList[i].text}"
+            data-type="chinese"
+            onclick="handleClick(this)"
+        >
+            ${chineseList[i].text}
+        </td>
+
+        <td
+            class="col-pinyin"
+            data-id="${pinyinList[i].id}"
+            data-text="${pinyinList[i].text}"
+            data-type="pinyin"
+            onclick="handleClick(this)"
+        >
+            ${pinyinList[i].text}
+        </td>
+
+        <td
+            class="col-meaning"
+            data-id="${meaningList[i].id}"
+            data-text="${meaningList[i].text}"
+            data-type="meaning"
+            onclick="handleClick(this)"
+        >
+            ${meaningList[i].text}
+        </td>
+    `;
+
                 tbody.appendChild(tr);
             }
+            adjustCellFontSizes();
         }
 
         // ===== HANDLE CLICK =====
@@ -279,29 +310,36 @@ $stmtCards->close();
 
         // ===== VALIDATE MATCH =====
         function validateMatch() {
-            const cVal = selectedItems.chinese.dataset.value;
-            const pVal = selectedItems.pinyin.dataset.value;
-            const mVal = selectedItems.meaning.dataset.value;
+            const chineseText = selectedItems.chinese.dataset.text;
+            const pinyinText = selectedItems.pinyin.dataset.text;
+            const meaningText = selectedItems.meaning.dataset.text;
 
-            const cId = cardMap.get(`chinese:${cVal}`);
-            const pId = cardMap.get(`pinyin:${pVal}`);
-            const mId = cardMap.get(`meaning:${mVal}`);
+            const chineseCard = cardsData.find(card =>
+                (charSet === 'traditional'
+                    ? card.chinese_tc
+                    : card.chinese_sc) === chineseText
+            );
 
-            const isMatch = (cId === pId) && (pId === mId) && cId !== undefined;
+            const id = chineseCard.card_id;
 
-            if (isMatch) {
-                if (!cardAttempts[cId]) cardAttempts[cId] = 0;
-                cardAttempts[cId]++;
+            // Setiap kali player mencoba kartu ini, hitung attempt sekali.
+            cardAttempts[id] = (cardAttempts[id] || 0) + 1;
+
+            const pinyinCorrect =
+                chineseCard.pinyin === pinyinText;
+
+            const meaningCorrect =
+                (meaningLang === 'English'
+                    ? chineseCard.meaning_eng
+                    : chineseCard.meaning_ina) === meaningText;
+
+            if (pinyinCorrect && meaningCorrect) {
                 handleCorrectMatch();
+
             } else {
-                [cId, pId, mId].forEach(id => {
-                    if (id) {
-                        if (!cardAttempts[id]) cardAttempts[id] = 0;
-                        cardAttempts[id]++;
-                    }
-                });
                 handleIncorrectMatch();
             }
+
         }
 
         // ===== CORRECT MATCH =====
@@ -443,8 +481,7 @@ $stmtCards->close();
 
         function stopMatchingCard() {
             clearInterval(interval);
-            document.querySelector('.wrapper-card-matching-tutorial').style.display = 'flex';
-            document.querySelector('.wrapper-card-matching').style.display = 'none';
+            window.location.reload();
         }
 
         // ===== TOGGLE MEANING =====
@@ -458,9 +495,6 @@ $stmtCards->close();
                 localStorage.setItem('meaning', 'English');
                 document.querySelector('.language').textContent = 'English';
             }
-
-            // Rebuild cardMap dengan meaning baru
-            cardMap = buildCardMap();
 
             // Regenerate table kalo game lagi jalan
             const gameVisible = document.querySelector('.wrapper-card-matching').style.display === 'flex';
@@ -479,6 +513,19 @@ $stmtCards->close();
 
         function Mode() {
             window.location.href = "../home_page.php";
+        }
+
+        function adjustCellFontSizes() {
+            const TARGET_HEIGHT = 100;
+            document.querySelectorAll('tr.cards td.col-meaning').forEach(td => {
+                let fontSize = 15;
+                td.style.fontSize = fontSize + 'px';
+
+                while (td.scrollHeight > TARGET_HEIGHT && fontSize > 8) {
+                    fontSize -= 0.5;
+                    td.style.fontSize = fontSize + 'px';
+                }
+            });
         }
     </script>
 </body>
