@@ -88,7 +88,6 @@ include "../../SQL_Queries/connection.php";
                 $_SESSION['user_id'] = $_COOKIE['user_id'];
                 $user_id = $_SESSION['user_id'];
 
-                // CHANGED: use prepared statement + handle missing user to prevent redirect loop
                 $stmt = $con->prepare("SELECT role FROM users WHERE user_id = ?");
                 $stmt->bind_param("s", $user_id);
                 $stmt->execute();
@@ -97,18 +96,39 @@ include "../../SQL_Queries/connection.php";
                 $stmt->close();
 
                 if (!$row) {
-                    // CHANGED: clear bad cookie instead of blindly redirecting
+                    // Bad/stale cookie
                     setcookie('user_id', '', time() - 3600, '/');
                     unset($_COOKIE['user_id']);
+                    unset($_SESSION['user_id']);
                 } else {
-                    if ($row['role'] == 2) {
-                        header("Location: ../Home/home_page.php");
-                    } else if ($row['role'] == 1) {
-                        header("Location: ../Admin/index.php");
-                    } else {
-                        header("Location: ../Home/home_page_students.php");
+                    // NEW: if student, verify they're still assigned to a classroom
+                    $forceLogin = false;
+                    if ($row['role'] == 3) {
+                        $stmtClass = $con->prepare("SELECT jcu.user_id FROM junction_classroom_user AS jcu WHERE jcu.user_id = ?");
+                        $stmtClass->bind_param("s", $user_id);
+                        $stmtClass->execute();
+                        $classResult = $stmtClass->get_result();
+                        if ($classResult->num_rows == 0) {
+                            $forceLogin = true;
+                        }
+                        $stmtClass->close();
                     }
-                    exit;
+
+                    if ($forceLogin) {
+                        // No longer in any classroom -> clear cookie/session, fall through to login form
+                        setcookie('user_id', '', time() - 3600, '/');
+                        unset($_COOKIE['user_id']);
+                        unset($_SESSION['user_id']);
+                    } else {
+                        if ($row['role'] == 2) {
+                            header("Location: ../Home/home_page.php");
+                        } else if ($row['role'] == 1) {
+                            header("Location: ../Admin/index.php");
+                        } else {
+                            header("Location: ../Home/home_page_students.php");
+                        }
+                        exit;
+                    }
                 }
             }
             // Kalo cookie brute force is set

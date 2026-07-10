@@ -44,6 +44,24 @@ if (isset($line["user_status"]) && $line["user_status"] === "pending") {
     header("Location: setting.php");
     exit;
 }
+
+if ($roleId == 3) {
+    $stmtClass = $con->prepare("SELECT jcu.user_id FROM junction_classroom_user AS jcu WHERE jcu.user_id = ?");
+    $stmtClass->bind_param("s", $user_id);
+    $stmtClass->execute();
+    $classResult = $stmtClass->get_result();
+    if ($classResult->num_rows == 0) {
+        // Not in any classroom -> clear cookie/session, force back to login
+        setcookie('user_id', '', time() - 3600, '/');
+        setcookie('loginAt', '', time() - 3600, '/');
+        unset($_COOKIE['user_id']);
+        unset($_COOKIE['loginAt']);
+        unset($_SESSION['user_id']);
+        header("Location: ../Login");
+        exit;
+    }
+    $stmtClass->close();
+}
 // ==== END QUERY : USER INFO ====
 
 ?>
