@@ -516,12 +516,12 @@ $stmtCards->close();
         }
 
         function adjustCellFontSizes() {
-            const TARGET_HEIGHT = 110;
+            const TARGET_HEIGHT = 130;
             document.querySelectorAll('tr.cards td.col-meaning').forEach(td => {
-                let fontSize = 14;
+                let fontSize = 16;
                 td.style.fontSize = fontSize + 'px';
 
-                const MIN_FONT_SIZE = 9;
+                const MIN_FONT_SIZE = 12;
 
                 while (td.scrollHeight > TARGET_HEIGHT && fontSize > MIN_FONT_SIZE) {
                     fontSize -= 1;

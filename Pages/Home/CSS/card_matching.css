@@ -298,7 +298,7 @@
  	justify-content: space-between;
  	align-items: center;
  	width: 100%;
- 	padding: 10px 25px;
+ 	padding: 12px 25px;
  }
 
  .close,
@@ -328,8 +328,7 @@
 
  table.card-matching {
  	margin: 0;
- 	border-spacing: 30px;
- 	margin-top: 16px;
+ 	border-spacing: 20px;
  }
 
  tr.cards td {
@@ -442,8 +441,7 @@
  }
 
  tr.cards td {
- 	height: clamp(95px, 12vh, 130px);
- 	padding: 10px;
+ 	height: clamp(55px, 12vh, 130px);
  }
 
  @keyframes penaltyFade {
@@ -568,11 +566,11 @@
 
  	table.card-matching {
  		margin: 0;
- 		border-spacing: 16px;
+ 		border-spacing: 14px;
  	}
 
  	caption {
- 		margin: 16px 0;
+ 		margin: 10px 0 0 0;
  	}
 
  	tr.cards td {
