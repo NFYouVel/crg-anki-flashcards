@@ -13,7 +13,7 @@
  }
 
  .wrapper-main {
-	background-color: white;
+ 	background-color: white;
  }
 
  .wrapper-header {
@@ -199,7 +199,7 @@
  	display: flex;
  	color: white;
  	justify-content: center;
-	overflow: hidden;
+ 	overflow: hidden;
  }
 
  .wrapper-tutorial {
@@ -242,12 +242,12 @@
  }
 
  .wrapper-shuffle span {
-	position: relative;
+ 	position: relative;
  	width: 100%;
  	font-size: 20px;
  }
 
- .wrapper-shuffle span span.language{
+ .wrapper-shuffle span span.language {
  	width: 6vw;
  }
 
@@ -290,7 +290,7 @@
  	display: flex;
  	color: white;
  	justify-content: center;
-	display: none;
+ 	display: none;
  }
 
  .wrapper-timer {
@@ -334,113 +334,162 @@
 
  tr.cards td {
  	border: none;
-	height: 100px;       
-    overflow: hidden;
+ 	height: 100px;
+ 	overflow: hidden;
  	width: 20%;
  	background-color: rgb(31, 78, 121);
  	cursor: pointer;
  	font-size: 18px;
  	text-align: center;
-	border: 1px solid rgba(255,255,255,0.08);
-    /* box-shadow: 0 4px 0 rgba(0,0,0,0.25); */
-	box-shadow: none;
-	background-clip: padding-box;
-	-webkit-background-clip: padding-box;
+ 	border: 1px solid rgba(255, 255, 255, 0.08);
+ 	/* box-shadow: 0 4px 0 rgba(0,0,0,0.25); */
+ 	box-shadow: none;
+ 	background-clip: padding-box;
+ 	-webkit-background-clip: padding-box;
 
-    border-radius: 3px;
+ 	border-radius: 3px;
  }
 
  tr.cards td:nth-child(1) {
  	letter-spacing: 4px;
  	font-size: 20px;
  }
-/* ===== TAMBAHIN KE card_matching.css ===== */
 
-/* Default state */
-.col-chinese, .col-pinyin, .col-meaning {
-    cursor: pointer;
-    transition: background-color .2s, transform .2s, color .2s;
-    padding: 0 10px;
-    border-radius: 8px;
-    user-select: none;
+ /* ===== TAMBAHIN KE card_matching.css ===== */
 
-	transform: translateZ(0);
-    -webkit-transform: translateZ(0);
+ /* Default state */
+ .col-chinese,
+ .col-pinyin,
+ .col-meaning {
+ 	cursor: pointer;
+ 	transition: background-color .2s, transform .2s, color .2s;
+ 	padding: 0 10px;
+ 	border-radius: 8px;
+ 	user-select: none;
+	white-space: normal;
+    word-break: break-word;
 
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-}
+ 	transform: translateZ(0);
+ 	-webkit-transform: translateZ(0);
 
-/* Orange = lagi dipencet/selected */
-.selected {
-    background-color: rgb(255, 165, 5) !important;
-    color: white !important;
-    transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(255, 165, 5, 0.5);
-}
+ 	backface-visibility: hidden;
+ 	-webkit-backface-visibility: hidden;
+ }
 
-/* Green = correct match (sebentar doang sebelum dihapus) */
-.correct {
-    background-color: rgb(112, 173, 71) !important;
-    color: white !important;
-    transform: scale(1.1);
-}
+ /* Orange = lagi dipencet/selected */
+ .selected {
+ 	background-color: rgb(255, 165, 5) !important;
+ 	color: white !important;
+ 	transform: scale(1.05);
+ 	box-shadow: 0 0 10px rgba(255, 165, 5, 0.5);
+ }
 
-/* Red = wrong match */
-.incorrect {
-    background-color: rgb(211, 47, 47) !important;
-    color: white !important;
-}
+ /* Green = correct match (sebentar doang sebelum dihapus) */
+ .correct {
+ 	background-color: rgb(112, 173, 71) !important;
+ 	color: white !important;
+ 	transform: scale(1.1);
+ }
 
-/* Hidden = udah matched (di-remove dari board) */
-.hidden {
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s ease;
-}
+ /* Red = wrong match */
+ .incorrect {
+ 	background-color: rgb(211, 47, 47) !important;
+ 	color: white !important;
+ }
 
-.timer-display {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;       /* anchor buat absolute child */
-}
+ /* Hidden = udah matched (di-remove dari board) */
+ .hidden {
+ 	visibility: hidden;
+ 	opacity: 0;
+ 	pointer-events: none;
+ 	transition: all 0.3s ease;
+ }
 
-.stopwatch {
-    font-size: 30px;
-    font-weight: bold;
-}
+ .timer-display {
+ 	display: flex;
+ 	align-items: center;
+ 	justify-content: center;
+ 	position: relative;
+ 	/* anchor buat absolute child */
+ }
 
-.penalty-display {
-    position: absolute;
-    left: calc(100% + 8px);   /* ← di kanan stopwatch, jarak 8px */
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgb(255, 165, 5);
-    font-size: 24px;
-    font-weight: bold;
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 10;
-}
+ .stopwatch {
+ 	font-size: 30px;
+ 	font-weight: bold;
+ }
 
-@keyframes penaltyFade {
-    0%   { opacity: 1; transform: translateY(-50%) translateX(0); }
-    50%  { opacity: 1; transform: translateY(-50%) translateX(3px); }
-    100% { opacity: 0; transform: translateY(-50%) translateX(5px); }
-}
+ .penalty-display {
+ 	position: absolute;
+ 	left: calc(100% + 8px);
+ 	/* ← di kanan stopwatch, jarak 8px */
+ 	top: 50%;
+ 	transform: translateY(-50%);
+ 	color: rgb(255, 165, 5);
+ 	font-size: 24px;
+ 	font-weight: bold;
+ 	white-space: nowrap;
+ 	pointer-events: none;
+ 	z-index: 10;
+ }
 
-/* Shake animation */
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
-}
+ .wrapper-decks {
+ 	width: min(100vw, 1000px);
+ }
 
-.shake {
-    animation: shake 0.5s ease-in-out;
-}
+ table.card-matching {
+ 	width: 100%;
+ 	table-layout: fixed;
+ }
+
+ tr.cards td {
+ 	height: clamp(95px, 12vh, 130px);
+ 	padding: 10px;
+ }
+
+ @keyframes penaltyFade {
+ 	0% {
+ 		opacity: 1;
+ 		transform: translateY(-50%) translateX(0);
+ 	}
+
+ 	50% {
+ 		opacity: 1;
+ 		transform: translateY(-50%) translateX(3px);
+ 	}
+
+ 	100% {
+ 		opacity: 0;
+ 		transform: translateY(-50%) translateX(5px);
+ 	}
+ }
+
+ /* Shake animation */
+ @keyframes shake {
+
+ 	0%,
+ 	100% {
+ 		transform: translateX(0);
+ 	}
+
+ 	10%,
+ 	30%,
+ 	50%,
+ 	70%,
+ 	90% {
+ 		transform: translateX(-5px);
+ 	}
+
+ 	20%,
+ 	40%,
+ 	60%,
+ 	80% {
+ 		transform: translateX(5px);
+ 	}
+ }
+
+ .shake {
+ 	animation: shake 0.5s ease-in-out;
+ }
 
  @media screen and (max-width: 768px) {
  	.navbar .icon {
@@ -482,16 +531,16 @@
  		height: 95%;
  	}
 
-	.wrapper-shuffle {
-		width: 90%;
-		text-align: left;
-	}
+ 	.wrapper-shuffle {
+ 		width: 90%;
+ 		text-align: left;
+ 	}
 
  	.wrapper-shuffle img {
  		width: 40px;
  		height: 40px;
  		top: -5px;
-		right: 0;
+ 		right: 0;
  		margin-left: 10px;
  	}
 
