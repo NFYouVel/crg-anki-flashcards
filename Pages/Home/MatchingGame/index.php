@@ -516,14 +516,16 @@ $stmtCards->close();
         }
 
         function adjustCellFontSizes() {
-            const TARGET_HEIGHT = 100;
+            const TARGET_HEIGHT = 130;
             document.querySelectorAll('tr.cards td.col-meaning').forEach(td => {
-                let fontSize = 15;
+                let fontSize = 16;
                 td.style.fontSize = fontSize + 'px';
 
-                while (td.scrollHeight > TARGET_HEIGHT && fontSize > 8) {
-                    fontSize -= 0.5;
-                    td.style.fontSize = fontSize + 'px';
+                const MIN_FONT_SIZE = 12;
+
+                while (td.scrollHeight > TARGET_HEIGHT && fontSize > MIN_FONT_SIZE) {
+                    fontSize -= 1;
+                    td.style.fontSize = fontSize + "px";
                 }
             });
         }

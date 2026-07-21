@@ -113,8 +113,7 @@ $sqlLeaderboard = "SELECT
 FROM matching_leaderboard ml
 JOIN users u ON ml.user_id = u.user_id
 WHERE ml.deck_id = ?
-ORDER BY ml.best_time ASC
-LIMIT 5";
+ORDER BY ml.best_time ASC";
 
 $stmtLb = $con->prepare($sqlLeaderboard);
 $stmtLb->bind_param("s", $deckId);
@@ -215,17 +214,43 @@ if ($userRank === null) {
 
                 <button class="btn-words" onclick="showWords()">See Words Used</button>
 
+                <?php
+                $you = null;
+
+                foreach ($leaderboard as $entry) {
+                    if ($entry['is_you']) {
+                        $you = $entry;
+                        break;
+                    }
+                }
+                ?>
+
                 <div class="leaderboard-section">
                     <h2>Ranking Leaderboard</h2>
-                    <table class="leaderboard-table">
-                        <?php foreach ($leaderboard as $entry): ?>
-                            <tr class="<?php echo $entry['is_you'] ? 'you' : ''; ?>">
-                                <td class="rank"><?php echo $entry['rank']; ?></td>
-                                <td><?php echo htmlspecialchars($entry['user_name']); ?></td>
-                                <td class="score"><?php echo number_format($entry['best_time'], 2); ?>s</td>
+
+                    <div class="leaderboard-wrapper">
+                        <table class="leaderboard-table">
+                            <?php foreach ($leaderboard as $entry): ?>
+                                <?php if (!$entry['is_you']): ?>
+                                    <tr>
+                                        <td class="rank"><?= $entry['rank']; ?></td>
+                                        <td><?= htmlspecialchars($entry['user_name']); ?></td>
+                                        <td class="score"><?= number_format($entry['best_time'], 2); ?>s</td>
+                                    </tr>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </table>
+                    </div>
+
+                    <?php if ($you): ?>
+                        <table class="leaderboard-you">
+                            <tr class="you">
+                                <td class="rank"><?= $you['rank']; ?></td>
+                                <td><?= htmlspecialchars($you['user_name']); ?></td>
+                                <td class="score"><?= number_format($you['best_time'], 2); ?>s</td>
                             </tr>
-                        <?php endforeach; ?>
-                    </table>
+                        </table>
+                    <?php endif; ?>
                 </div>
 
                 <button class="btn-play" onclick="playAgain()">Play Again</button>
