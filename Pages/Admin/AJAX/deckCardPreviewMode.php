@@ -1,10 +1,10 @@
 <?php
-    session_start();
-    $mode = $_GET["mode"];
+session_start();
+$mode = $_GET["mode"];
 ?>
-<?php if($mode == "preview"){ ?>
-     <table>
-        <caption style = "background-color: white; color: black;">Uploaded Excel File</caption>
+<?php if ($mode == "preview") { ?>
+    <table>
+        <caption style="background-color: white; color: black;">Uploaded Excel File</caption>
         <tr>
             <th>No</th>
             <th>Card ID</th>
@@ -15,17 +15,17 @@
             <th>Word Class</th>
             <th>English</th>
             <th>Indo</th>
+            <th>Deck Prio</th>
         </tr>
         <?php
-            $id = 1;
-            foreach($_SESSION["allCards"] as $key => $value) {
-                if(isset($_SESSION["validCards"][$key])) {
-                    echo "<tr style = 'background-color: green;'>";
-                }
-                else if(isset($_SESSION["invalidCards"][$key])) {
-                    echo "<tr style = 'background-color: red;'>";
-                }
-                echo "
+        $id = 1;
+        foreach ($_SESSION["allCards"] as $key => $value) {
+            if (isset($_SESSION["validCards"][$key])) {
+                echo "<tr style = 'background-color: green;'>";
+            } else if (isset($_SESSION["invalidCards"][$key])) {
+                echo "<tr style = 'background-color: red;'>";
+            }
+            echo "
                     <td>" . $id++ . "</td>
                     <td>" . $value["cardID"] . "</td>
                     <td>" . $value["traditional"] . "</td>
@@ -35,13 +35,14 @@
                     <td>" . $value["class"] . "</td>
                     <td class = 'long'>" . $value["english"] . "</td>
                     <td class = 'long'>" . $value["indo"] . "</td>
+                    <td>" . $value["fl_priority"] . "</td>
                 </tr>";
-            }
+        }
         ?>
     </table>
-<?php } else if($mode == "valid"){ ?>
+<?php } else if ($mode == "valid") { ?>
     <table>
-        <caption style = "background-color: green;">Valid Users</caption>
+        <caption style="background-color: green;">Valid Users</caption>
         <tr>
             <th>No</th>
             <th>Card ID</th>
@@ -52,11 +53,12 @@
             <th>Word Class</th>
             <th>English</th>
             <th>Indo</th>
+            <th>Deck Prio</th>
         </tr>
         <?php
-            $id = 1;
-            foreach($_SESSION["validCards"] as $key => $value) {
-                echo "
+        $id = 1;
+        foreach ($_SESSION["validCards"] as $key => $value) {
+            echo "
                 <tr>
                     <td>" . $id++ . "</td>
                     <td>" . $value["cardID"] . "</td>
@@ -67,13 +69,14 @@
                     <td>" . $value["class"] . "</td>
                     <td class = 'long'>" . $value["english"] . "</td>
                     <td class = 'long'>" . $value["indo"] . "</td>
+                    <td>" . $value["fl_priority"] . "</td>
                 </tr>";
-            }
+        }
         ?>
     </table>
-<?php } else if($mode == "invalid"){ ?>
+<?php } else if ($mode == "invalid") { ?>
     <table>
-        <caption style = "background-color: red;">Invalid Users</caption>
+        <caption style="background-color: red;">Invalid Users</caption>
         <tr>
             <th>No</th>
             <th>Card ID</th>
@@ -84,12 +87,13 @@
             <th>Word Class</th>
             <th>English</th>
             <th>Indo</th>
+            <th>Deck Prio</th>
             <th>Reason</th>
         </tr>
         <?php
-            $id = 1;
-            foreach($_SESSION["invalidCards"] as $key => $value) {
-                echo "
+        $id = 1;
+        foreach ($_SESSION["invalidCards"] as $key => $value) {
+            echo "
                 <tr>
                     <td>" . $id++ . "</td>
                     <td>" . $value["cardID"] . "</td>
@@ -100,9 +104,10 @@
                     <td>" . $value["class"] . "</td>
                     <td class = 'long'>" . $value["english"] . "</td>
                     <td class = 'long'>" . $value["indo"] . "</td>
+                    <td>" . $value["fl_priority"] . "</td>
                     <td class = 'long'>" . $value["reason"] . "</td>
                 </tr>";
-            }
+        }
         ?>
     </table>
-<?php } ?>  
+<?php } ?>
