@@ -148,11 +148,11 @@ if ($roleId == 3) {
                             // ==== STEP 2: Load user-assigned decks + trace to root — 1 query ====
                             $rootDecks = [];
                             $userDecksResult = mysqli_query($con, "
-    SELECT deck.deck_id, deck.parent_deck_id
-    FROM junction_deck_user AS deck_user
-    JOIN decks AS deck ON deck_user.deck_id = deck.deck_id
-    WHERE deck_user.user_id = '$user_id'
-");
+                                SELECT deck.deck_id, deck.parent_deck_id
+                                FROM junction_deck_user AS deck_user
+                                JOIN decks AS deck ON deck_user.deck_id = deck.deck_id
+                                WHERE deck_user.user_id = '$user_id'
+                            ");
                             function getRoot($deckID)
                             {
                                 global $allDecks, $rootDecks;
@@ -177,19 +177,19 @@ if ($roleId == 3) {
                                 }, $rootDecks));
 
                                 $batchRGB = mysqli_query($con, "
-        SELECT
-            ldm.deck_id,
-            COUNT(DISTINCT cp.card_id) AS blue,
-            COUNT(DISTINCT CASE WHEN cp.current_stage != 0 THEN cp.card_id END) AS green,
-            COUNT(DISTINCT CASE WHEN cp.review_due <= NOW() AND cp.review_due != cp.review_first THEN cp.card_id END) AS red
-        FROM card_progress cp
-        INNER JOIN junction_deck_card jdc ON cp.card_id = jdc.card_id
-        INNER JOIN junction_deck_user jdu ON jdu.deck_id = jdc.deck_id
-        INNER JOIN leaf_deck_map ldm ON ldm.leaf_deck_id = jdu.deck_id
-        WHERE cp.user_id = '$user_id' AND jdu.user_id = '$user_id'
-        AND ldm.deck_id IN ($deckIdList)
-        GROUP BY ldm.deck_id
-    ");
+                                    SELECT
+                                        ldm.deck_id,
+                                        COUNT(DISTINCT cp.card_id) AS blue,
+                                        COUNT(DISTINCT CASE WHEN cp.current_stage != 0 THEN cp.card_id END) AS green,
+                                        COUNT(DISTINCT CASE WHEN cp.review_due <= NOW() AND cp.review_due != cp.review_first THEN cp.card_id END) AS red
+                                    FROM card_progress cp
+                                    INNER JOIN junction_deck_card jdc ON cp.card_id = jdc.card_id
+                                    INNER JOIN junction_deck_user jdu ON jdu.deck_id = jdc.deck_id
+                                    INNER JOIN leaf_deck_map ldm ON ldm.leaf_deck_id = jdu.deck_id
+                                    WHERE cp.user_id = '$user_id' AND jdu.user_id = '$user_id'
+                                    AND ldm.deck_id IN ($deckIdList)
+                                    GROUP BY ldm.deck_id
+                                ");
                                 while ($row = mysqli_fetch_assoc($batchRGB)) {
                                     $rgbCounts[$row['deck_id']] = $row;
                                 }

@@ -233,7 +233,7 @@ if (mysqli_fetch_assoc(mysqli_query($con, "SELECT role FROM users WHERE user_id 
                         continue;
                     }
                     //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
-                    $cardID = $sheet->getCell("B$index")->getValue() ?? "";
+                    $cardID = $sheet->getCell("B$index")->getCalculatedValue() ?? "";
 
                     $priorityCell = $sheet->getCell("A$index");
                     $rawFormula = $priorityCell->getValue(); // literal cell content, e.g. "=A2+1"

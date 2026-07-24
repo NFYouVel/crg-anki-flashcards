@@ -25,7 +25,7 @@ if ($line['role'] == 0) {
 } else if ($line['role'] == 1) {
     $role = "Teacher";
 } else {
-    $role = "Student";
+    $role = "Student";  
 }
 include "../Admin/convertPinyin.php";
 

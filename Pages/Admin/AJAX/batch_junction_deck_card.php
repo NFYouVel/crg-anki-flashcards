@@ -48,6 +48,51 @@ try {
         }
     }
 
+    // ==== BACKFILL: buat card_progress untuk user yang sudah assigned ke deck ini,
+    //      tapi belum punya progress untuk card yang baru ditambahkan ====
+    $backfillQuery = mysqli_query($con, "
+        SELECT du.user_id, dc.card_id
+        FROM junction_deck_user du
+        JOIN junction_deck_card dc ON dc.deck_id = du.deck_id
+        LEFT JOIN card_progress cp
+            ON cp.user_id = du.user_id AND cp.card_id = dc.card_id
+        WHERE du.deck_id = '$deckID'
+        AND cp.card_id IS NULL
+    ");
+
+    if ($backfillQuery === false) {
+        throw new Exception("Gagal query backfill: " . mysqli_error($con));
+    }
+
+    if (mysqli_num_rows($backfillQuery) > 0) {
+        $insertQuery = "INSERT INTO card_progress (user_id, card_id) VALUES ";
+        $backfillCount = 0;
+
+        while ($row = mysqli_fetch_assoc($backfillQuery)) {
+            $uid = mysqli_real_escape_string($con, $row["user_id"]);
+            $cid = mysqli_real_escape_string($con, $row["card_id"]);
+            $insertQuery .= "('$uid', $cid), ";
+            $backfillCount++;
+
+            if ($backfillCount == 35) {
+                $insertQuery = substr($insertQuery, 0, -2);
+                if (!mysqli_query($con, $insertQuery)) {
+                    throw new Exception("Gagal insert backfill batch: " . mysqli_error($con));
+                }
+                $insertQuery = "INSERT INTO card_progress (user_id, card_id) VALUES ";
+                $backfillCount = 0;
+            }
+        }
+
+        if ($backfillCount > 0) {
+            $insertQuery = substr($insertQuery, 0, -2);
+            if (!mysqli_query($con, $insertQuery)) {
+                throw new Exception("Gagal insert sisa backfill: " . mysqli_error($con));
+            }
+        }
+    }
+    // ==== END BACKFILL ====
+
     // jika semua berhasil, commit perubahan
     mysqli_commit($con);
 } catch (Exception $e) {
