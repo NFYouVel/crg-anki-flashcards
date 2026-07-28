@@ -231,10 +231,10 @@ if ($roleId == 3) {
                                         echo "<div class='title-to-review-second' onclick=\"window.location.href='flashcard.php?deck_id=$deckID'\">";
                                         echo "<span class='title-second'>$name</span>";
                                         echo "<div class='to-review'>
-                    <span class='red'>$red</span>
-                    <span class='green'>$green</span>
-                    <span class='blue' style='color: #8497B0;'>/$blue</span>
-                  </div>";
+                                            <span class='red'>$red</span>
+                                            <span class='green'>$green</span>
+                                            <span class='blue' style='color: #8497B0;'>/$blue</span>
+                                        </div>";
                                         echo "</div>";
                                         echo "</div>";
                                         echo "<div class='line'></div>";
