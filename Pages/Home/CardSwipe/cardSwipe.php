@@ -708,6 +708,15 @@ $role = $line2['role_name'];
 </body>
 
 <script>
+    function shuffle(arr) {
+        const a = arr.slice(); // copy if you don't want to mutate
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
     const useShuffle = localStorage.getItem('useShuffle') === 'true';
 
     console.log(cards)
@@ -715,7 +724,7 @@ $role = $line2['role_name'];
     let cardList = cards.filter(card => card.status === "forgot" || card.status === "unseen");
 
     if (useShuffle) {
-        cardList = cardList.sort(() => Math.random() - 0.5);
+        cardList = shuffle(cardList);
     }
 
     const card = document.querySelector(".card");
@@ -842,7 +851,7 @@ $role = $line2['role_name'];
             $(".continue").text("Continue to Smart Review")
 
             $(".continue").click(function() {
-                window.location.href = "../flashcard.php?deck_id=" + deckId;
+                window.location.href = "../MatchingGame/index.php?deckId=" + deckId;
             })
         } else {
             $(".studied").text($(".remember-number").attr("data-count"));
