@@ -25,7 +25,7 @@ if ($line['role'] == 0) {
 } else if ($line['role'] == 1) {
     $role = "Teacher";
 } else {
-    $role = "Student";  
+    $role = "Student";
 }
 include "../Admin/convertPinyin.php";
 
@@ -68,7 +68,23 @@ $green = $counts['green'];
 $red = $counts['red'];
 
 // Algorithm Flashcard
-if ($green !== 0) {
+$orderByNewCards = (isset($_COOKIE['useShuffleNewCards']) && $_COOKIE['useShuffleNewCards'] === 'true')
+    ? "RAND()"
+    : "d.name ASC, dc.priority ASC";
+
+$orderByNewCardsLeaf = (isset($_COOKIE['useShuffleNewCards']) && $_COOKIE['useShuffleNewCards'] === 'true')
+    ? "RAND()"
+    : "ld.name ASC, dc.priority ASC";
+
+$orderByDueCards = (isset($_COOKIE['useShuffleDueCards']) && $_COOKIE['useShuffleDueCards'] === 'true')
+    ? "RAND()"
+    : "d.name ASC, dc.priority ASC";
+
+$orderByDueCardsLeaf = (isset($_COOKIE['useShuffleDueCards']) && $_COOKIE['useShuffleDueCards'] === 'true')
+    ? "RAND()"
+    : "ld.name ASC, dc.priority ASC";
+
+if ($green != 0) {
     if ($deckID == "main") {
         $query_flashcard_algorithm = mysqli_query($con, "
         SELECT 
@@ -95,7 +111,8 @@ if ($green !== 0) {
             AND du.user_id = cp.user_id
         WHERE cp.user_id = '$user_id'
         AND cp.review_due <= CURRENT_TIMESTAMP
-        ORDER BY d.name ASC, dc.priority ASC
+        AND cp.review_first != cp.review_due
+        ORDER BY $orderByDueCards
         LIMIT 1;
         ");
     } else {
@@ -128,7 +145,8 @@ if ($green !== 0) {
             ON ld.deck_id = dc.deck_id
         WHERE cp.user_id = '$user_id'
         AND cp.review_due <= CURRENT_TIMESTAMP
-        ORDER BY ld.name ASC, dc.priority ASC
+        AND cp.review_first != cp.review_due
+        ORDER BY $orderByDueCardsLeaf
         LIMIT 1;
         ");
     }
@@ -159,7 +177,7 @@ if ($green !== 0) {
             AND du.user_id = cp.user_id
         WHERE cp.user_id = '$user_id'
         AND cp.total_review = 0
-        ORDER BY d.name ASC, dc.priority ASC
+        ORDER BY $orderByNewCards
         LIMIT 1;
         ");
     } else {
@@ -192,11 +210,76 @@ if ($green !== 0) {
             ON ld.deck_id = dc.deck_id
         WHERE cp.user_id = '$user_id'
         AND cp.total_review = 0
-        ORDER BY ld.name ASC, dc.priority ASC
+        ORDER BY $orderByNewCardsLeaf
         LIMIT 1;
         ");
     }
 }
+
+// ==== DEBUG: which query branch was used, and total matching rows (no LIMIT) ====
+if ($green != 0) {
+    $debugQueryLabel = ($deckID == "main") ? "DUE CARDS - MAIN DECK" : "DUE CARDS - LEAF DECK";
+    if ($deckID == "main") {
+        $debugCountQuery = mysqli_query($con, "
+            SELECT COUNT(DISTINCT c.card_id) AS total
+            FROM card_progress cp
+            JOIN cards c ON c.card_id = cp.card_id
+            JOIN junction_deck_card dc ON dc.card_id = c.card_id
+            JOIN decks d ON d.deck_id = dc.deck_id AND d.is_leaf = 1
+            JOIN junction_deck_user du ON du.deck_id = d.deck_id AND du.user_id = cp.user_id
+            WHERE cp.user_id = '$user_id'
+            AND cp.review_due <= CURRENT_TIMESTAMP
+            AND cp.review_first != cp.review_due;
+        ");
+    } else {
+        $debugCountQuery = mysqli_query($con, "
+            SELECT COUNT(DISTINCT c.card_id) AS total
+            FROM card_progress cp
+            JOIN cards c ON c.card_id = cp.card_id
+            JOIN junction_deck_card dc ON dc.card_id = c.card_id
+            JOIN leaf_deck_map ldm ON ldm.deck_id = '$deckID' AND ldm.leaf_deck_id = dc.deck_id
+            JOIN junction_deck_user du ON du.deck_id = dc.deck_id AND du.user_id = cp.user_id
+            JOIN decks ld ON ld.deck_id = dc.deck_id
+            WHERE cp.user_id = '$user_id'
+            AND cp.review_due <= CURRENT_TIMESTAMP
+            AND cp.review_first != cp.review_due;
+        ");
+    }
+} else {
+    $debugQueryLabel = ($deckID == "main") ? "NEW CARDS - MAIN DECK" : "NEW CARDS - LEAF DECK";
+    if ($deckID == "main") {
+        $debugCountQuery = mysqli_query($con, "
+        SELECT COUNT(DISTINCT c.card_id) AS total
+        FROM card_progress cp
+        JOIN cards c ON c.card_id = cp.card_id
+        JOIN junction_deck_card dc ON dc.card_id = c.card_id
+        JOIN decks d ON d.deck_id = dc.deck_id AND d.is_leaf = 1
+        JOIN junction_deck_user du ON du.deck_id = d.deck_id AND du.user_id = cp.user_id
+        WHERE cp.user_id = '$user_id'
+        AND cp.total_review = 0;
+        ");
+    } else {
+        $debugCountQuery = mysqli_query($con, "
+        SELECT COUNT(DISTINCT c.card_id) AS total
+        FROM card_progress cp
+        JOIN cards c ON c.card_id = cp.card_id
+        JOIN junction_deck_card dc ON dc.card_id = c.card_id
+        JOIN leaf_deck_map ldm ON ldm.deck_id = '$deckID' AND ldm.leaf_deck_id = dc.deck_id
+        JOIN junction_deck_user du ON du.deck_id = dc.deck_id AND du.user_id = cp.user_id
+        JOIN decks ld ON ld.deck_id = dc.deck_id
+        WHERE cp.user_id = '$user_id'
+        AND cp.total_review = 0;
+        ");
+    }
+}
+$debugCountRow = mysqli_fetch_assoc($debugCountQuery);
+$debugCount = $debugCountRow['total'];
+?>
+<script>
+    console.log("Query used: <?php echo $debugQueryLabel; ?>", "Total matching rows: <?php echo $debugCount; ?>");
+</script>
+<?php
+// ==== END DEBUG ====
 
 ?>
 

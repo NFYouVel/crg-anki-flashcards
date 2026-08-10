@@ -119,6 +119,32 @@ $role = $line2['role_name'];
                 </table>
             </div>
 
+            <div class="information">
+                <h2 class="title-setting-information">Study Mode: SRS Review</h2>
+                <table>
+                    <tr>
+                        <td>Shuffle New Cards (<strong style="color: #525252">grey</strong>)</td>
+                        <td style="text-align: right;">
+                            <label class="switch">
+                                <input type="checkbox" id="useShuffleNewCards"
+                                    onchange="setShufflePreference('useShuffleNewCards', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Shuffle Cards that are due to review (<strong style="color: #e50209;">red</strong>)</td>
+                        <td style="text-align: right;">
+                            <label class="switch">
+                                <input type="checkbox" id="useShuffleDueCards"
+                                    onchange="setShufflePreference('useShuffleDueCards', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
             <!-- <div class="information">
                 <h2 class="title-setting-information">Study Mode: Card Matching</h2>
                 <table>
@@ -130,6 +156,21 @@ $role = $line2['role_name'];
             </div> -->
 
             <script>
+                function setShufflePreference(key, checked) {
+                    localStorage.setItem(key, checked);
+                    document.cookie = key + "=" + checked + "; path=/; max-age=" + (60 * 60 * 24 * 365);
+                }
+
+                function getCookie(name) {
+                    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+                    return match ? match[2] : null;
+                }
+
+                document.getElementById('useShuffleNewCards').checked =
+                    (getCookie('useShuffleNewCards') ?? localStorage.getItem('useShuffleNewCards')) === 'true';
+                document.getElementById('useShuffleDueCards').checked =
+                    (getCookie('useShuffleDueCards') ?? localStorage.getItem('useShuffleDueCards')) === 'true';
+
                 document.getElementById("useShuffle").checked = localStorage.getItem("useShuffle") === "true";
                 document.getElementById("skipTutorial").checked = localStorage.getItem("skipTutorial") === "true";
 
