@@ -84,7 +84,7 @@ $orderByDueCardsLeaf = (isset($_COOKIE['useShuffleDueCards']) && $_COOKIE['useSh
     ? "RAND()"
     : "ld.name ASC, dc.priority ASC";
 
-if ($green != 0) {
+if ($red != 0) {
     if ($deckID == "main") {
         $query_flashcard_algorithm = mysqli_query($con, "
         SELECT 
@@ -217,7 +217,7 @@ if ($green != 0) {
 }
 
 // ==== DEBUG: which query branch was used, and total matching rows (no LIMIT) ====
-if ($green != 0) {
+if ($red != 0) {
     $debugQueryLabel = ($deckID == "main") ? "DUE CARDS - MAIN DECK" : "DUE CARDS - LEAF DECK";
     if ($deckID == "main") {
         $debugCountQuery = mysqli_query($con, "
