@@ -113,16 +113,6 @@ $role = $line2['role_name'];
                         </td>
                     </tr>
                     <tr>
-                        <td>Skip Tutorial</td>
-                        <td style="text-align: right;">
-                            <label class="switch">
-                                <input type="checkbox" id="skipTutorial"
-                                    onchange="localStorage.setItem('skipTutorial', this.checked)">
-                                <span class="slider"></span>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
                         <td>Show word meaning in: <span id="word-meaning"></span></td>
                         <td class="right" onclick="changeCardSwipeMeaningLanguage()" style="cursor: pointer; text-align: right;">switch</td>
                     </tr>
