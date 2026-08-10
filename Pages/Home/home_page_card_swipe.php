@@ -272,13 +272,13 @@ if ($roleId == 3) {
                 <span class="fab-label">Flashcard Swipe</span>
                 <div class="fab-icon"><img src="../../Assets/Icons/flashcard-logo.png" alt=""></div>
             </div>
-            <div class="fab-option" onclick="window.location.href='home_page_students.php'">
-                <span class="fab-label">SRS Review</span>
-                <div class="fab-icon"><img src="../../Assets/Icons/srs-logo.png" alt=""></div>
-            </div>
             <div class="fab-option" onclick="window.location.href='home_page_card_matching.php'">
                 <span class="fab-label">Matching Game</span>
                 <div class="fab-icon"><img src="../../Assets/Icons/matching icon.png" alt=""></div>
+            </div>
+            <div class="fab-option" onclick="window.location.href='home_page_students.php'">
+                <span class="fab-label">SRS Review</span>
+                <div class="fab-icon"><img src="../../Assets/Icons/srs-logo.png" alt=""></div>
             </div>
         </div>
 
