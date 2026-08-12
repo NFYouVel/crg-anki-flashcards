@@ -104,6 +104,23 @@ if ($result->num_rows > 0) {
 }
 $checkStmt->close();
 
+// ==== GET CLASSROOM ====
+$sqlClassroom = "SELECT c.classroom_id, c.name FROM `junction_classroom_user` as jcu
+JOIN classroom as c on c.classroom_id = jcu.classroom_id
+where jcu.user_id = ?";
+
+$stmtClassroom = $con->prepare($sqlClassroom);
+$stmtClassroom->bind_param("s", $user_id);
+$stmtClassroom->execute();
+$resultClassroom = $stmtClassroom->get_result();
+$classrooms = [];
+while ($row = $resultClassroom->fetch_assoc()) {
+    $classrooms[] = $row;
+}
+$stmtClassroom->close();
+echo "<!-- DEBUG CLASSROOMS: " . json_encode($classrooms) . " -->";
+//
+
 // ==== GET LEADERBOARD ====
 $sqlLeaderboard = "SELECT 
     ml.best_time,
@@ -228,103 +245,179 @@ if ($userRank === null) {
                 <div class="leaderboard-section">
                     <h2>Ranking Leaderboard</h2>
 
-                    <div class="leaderboard-wrapper">
-                        <table class="leaderboard-table">
-                            <?php foreach ($leaderboard as $entry): ?>
-                                <?php if (!$entry['is_you']): ?>
-                                    <tr>
-                                        <td class="rank"><?= $entry['rank']; ?></td>
-                                        <td><?= htmlspecialchars($entry['user_name']); ?></td>
-                                        <td class="score"><?= number_format($entry['best_time'], 2); ?>s</td>
-                                    </tr>
-                                <?php endif; ?>
+                    <div class="wrapper-classroom">
+                        <div class="container-classroom" onclick="toggleClassroomDropdown()">
+                            <span id="title">Classroom:</span>
+                            <div class="classroom-select-wrap">
+                                <span id="selectedClassroom">Global</span>
+                                <i class='bx bx-chevron-down'></i>
+                            </div>
+                        </div>
+                        <div class="dropdown-classroom" id="classroomDropdown">
+                            <div class="classroom-item" data-id="0" onclick="selectClassroom('0', 'Global')">Global
+                            </div>
+                            <?php foreach ($classrooms as $classroomItem): ?>
+                                <div class="classroom-item" data-id="<?= (int) $classroomItem['classroom_id'] ?>"
+                                    onclick="selectClassroom('<?= $classroomItem['classroom_id'] ?>', '<?= htmlspecialchars($classroomItem['name'], ENT_QUOTES) ?>')">
+                                    <?= htmlspecialchars($classroomItem['name']) ?>
+                                </div>
                             <?php endforeach; ?>
-                        </table>
+                        </div>
                     </div>
 
-                    <?php if ($you): ?>
-                        <table class="leaderboard-you">
-                            <tr class="you">
-                                <td class="rank"><?= $you['rank']; ?></td>
-                                <td><?= htmlspecialchars($you['user_name']); ?></td>
-                                <td class="score"><?= number_format($you['best_time'], 2); ?>s</td>
-                            </tr>
-                        </table>
-                    <?php endif; ?>
-                </div>
+                    <div id="leaderboard-content">
+                        <?php if ($you): ?>
+                            <table class="leaderboard-you">
+                                <tr class="you">
+                                    <td class="rank" style="font-weight: bold"><?= $you['rank']; ?></td>
+                                    <td style="font-weight: bold"><?= htmlspecialchars($you['user_name']); ?></td>
+                                    <td class="score" style="font-weight: bold"><?= number_format($you['best_time'], 2); ?>s
+                                    </td>
+                                </tr>
+                            </table>
+                        <?php endif; ?>
 
-                <button class="btn-play" onclick="playAgain()">Play Again</button>
-                <a href="../home_page.php" class="back-menu">Back to Main Menu</a>
+                        <div class="leaderboard-wrapper">
+                            <table class="leaderboard-table">
+                                <?php foreach ($leaderboard as $entry): ?>
+                                    <?php if (!$entry['is_you']): ?>
+                                        <tr>
+                                            <td class="rank"><?= $entry['rank']; ?></td>
+                                            <td><?= htmlspecialchars($entry['user_name']); ?></td>
+                                            <td class="score"><?= number_format($entry['best_time'], 2); ?>s</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="container-button-play-again">
+                        <button class="btn-play" onclick="playAgain()">Play Again</button>
+                    </div>
+                    <a href="../home_page.php" class="back-menu">Back to Main Menu</a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- POPUP -->
-    <div class="popup-words" id="popupWords">
-        <div class="popup-overlay" onclick="closePopup()"></div>
-        <div class="popup-box">
-            <div class="popup-close" onclick="closePopup()">✕</div>
-            <table class="popup-table" id="wordsTable">
-                <tr>
-                    <th>No</th>
-                    <th>Char</th>
-                    <th>Pinyin and Meaning</th>
-                    <th>Pair Attempt</th>
-                </tr>
-                <!-- JS populate -->
-            </table>
+        <!-- POPUP -->
+        <div class="popup-words" id="popupWords">
+            <div class="popup-overlay" onclick="closePopup()"></div>
+            <div class="popup-box">
+                <div class="popup-close" onclick="closePopup()">✕</div>
+                <table class="popup-table" id="wordsTable">
+                    <tr>
+                        <th>No</th>
+                        <th>Time</th>
+                        <th>Char</th>
+                        <th>Pinyin and Meaning</th>
+                        <th>Pair Attempt</th>
+                    </tr>
+                    <!-- JS populate -->
+                </table>
+            </div>
         </div>
-    </div>
 
-    <script>
-        // Data dari PHP
-        const cardsData = <?php echo json_encode($cardsData); ?>;
-        const meaningLang = localStorage.getItem('meaning') || 'Indonesia';
-        const charSet = localStorage.getItem('characterSet') || 'simplified';
-        const deckId = '<?php echo $deckId; ?>';
+        <script>
+            // Data dari PHP
+            const cardsData = <?php echo json_encode($cardsData); ?>;
+            const meaningLang = localStorage.getItem('meaning') || 'Indonesia';
+            const charSet = localStorage.getItem('characterSet') || 'simplified';
+            const deckId = '<?php echo $deckId; ?>';
 
-        console.log('Cards with attempts:', cardsData);
+            console.log('Cards with attempts:', cardsData);
 
-        function showWords() {
-            const tbody = document.getElementById('wordsTable');
-            // Clear existing rows except header
-            while (tbody.rows.length > 1) {
-                tbody.deleteRow(1);
-            }
+            function showWords() {
+                const tbody = document.getElementById('wordsTable');
+                // Clear existing rows except header
+                while (tbody.rows.length > 1) {
+                    tbody.deleteRow(1);
+                }
 
-            cardsData.forEach((card, index) => {
-                const attempts = card.pairAttempts || 1;
-                const isWrong = attempts > 1;
+                const sortedCards = [...cardsData].sort((a, b) => {
+                    const timeA = a.matchTime !== undefined && a.matchTime !== null ? a.matchTime : Infinity;
+                    const timeB = b.matchTime !== undefined && b.matchTime !== null ? b.matchTime : Infinity;
+                    return timeA - timeB;
+                });
 
-                const row = tbody.insertRow();
-                if (isWrong) row.classList.add('wrong');
+                sortedCards.forEach((card, index) => {
+                    const attempts = card.pairAttempts || 1;
+                    const isWrong = attempts > 1;
 
-                const chinese = charSet === 'traditional' ? card.chinese_tc : card.chinese_sc;
-                const meaning = meaningLang === 'English' ? card.meaning_eng : card.meaning_ina;
+                    const row = tbody.insertRow();
+                    if (isWrong) row.classList.add('wrong');
 
-                row.innerHTML = `
+                    const chinese = charSet === 'traditional' ? card.chinese_tc : card.chinese_sc;
+                    const meaning = meaningLang === 'English' ? card.meaning_eng : card.meaning_ina;
+
+                    row.innerHTML = `
                     <td>${index + 1}</td>
+                    <td>${card.matchTime ? card.matchTime.toFixed(2) + 's' : '-'}</td>
                     <td>${chinese}</td>
                     <td>${card.pinyin}<br>${meaning}</td>
                     <td>${attempts}x</td>
                 `;
+                });
+
+                document.getElementById("popupWords").style.display = "flex";
+            }
+
+            function closePopup() {
+                document.getElementById("popupWords").style.display = "none";
+            }
+
+            function playAgain() {
+                window.location.href = `index.php?deckId=${deckId}`;
+            }
+
+            function Mode() {
+                window.location.href = "../home_page.php";
+            }
+
+            function toggleClassroomDropdown() {
+                document.getElementById("classroomDropdown").classList.toggle("show");
+            }
+
+            function selectClassroom(classroomId, label) {
+                console.log("selectClassroom dipanggil");
+                console.log("classroomId:", classroomId);
+                console.log("label:", label);
+
+                // Update tampilan dropdown
+                document.getElementById("selectedClassroom").textContent = label;
+                document.getElementById("classroomDropdown").classList.remove("show");
+
+                // Panggil AJAX
+                const url = `fetch_leaderboard.php?deckId=${deckId}&classroomId=${classroomId}`;
+                console.log("Fetch URL:", url);
+
+                fetch(url)
+                    .then(response => {
+                        console.log("Response status:", response.status);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        console.log("Response HTML diterima:");
+                        console.log(html);
+                        // Update konten leaderboard
+                        document.getElementById("leaderboard-content").innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error("Fetch error:", error);
+                    });
+            }
+
+            // Tutup dropdown jika klik di luar
+            document.addEventListener("click", function (e) {
+                const wrapper = document.querySelector(".wrapper-classroom");
+                if (wrapper && !wrapper.contains(e.target)) {
+                    document.getElementById("classroomDropdown").classList.remove("show");
+                }
             });
-
-            document.getElementById("popupWords").style.display = "flex";
-        }
-
-        function closePopup() {
-            document.getElementById("popupWords").style.display = "none";
-        }
-
-        function playAgain() {
-            window.location.href = `index.php?deckId=${deckId}`;
-        }
-
-        function Mode() {
-            window.location.href = "../home_page.php";
-        }
-    </script>
+        </script>
 </body>
 
 </html>
