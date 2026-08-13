@@ -154,11 +154,17 @@
      display: flex;
      justify-content: center;
      align-items: center;
+     transition: all 0.2s ease-in-out;
  }
 
  /* =========================
    LEADERBOARD
 ========================= */
+ .wrapper-classroom {
+    display: flex;
+    
+ }
+
  .leaderboard-section {
      width: 100%;
 
@@ -252,12 +258,18 @@
  /* =========================
    PLAY BUTTON
 ========================= */
+ .container-button-play-again {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 2dvh;
+ }
  .btn-play {
      width: 65%;
      height: 54px;
      border: none;
      border-radius: 10px;
-     background: #5b9bd5;
+     background: #ffab00;
      color: white;
      font-size: 20px;
      font-weight: bold;
@@ -266,6 +278,10 @@
      display: flex;
      justify-content: center;
      align-items: center;
+     transition: all 0.2s ease-in-out;
+ }
+ .btn-play:hover, .btn-words:hover {
+    background: #af7d1a;
  }
 
  /* =========================
@@ -387,6 +403,115 @@
 
 .leaderboard-wrapper::-webkit-scrollbar-thumb:hover{
     background:#ff9600;
+}
+
+/* =========================
+   DROPDOWN CLASSROOM
+========================= */
+.wrapper-classroom {
+    position: relative;
+    width: 100%;
+    /* margin-bottom: 10px; */
+}
+
+.container-classroom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: transparent;      /* hapus background orange */
+    color: white;                 /* teks utama putih */
+    font-weight: bold;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    user-select: none;
+    transition: none;
+    padding: 0;                   /* padding dipindah ke wrapper */
+    gap: 10px;
+}
+
+.container-classroom:hover {
+    background: transparent;      /* tidak ada hover background */
+}
+
+/* Wrapper untuk selected value + arrow */
+.classroom-select-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 80%;
+    background: #5b9ad6;          /* background orange */
+    color: white;               /* teks gelap di atas orange */
+    padding: 4px 14px;
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+
+.classroom-select-wrap:hover {
+    background: #2d68a0;          /* hover lebih terang */
+}
+
+/* Judul "Classroom" tetap putih */
+#title {
+    color: white;
+    font-size: inherit;
+}
+
+.dropdown-classroom {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    color: #143d59;
+    border-radius: 6px;
+    max-height: 180px;          /* tinggi maksimal dropdown → muncul scroll */
+    overflow-y: auto;           /* scrollable */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    font-family: 'Nunito', sans-serif;
+
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: #ffab00 #dcdcdc;
+}
+
+.dropdown-classroom.show {
+    display: block;
+}
+
+.classroom-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+}
+
+.classroom-item:last-child {
+    border-bottom: none;
+}
+
+.classroom-item:hover {
+    background: #eef3f8;
+}
+
+/* Scrollbar dropdown (Chrome, Edge, Safari) */
+.dropdown-classroom::-webkit-scrollbar {
+    width: 8px;
+}
+.dropdown-classroom::-webkit-scrollbar-track {
+    background: #dcdcdc;
+    border-radius: 999px;
+}
+.dropdown-classroom::-webkit-scrollbar-thumb {
+    background: #ffab00;
+    border-radius: 999px;
+    border: 2px solid #dcdcdc;
+}
+.dropdown-classroom::-webkit-scrollbar-thumb:hover {
+    background: #ff9600;
 }
 
  /* Animasi */

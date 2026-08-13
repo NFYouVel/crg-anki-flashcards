@@ -138,8 +138,8 @@ $stmtCards->close();
                 </div>
             </div>
             <div class="wrapper-shuffle">
-                <span>Show the meaning in: <span class="language"></span><img
-                        src="../../../Assets/Icons/switch icon.png" onclick="changeMeaning()"></span>
+                <span>Show the meaning in: <span class="language" onclick="changeMeaning()"
+                        style="cursor: pointer;"></span><img src="../../../Assets/Icons/switch icon.png"></span>
             </div>
             <div class="wrapper-button-start">
                 <button onclick="startMatchingCard()">Start New Game</button>
@@ -210,6 +210,7 @@ $stmtCards->close();
             };
             matchedCount = 0;
             cardAttempts = {};
+            cardMatchTimes = {};
 
             const chineseList = shuffle(cardsData.map(card => ({
                 id: card.card_id,
@@ -310,36 +311,31 @@ $stmtCards->close();
 
         // ===== VALIDATE MATCH =====
         function validateMatch() {
-            const chineseText = selectedItems.chinese.dataset.text;
+            const chineseId = selectedItems.chinese.dataset.id;
             const pinyinText = selectedItems.pinyin.dataset.text;
             const meaningText = selectedItems.meaning.dataset.text;
 
-            const chineseCard = cardsData.find(card =>
-                (charSet === 'traditional'
-                    ? card.chinese_tc
-                    : card.chinese_sc) === chineseText
-            );
+            // Cari kartu berdasarkan ID, bukan teks Chinese
+            const chineseCard = cardsData.find(card => String(card.card_id) === String(chineseId));
+            if (!chineseCard) return;
 
             const id = chineseCard.card_id;
-
-            // Setiap kali player mencoba kartu ini, hitung attempt sekali.
             cardAttempts[id] = (cardAttempts[id] || 0) + 1;
 
-            const pinyinCorrect =
-                chineseCard.pinyin === pinyinText;
-
-            const meaningCorrect =
-                (meaningLang === 'English'
+            // Untuk pinyin dan arti, gunakan perbandingan teks
+            // agar duplikat pinyin/arti tetap bisa diterima
+            const pinyinCorrect = (chineseCard.pinyin === pinyinText);
+            const meaningCorrect = (
+                meaningLang === 'English'
                     ? chineseCard.meaning_eng
-                    : chineseCard.meaning_ina) === meaningText;
+                    : chineseCard.meaning_ina
+            ) === meaningText;
 
             if (pinyinCorrect && meaningCorrect) {
                 handleCorrectMatch();
-
             } else {
                 handleIncorrectMatch();
             }
-
         }
 
         // ===== CORRECT MATCH =====
@@ -354,6 +350,10 @@ $stmtCards->close();
 
             // Simpan referensi ke element yang mau di-hide
             const toHide = [selectedItems.chinese, selectedItems.pinyin, selectedItems.meaning];
+            const cardId = selectedItems.chinese.dataset.id;
+
+            const totalTimeNow = time + penalty;
+            cardMatchTimes[cardId] = totalTimeNow; // simpan
 
             // LANGSUNG reset selectedItems biar user bisa klik item lain
             selectedItems = {
@@ -428,7 +428,8 @@ $stmtCards->close();
                 pinyin: card.pinyin,
                 meaning_eng: card.meaning_eng,
                 meaning_ina: card.meaning_ina,
-                pairAttempts: cardAttempts[card.card_id] || 1
+                pairAttempts: cardAttempts[card.card_id] || 1,
+                matchTime: cardMatchTimes[card.card_id] || 0
             }));
 
             const cardsJson = JSON.stringify(cardsWithAttempts);
@@ -465,18 +466,18 @@ $stmtCards->close();
         }
 
         function resetMatchingCard() {
-            clearInterval(interval);
-            time = 0;
-            penalty = 0;
-            matchedCount = 0;
-            isProcessing = false;
+            // clearInterval(interval);
+            // time = 0;
+            // penalty = 0;
+            // matchedCount = 0;
+            // isProcessing = false;
             cardAttempts = {};
             generateTable();
-            interval = setInterval(() => {
-                time += 0.01;
-                const displayTime = time + penalty;
-                document.querySelector(".stopwatch").innerText = time.toFixed(2) + "s";
-            }, 10);
+            // interval = setInterval(() => {
+            //     time += 0.01;
+            //     const displayTime = time + penalty;
+            //     document.querySelector(".stopwatch").innerText = time.toFixed(2) + "s";
+            // }, 10);
         }
 
         function stopMatchingCard() {
