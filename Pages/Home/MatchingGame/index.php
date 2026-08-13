@@ -311,36 +311,31 @@ $stmtCards->close();
 
         // ===== VALIDATE MATCH =====
         function validateMatch() {
-            const chineseText = selectedItems.chinese.dataset.text;
+            const chineseId = selectedItems.chinese.dataset.id;
             const pinyinText = selectedItems.pinyin.dataset.text;
             const meaningText = selectedItems.meaning.dataset.text;
 
-            const chineseCard = cardsData.find(card =>
-                (charSet === 'traditional'
-                    ? card.chinese_tc
-                    : card.chinese_sc) === chineseText
-            );
+            // Cari kartu berdasarkan ID, bukan teks Chinese
+            const chineseCard = cardsData.find(card => String(card.card_id) === String(chineseId));
+            if (!chineseCard) return;
 
             const id = chineseCard.card_id;
-
-            // Setiap kali player mencoba kartu ini, hitung attempt sekali.
             cardAttempts[id] = (cardAttempts[id] || 0) + 1;
 
-            const pinyinCorrect =
-                chineseCard.pinyin === pinyinText;
-
-            const meaningCorrect =
-                (meaningLang === 'English'
+            // Untuk pinyin dan arti, gunakan perbandingan teks
+            // agar duplikat pinyin/arti tetap bisa diterima
+            const pinyinCorrect = (chineseCard.pinyin === pinyinText);
+            const meaningCorrect = (
+                meaningLang === 'English'
                     ? chineseCard.meaning_eng
-                    : chineseCard.meaning_ina) === meaningText;
+                    : chineseCard.meaning_ina
+            ) === meaningText;
 
             if (pinyinCorrect && meaningCorrect) {
                 handleCorrectMatch();
-
             } else {
                 handleIncorrectMatch();
             }
-
         }
 
         // ===== CORRECT MATCH =====

@@ -130,29 +130,17 @@ if ($roleId == 3) {
                         <!-- To Review Green Red Blue-->
                         <div class="to-review">
                             <?php
-                            $getCount = mysqli_query($con, "
-                                SELECT COUNT(*) AS card_count
-                                FROM card_swipe_session css
-                                INNER JOIN card_swipe_progress csp
-                                    ON css.card_swipe_id = csp.card_swipe_id
-                                WHERE css.deck_id = 'Main' AND css.user_id = '$user_id' AND csp.status != 'inactive'
-                            ");
-                            $cardCount = mysqli_fetch_assoc($getCount);
-                            $cardCount = $cardCount['card_count'];
-
-                            if ($cardCount == 0) {
-                                $getFallback = mysqli_query($con, "
-                                    SELECT COUNT(DISTINCT jdc.card_id) AS card_count
-                                    FROM junction_deck_user jdu
-                                    INNER JOIN decks d ON jdu.deck_id = d.deck_id
-                                    INNER JOIN junction_deck_card jdc ON jdu.deck_id = jdc.deck_id
-                                    WHERE jdu.user_id = '$user_id' AND d.is_leaf = 1
-                                ");
-                                $fallback = mysqli_fetch_assoc($getFallback);
-                                $cardCount = $fallback['card_count'];
+                            $bestTimeMain = '-';
+                            $stmtBestMain = $con->prepare("SELECT best_time FROM matching_leaderboard WHERE deck_id = ? AND user_id = ?");
+                            $deckIdMain = 'main'; // atau 'Main' sesuai data di tabel decks
+                            $stmtBestMain->bind_param("ss", $deckIdMain, $user_id);
+                            $stmtBestMain->execute();
+                            $stmtBestMain->bind_result($btMain);
+                            if ($stmtBestMain->fetch() && $btMain !== null) {
+                                $bestTimeMain = number_format($btMain, 2) . 's';
                             }
-
-                            echo "<span class='count-cards' style='color: #8e8e8e; width: 100px; text-align: right;'>$cardCount cards</span>";
+                            $stmtBestMain->close();
+                            echo "<span class='count-cards' style='color: #8e8e8e; width: 100px; text-align: right;'>$bestTimeMain</span>";
                             ?>
                         </div>
 
@@ -179,7 +167,8 @@ if ($roleId == 3) {
                             function getRoot($deckID)
                             {
                                 global $allDecks, $rootDecks;
-                                if (in_array($deckID, $rootDecks)) return;
+                                if (in_array($deckID, $rootDecks))
+                                    return;
                                 $rootDecks[] = $deckID;
                                 $parentID = $allDecks[$deckID]['parent_deck_id'] ?? null;
                                 if ($parentID !== null && isset($allDecks[$parentID])) {
@@ -205,47 +194,42 @@ if ($roleId == 3) {
                             {
                                 global $rootDecks, $decksWithChildren, $decksByParent, $allDecks, $user_id, $con;
                                 $key = $parentID ?? 'root';
-                                if (!isset($decksByParent[$key])) return;
+                                if (!isset($decksByParent[$key]))
+                                    return;
 
                                 $children = $decksByParent[$key];
                                 usort($children, fn($a, $b) => strcmp($allDecks[$a]['name'], $allDecks[$b]['name']));
 
                                 foreach ($children as $deckID) {
                                     if (in_array($deckID, $rootDecks)) {
-                                        $name  = htmlspecialchars($allDecks[$deckID]['name']);
+                                        $name = htmlspecialchars($allDecks[$deckID]['name']);
 
-                                        $getCount = mysqli_query($con, "SELECT COUNT(*) AS card_count
-                                            FROM card_swipe_session css
-                                            INNER JOIN card_swipe_progress csp
-                                                ON css.card_swipe_id = csp.card_swipe_id
-                                            WHERE css.deck_id = '$deckID' AND user_id = '$user_id' AND csp.status != 'inactive'
-                                        ");
-                                        $cardCount = mysqli_fetch_assoc($getCount);
-                                        $cardCount = $cardCount['card_count'];
-
-                                        if ($cardCount == 0) {
-                                            $getCount = mysqli_query($con, "SELECT COUNT(*) AS card_count
-                                                FROM leaf_deck_map ldm
-                                                INNER JOIN junction_deck_card jdc
-                                                    ON ldm.leaf_deck_id = jdc.deck_id
-                                                WHERE ldm.deck_id = '$deckID'
-                                            ");
-                                            $cardCount = mysqli_fetch_assoc($getCount);
-                                            $cardCount = $cardCount["card_count"];
+                                        // Query best time dari matching_leaderboard
+                                        $bestTime = '-';
+                                        $stmtBest = $con->prepare("SELECT best_time FROM matching_leaderboard WHERE deck_id = ? AND user_id = ?");
+                                        $stmtBest->bind_param("ss", $deckID, $user_id);
+                                        $stmtBest->execute();
+                                        $stmtBest->bind_result($bt);
+                                        if ($stmtBest->fetch() && $bt !== null) {
+                                            $bestTime = number_format($bt, 2) . 's';
                                         }
+                                        $stmtBest->close();
 
                                         echo "<li class='contain' data-id='$deckID'>";
                                         echo "<div class='container-deck'>";
+
+                                        // Bagian panah / plus (PENTING: jangan dihilangkan)
                                         if (!isset($decksWithChildren[$deckID])) {
                                             echo "<div class='md5qdw8dq' style='width: 30px; display: flex; align-items: center;'></div>";
                                         } else {
                                             echo "<div class='plus'><i class='bx bxs-caret-down bx-flip-horizontal' style='color:#8e8e8e;font-size: 24px'></i> </div>";
                                         }
+
                                         echo "<div class='title-to-review-second' onclick=\"window.location.href='MatchingGame/index.php?deckId=$deckID'\">";
                                         echo "<span class='title-second'>$name</span>";
                                         echo "<div class='to-review'>
-                                            <span class='count-cards' style='color: #8e8e8e;'>$cardCount cards</span>
-                                        </div>";
+            <span class='count-cards' style='color: #8e8e8e;'>$bestTime</span>
+        </div>";
                                         echo "</div>";
                                         echo "</div>";
                                         echo "<div class='line'></div>";
@@ -287,7 +271,8 @@ if ($roleId == 3) {
             <span class="fab-mode-label" id="fabModeLabel">Current Mode:<br><b>Matching Game</b></span>
             <div class="fab-main" id="fabMain" onclick="toggleFab()">
                 <div id="fab-icon" style="display: flex; align-items: center; justify-content: center;">
-                    <img id="fabImg" src="../../Assets/Icons/matching icon.png" style="max-width: 75%; max-height: 75%" alt="">
+                    <img id="fabImg" src="../../Assets/Icons/matching icon.png" style="max-width: 75%; max-height: 75%"
+                        alt="">
                     <span id="fabX" style="display:none; color:white; font-size:22px;">&#10005;</span>
                 </div>
             </div>
