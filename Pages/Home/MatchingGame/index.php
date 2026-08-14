@@ -138,8 +138,12 @@ $stmtCards->close();
                 </div>
             </div>
             <div class="wrapper-shuffle">
-                <span>Show the meaning in: <span class="language" onclick="changeMeaning()"
-                        style="cursor: pointer;"></span><img src="../../../Assets/Icons/switch icon.png"></span>
+                <span style="width: fit-content;">
+                    Show the meaning in:
+                    <span onclick="changeMeaning()" style="cursor: pointer;">
+                        <span class="language"></span><img src="../../../Assets/Icons/switch icon.png">
+                    </span>
+                </span>
             </div>
             <div class="wrapper-button-start">
                 <button onclick="startMatchingCard()">Start New Game</button>
@@ -224,9 +228,8 @@ $stmtCards->close();
 
             const meaningList = shuffle(cardsData.map(card => ({
                 id: card.card_id,
-                text: meaningLang === 'English'
-                    ? card.meaning_eng
-                    : card.meaning_ina
+                text: meaningLang === 'English' ?
+                    card.meaning_eng : card.meaning_ina
             })));
 
             // const shuffledChinese = shuffle(chineseList);
@@ -326,9 +329,9 @@ $stmtCards->close();
             // agar duplikat pinyin/arti tetap bisa diterima
             const pinyinCorrect = (chineseCard.pinyin === pinyinText);
             const meaningCorrect = (
-                meaningLang === 'English'
-                    ? chineseCard.meaning_eng
-                    : chineseCard.meaning_ina
+                meaningLang === 'English' ?
+                chineseCard.meaning_eng :
+                chineseCard.meaning_ina
             ) === meaningText;
 
             if (pinyinCorrect && meaningCorrect) {
