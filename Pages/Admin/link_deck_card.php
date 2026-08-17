@@ -235,6 +235,11 @@ if (mysqli_fetch_assoc(mysqli_query($con, "SELECT role FROM users WHERE user_id 
                     //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
                     $cardID = $sheet->getCell("B$index")->getCalculatedValue() ?? "";
 
+                    if ($cardID !== "" && isset($allCards[$cardID])) {
+                        echo "<script>console.log('Skipping duplicate card_id $cardID at row $index')</script>";
+                        continue;
+                    }
+
                     $priorityCell = $sheet->getCell("A$index");
                     $rawFormula = $priorityCell->getValue(); // literal cell content, e.g. "=A2+1"
                     try {
