@@ -627,31 +627,6 @@ if (mysqli_fetch_assoc(mysqli_query($con, "SELECT role FROM users WHERE user_id 
                 });
             });
         };
-
-        function toggleAutoUpdate(deckID) {
-            const expandedBefore = getExpandedIDs();
-
-            var xmlhttp;
-            if (window.XMLHttpRequest != null) {
-                xmlhttp = new XMLHttpRequest();
-            } else {
-                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-            }
-
-            xmlhttp.onreadystatechange = function() {
-                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    document.getElementById("tree").innerHTML = xmlhttp.responseText;
-                    loadDOM();
-                    setTimeout(() => {
-                        restoreExpandedIDs(expandedBefore);
-                        $("#masterDeck").siblings("ul").css("height", "fit-content").addClass("maximized");
-                        $("#masterDeck").siblings(".toggle").find("img").attr("src", "../../Assets/Icons/minimizeDeck.png");
-                    }, 10);
-                }
-            }
-            xmlhttp.open("GET", "AJAX/toggleAutoUpdate.php?deckID=" + deckID, true);
-            xmlhttp.send();
-        }
     </script>
 
 </head>
@@ -670,9 +645,9 @@ if (mysqli_fetch_assoc(mysqli_query($con, "SELECT role FROM users WHERE user_id 
     {
         global $con;
         if ($parentID == "root") {
-            $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf, auto_update FROM decks WHERE parent_deck_id IS NULL AND name != 'Main Deck' ORDER BY name ASC");
+            $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id IS NULL AND name != 'Main Deck' ORDER BY name ASC");
         } else {
-            $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf, auto_update FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
+            $getDecks = mysqli_query($con, "SELECT deck_id, name, parent_deck_id, is_leaf FROM decks WHERE parent_deck_id = '$parentID' ORDER BY name ASC");
         }
         if (mysqli_num_rows($getDecks) > 0) {
             if ($parentID == "root") {
@@ -683,39 +658,36 @@ if (mysqli_fetch_assoc(mysqli_query($con, "SELECT role FROM users WHERE user_id 
             while ($deck = mysqli_fetch_assoc($getDecks)) {
                 $deckID = $deck["deck_id"];
                 $name = $deck["name"];
-                $autoUpdate = $deck["auto_update"];
-                $updateIconStyle = $autoUpdate ? "margin-left: 8px;" : "margin-left: 8px; filter: brightness(0.4);";
-                $updateIcon = "<img src='../../Assets/icons/update-icon.png' alt='' class='icon' style='$updateIconStyle' onclick='event.stopPropagation(); toggleAutoUpdate(\"$deckID\");'>";
 
                 if ($deck["is_leaf"] == 0) {
                     if (mysqli_num_rows(mysqli_query($con, "SELECT is_leaf FROM decks WHERE parent_deck_id = '$deckID' AND is_leaf = 1")) > 0) {
                         echo "
-                            <li>
-                                <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
-                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name $updateIcon</span>
-                            ";
+                                <li>
+                                    <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_deck'> $name</span>
+                                ";
                     } else if (mysqli_num_rows(mysqli_query($con, "SELECT is_leaf FROM decks WHERE parent_deck_id = '$deckID'")) == 0) {
                         echo "
-                            <li>
-                                <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
-                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'empty'> $name $updateIcon</span>
-                            ";
+                                <li>
+                                    <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'empty'> $name</span>
+                                ";
                     } else {
                         echo "
-                            <li>
-                                <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
-                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_folder'> $name $updateIcon</span>
-                            ";
+                                <li>
+                                    <span class = 'toggle'><img src = '../../Assets//Icons/maximizeDeck.png' class = 'min'></span>
+                                    <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/folder.png' class = 'icon' id = 'folder_folder'> $name</span>
+                                ";
                     }
                 } else {
                     echo "
-                        <li>
-                            <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name</span>
-                        ";
+                            <li>
+                                <span class = 'label' id = '$deckID'><img src = '../../Assets//Icons/deck.png' class = 'icon' id = 'deck'> $name</span>
+                            ";
                 }
                 getDecks($deckID);
                 echo "</li>
-                    ";
+                        ";
             }
             echo "</ul>";
         }
