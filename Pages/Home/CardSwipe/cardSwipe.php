@@ -747,6 +747,7 @@ $role = $line2['role_name'];
     let isFlipped = false;
     let hasRevealed = false;
     let wasDragging = false;
+    let isProcessing = false;
 
     $(document).ready(function() {
         $(".restart").click(function() {
@@ -799,7 +800,8 @@ $role = $line2['role_name'];
     }
 
     function forgot() {
-        if (isDone || !hasRevealed) return;
+        if (isDone || !hasRevealed || isProcessing) return;
+        isProcessing = true;
 
         $.ajax({
             url: "AJAX/updateProgress.php",
@@ -817,12 +819,17 @@ $role = $line2['role_name'];
                 isFlipped = false;
                 hasRevealed = false;
                 cardList[count - 1].status = "forgot";
+                isProcessing = false;
+            },
+            error: function() {
+                isProcessing = false;
             }
         });
     }
 
     function remember() {
-        if (isDone || !hasRevealed) return;
+        if (isDone || !hasRevealed || isProcessing) return;
+        isProcessing = true;
 
         $.ajax({
             url: "AJAX/updateProgress.php",
@@ -840,13 +847,20 @@ $role = $line2['role_name'];
                 isFlipped = false;
                 hasRevealed = false;
                 cardList[count - 1].status = "remember";
+                isProcessing = false;
+            },
+            error: function() {
+                isProcessing = false;
             }
         });
     }
 
     function finishSession() {
         isDone = true;
-        if ($(".forgot-number").attr("data-count") === "0") {
+        const rememberedCount = cardList.filter(c => c.status === "remember").length;
+        const forgotCount = cardList.filter(c => c.status === "forgot").length;
+
+        if (forgotCount === 0) {
             $(".finish-text").text("You have studied all of them! Continue to Smart Review Mode for more in-depth learning.")
             $(".continue").text("Continue to Smart Review")
 
@@ -854,8 +868,8 @@ $role = $line2['role_name'];
                 window.location.href = "../MatchingGame/index.php?deckId=" + deckId;
             })
         } else {
-            $(".studied").text($(".remember-number").attr("data-count"));
-            $(".to-learn").text($(".forgot-number").attr("data-count"));
+            $(".studied").text(rememberedCount);
+            $(".to-learn").text(forgotCount);
         }
 
         cardInner.classList.remove("flipped");
