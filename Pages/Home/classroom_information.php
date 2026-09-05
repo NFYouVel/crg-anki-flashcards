@@ -73,10 +73,72 @@ if (!empty($student_ids)) {
     }
 }
 
+// ==== HITUNG TOTAL RGB SELURUH SISWA (PERUBAHAN) ====
+$totalRed = 0;
+$totalGreen = 0;
+$totalBlue = 0;
+foreach ($rgbCounts as $rgb) {
+    $totalRed += $rgb['red'];
+    $totalGreen += $rgb['green'];
+    $totalBlue += $rgb['blue'];
+}
+
 $query_classroom = "SELECT * FROM classroom WHERE classroom_id = '$classroom_id'";
 $result_classroom = mysqli_query($con, $query_classroom);
 $classroom_name = mysqli_fetch_array($result_classroom);
 
+// ==== GET SWIPED CARDS COUNT PER STUDENT (join card_swipe_progress + card_swipe_session) ====
+$swipedCounts = [];
+if (!empty($student_ids)) {
+    $studentIdList = implode(',', array_map(function ($id) use ($con) {
+        return "'" . mysqli_real_escape_string($con, $id) . "'";
+    }, $student_ids));
+
+    // Debug: cek isi studentIdList
+    // echo "Student ID List: " . $studentIdList; // bisa di-uncomment untuk debug
+
+    $querySwiped = "
+        SELECT cs.user_id, COUNT(DISTINCT cp.card_id) AS swiped
+        FROM card_swipe_progress cp
+        JOIN card_swipe_session cs ON cp.card_swipe_id = cs.card_swipe_id
+        WHERE cs.user_id IN ($studentIdList)
+        GROUP BY cs.user_id
+    ";
+
+    $swipedQuery = mysqli_query($con, $querySwiped);
+    if (!$swipedQuery) {
+        // Tampilkan error jika query gagal
+        die("Query error: " . mysqli_error($con));
+    }
+
+    while ($row = mysqli_fetch_assoc($swipedQuery)) {
+        $swipedCounts[$row['user_id']] = (int) $row['swiped'];
+    }
+
+    // Debug: lihat hasil swipedCounts
+    // var_dump($swipedCounts);
+}
+
+// ==== GET MATCHED CARDS COUNT PER STUDENT ====
+$matchedCounts = [];
+if (!empty($student_ids)) {
+    $matchedQuery = mysqli_query($con, "
+        SELECT 
+            ml.user_id, 
+            SUM(jdc.total_cards) AS matched
+        FROM matching_leaderboard ml
+        JOIN (
+            SELECT deck_id, COUNT(*) AS total_cards
+            FROM junction_deck_card
+            GROUP BY deck_id
+        ) jdc ON ml.deck_id = jdc.deck_id
+        WHERE ml.user_id IN ($studentIdList)
+        GROUP BY ml.user_id
+    ");
+    while ($row = mysqli_fetch_assoc($matchedQuery)) {
+        $matchedCounts[$row['user_id']] = (int)$row['matched'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -99,7 +161,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                 xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
             }
 
-            xmlhttp.onreadystatechange = function() {
+            xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
                 }
@@ -116,7 +178,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                 xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
             }
 
-            xmlhttp.onreadystatechange = function() {
+            xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
                 }
@@ -133,7 +195,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                 xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
             }
 
-            xmlhttp.onreadystatechange = function() {
+            xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
                 }
@@ -180,7 +242,8 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                 <span>(If the student already has the deck, then the deck will not be added)</span>
             </div>
             <div class='search-bar'>
-                <input type="text" onkeyup="searchDeck(this.value)" placeholder="Search deck" name="search" class="search-bar">
+                <input type="text" onkeyup="searchDeck(this.value)" placeholder="Search deck" name="search"
+                    class="search-bar">
                 <div class="icon-add">🔍</div>
             </div>
             <hr>
@@ -342,7 +405,7 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                         <span class="title">
                             Student List (<?php echo $count ?>)
                         </span>
-                        <!-- To Review Green Red Blue-->
+                        <!-- To Review Green Red Blue (PERUBAHAN: tambahkan total RGB dan slash) -->
                         <div class="to-review">
                             <span class="click">Add Deck to Classroom</span>
                         </div>
@@ -355,17 +418,24 @@ $classroom_name = mysqli_fetch_array($result_classroom);
                     $grey = $count_rgb['blue'];
                     $green = $count_rgb['green'];
                     $red = $count_rgb['red'];
+
+                    $swiped = $swipedCounts[$user_id_student] ?? 0;
+                    $matched = $matchedCounts[$user_id_student] ?? 0; // <-- sekarang pakai data nyata
+                
                     echo "<div class='title-student' onclick='ClickToDP(this)' data-id='$user_id_student'>
-                    <!-- Deck Title -->
-                    <span class='title'>$temp_name</span>
-                    <!-- To Review Green Red Blue-->
-                    <div class='to-review'>
-                        <span class='red'>$red</span>
-                        <span class='green'>$green</span>
-                        <span class='blue'>$grey</span>
-                    </div>
-                </div>";
+        <span class='title'>$temp_name</span>
+        <div class='wrapper-classroom-information'>
+            <div class='to-review'>
+                <span class='red'>$red</span>
+                <span class='green'>$green</span>
+                <span class='blue'>/$grey</span>
+            </div>
+            <div class='wrapper-swiped-card'>$swiped cards swiped</div>
+            <div class='wrapper-matched-card'>$matched cards matched</div>
+        </div>
+    </div>";
                 }
+
                 ?>
 
                 <!-- Sampe Sini (First)-->
