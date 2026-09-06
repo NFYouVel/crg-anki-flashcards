@@ -102,6 +102,7 @@ if (!empty($student_ids)) {
         FROM card_swipe_progress cp
         JOIN card_swipe_session cs ON cp.card_swipe_id = cs.card_swipe_id
         WHERE cs.user_id IN ($studentIdList)
+        AND (cp.remember_count > 0 OR cp.forgot_count > 0)
         GROUP BY cs.user_id
     ";
 
@@ -161,7 +162,7 @@ if (!empty($student_ids)) {
                 xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
             }
 
-            xmlhttp.onreadystatechange = function () {
+            xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
                 }
@@ -178,7 +179,7 @@ if (!empty($student_ids)) {
                 xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
             }
 
-            xmlhttp.onreadystatechange = function () {
+            xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
                 }
@@ -195,7 +196,7 @@ if (!empty($student_ids)) {
                 xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
             }
 
-            xmlhttp.onreadystatechange = function () {
+            xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     document.querySelector(".explanationWrapper").innerHTML = xmlhttp.responseText;
                 }
@@ -421,7 +422,7 @@ if (!empty($student_ids)) {
 
                     $swiped = $swipedCounts[$user_id_student] ?? 0;
                     $matched = $matchedCounts[$user_id_student] ?? 0; // <-- sekarang pakai data nyata
-                
+
                     echo "<div class='title-student' onclick='ClickToDP(this)' data-id='$user_id_student'>
         <span class='title'>$temp_name</span>
         <div class='wrapper-classroom-information'>
