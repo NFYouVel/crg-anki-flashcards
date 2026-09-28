@@ -277,7 +277,8 @@ $role = $line2['role_name'];
         }
 
         .pinyin,
-        .meaning {
+        .meaning-ina,
+        .meaning-eng {
             font-size: 18px;
             color: black;
             text-align: center;
@@ -675,7 +676,10 @@ $role = $line2['role_name'];
                     <div class="card-face back">
                         <span class="hanzi">我</span>
                         <span class="pinyin">wo</span>
-                        <span class="meaning">saya; aku</span>
+                        <br>
+                        <span class="meaning-ina">saya; aku</span>
+                        <br>
+                        <span class="meaning-eng">saya; aku</span>
                     </div>
                     <div class="card-face finish">
                         <h1 style="font-size: 22px;">Congratulations!</h1>
@@ -914,11 +918,13 @@ $role = $line2['role_name'];
             success: function(data) {
                 $(".hanzi").text(data.hanzi);
                 $(".pinyin").text(data.pinyin);
-                $(".meaning").text(localStorage.getItem("cardSwipeMeaningLanguage") === "meaning_ina" ? data.meaning_ina : data.meaning_eng);
+                $(".meaning-ina").text(data.meaning_ina);
+                $(".meaning-eng").text(data.meaning_eng);
 
                 $(".hanzi").css("opacity", 1);
                 $(".pinyin").css("opacity", 1);
-                $(".meaning").css("opacity", 1);
+                $(".meaning-ina").css("opacity", 1);
+                $(".meaning-eng").css("opacity", 1);
 
                 count++;
 
@@ -943,7 +949,7 @@ $role = $line2['role_name'];
         document.querySelector(".card-face.back").style.backgroundColor = "";
         document.querySelector(".card-face.front").style.border = "";
         document.querySelector(".card-face.back").style.border = "";
-        document.querySelectorAll(".card-face .hanzi, .card-face .pinyin, .card-face .meaning").forEach(el => el.style.color = "");
+        document.querySelectorAll(".card-face .hanzi, .card-face .pinyin, .card-face .meaning-ina, meaning-eng").forEach(el => el.style.color = "");
         $("#swipeLabel").css("opacity", 0);
     }
 
@@ -962,7 +968,8 @@ $role = $line2['role_name'];
 
             $(".hanzi").css("opacity", 0);
             $(".pinyin").css("opacity", 0);
-            $(".meaning").css("opacity", 0);
+            $(".meaning-ina").css("opacity", 0);
+            $(".meaning-eng").css("opacity", 0);
 
             nextCard(direction);
         }, 300);
@@ -994,7 +1001,7 @@ $role = $line2['role_name'];
             const textColor = currentX > 0 ?
                 `rgb(${Math.round(60 * progress)}, 180, ${Math.round(60 * progress)})` :
                 `rgb(220, ${Math.round(60 * progress)}, ${Math.round(60 * progress)})`;
-            activeFace.querySelectorAll(".hanzi, .pinyin, .meaning").forEach(el => el.style.color = textColor);
+            activeFace.querySelectorAll(".hanzi, .pinyin, .meaning-ina, meaning-eng").forEach(el => el.style.color = textColor);
 
             if (currentX > 0) {
                 $("#swipeLabel").text("Remember").css({
