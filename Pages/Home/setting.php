@@ -112,10 +112,6 @@ $role = $line2['role_name'];
                             </label>
                         </td>
                     </tr>
-                    <tr>
-                        <td>Show word meaning in: <span id="word-meaning"></span></td>
-                        <td class="right" onclick="changeCardSwipeMeaningLanguage()" style="cursor: pointer; text-align: right;">switch</td>
-                    </tr>
                 </table>
             </div>
 
