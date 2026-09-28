@@ -405,26 +405,7 @@ $role = $line2['role_name'];
                     </p>
                     <div class="intro-actions">
                         <button class="button continue" onclick="window.location.href = 'cardSwipe.php?deckId=<?php echo $deckId ?>'">Start Swiping</button>
-                        <p style="text-align: center; font-size: 15px; color: #143D59;">
-                            Show the meaning in:
-                            <span style="color: #FFA500; font-weight: bold; cursor: pointer;" onclick="toggleLanguage()">
-                                <span id="langLabel">Indonesian</span>
-                                <span style="font-size: 18px;">⇄</span>
-                            </span>
-                        </p>
 
-                        <script>
-                            function toggleLanguage() {
-                                const current = localStorage.getItem("cardSwipeMeaningLanguage") || "meaning_ina";
-                                const next = current === "meaning_ina" ? "meaning_eng" : "meaning_ina";
-                                localStorage.setItem("cardSwipeMeaningLanguage", next);
-                                document.getElementById("langLabel").textContent = next === "meaning_ina" ? "Indonesian" : "English";
-                            }
-
-                            // Set initial label on load
-                            const saved = localStorage.getItem("cardSwipeMeaningLanguage") || "meaning_ina";
-                            document.getElementById("langLabel").textContent = saved === "meaning_ina" ? "Indonesian" : "English";
-                        </script>
                     </div>
                 </div>
             </div>
