@@ -179,6 +179,17 @@ if (mysqli_fetch_assoc(mysqli_query($con, "SELECT role FROM users WHERE user_id 
     require '../../Composer_Excel/vendor/autoload.php';
 
     use PhpOffice\PhpSpreadsheet\IOFactory;
+
+    $getCellText = function ($sheet, string $cell): string {
+        $value = $sheet->getCell($cell)->getValue();
+
+        if ($value instanceof \PhpOffice\PhpSpreadsheet\RichText\RichText) {
+            return $value->getPlainText();
+        }
+
+        return $value === null ? "" : (string) $value;
+    };
+
     //jika page ke refresh, tidak perlu nge read ulang file, tapi mengambil dari session yang dibuat sebelum ke refresh
     if (isset($_FILES['sentence'])) {
         $invalidID = 1;
@@ -204,27 +215,18 @@ if (mysqli_fetch_assoc(mysqli_query($con, "SELECT role FROM users WHERE user_id 
                         continue;
                     }
                     //mengambil data dari tiap komumn dan index tertentu (index akan terus bertambah)
-                    $sentenceCode = $sheet->getCell("A$index")->getValue() ?? "";
-                    $traditional = $sheet->getCell("B$index")->getValue() ?? "";
-                    $simplified = $sheet->getCell("C$index")->getValue() ?? "";
-                    $pinyin = $sheet->getCell("D$index")->getValue() ?? "";
-                    $english = $sheet->getCell("E$index")->getValue() ?? "";
-                    $indo = $sheet->getCell("F$index")->getValue() ?? "";
+                    $sentenceCode = $getCellText($sheet, "A$index");
+                    $traditional  = $getCellText($sheet, "B$index");
+                    $simplified   = $getCellText($sheet, "C$index");
+                    $pinyin       = $getCellText($sheet, "D$index");
+                    $english      = $getCellText($sheet, "E$index");
+                    $indo         = $getCellText($sheet, "F$index");
 
                     $reason = "";
                     //check for empty sentence code
                     if ($sentenceCode == "") {
                         $sentenceCode = "#invalidID_" . $invalidID++;
                         $reason .= "<p id = 'invalid'>Sentence code is empty</p>";
-                    }
-
-                    /* DEBUG: inspect the sentence code from Excel */
-                    if (!is_string($sentenceCode) && !is_int($sentenceCode)) {
-                        echo '<pre>';
-                        var_dump($sentenceCode);
-                        echo 'Excel row: ' . $index . PHP_EOL;
-                        echo '</pre>';
-                        exit;
                     }
 
                     // Check for duplicates in uploaded Excel
