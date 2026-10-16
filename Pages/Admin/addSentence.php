@@ -218,10 +218,20 @@ if (mysqli_fetch_assoc(mysqli_query($con, "SELECT role FROM users WHERE user_id 
                         $reason .= "<p id = 'invalid'>Sentence code is empty</p>";
                     }
 
-                    //check for duplicates in uploaded excel
-                    if (isset($validSentences[$sentenceCode])) {
-                        $reason .= "<p id = 'invalid'>Duplicate sentence code</p>";
+                    /* DEBUG: inspect the sentence code from Excel */
+                    if (!is_string($sentenceCode) && !is_int($sentenceCode)) {
+                        echo '<pre>';
+                        var_dump($sentenceCode);
+                        echo 'Excel row: ' . $index . PHP_EOL;
+                        echo '</pre>';
+                        exit;
                     }
+
+                    // Check for duplicates in uploaded Excel
+                    if (isset($validSentences[$sentenceCode])) {
+                        $reason .= "<p id='invalid'>Duplicate sentence code</p>";
+                    }
+
 
                     //membangun session untuk semua kartu
                     $allSentences[$sentenceCode] = [
